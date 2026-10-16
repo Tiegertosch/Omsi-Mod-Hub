@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs><linearGradient id="win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d7898"/><stop offset="1" stop-color="#a8b8c8"/></linearGradient></defs>
+  <rect width="1280" height="720" fill="url(#win)"/>
+  <path d="M0 330 L1280 300 L1280 400 L0 420Z" fill="#46545f"/>
+  <path d="M0 400 L1280 380 L1280 720 L0 720Z" fill="#1a1f27"/>
+  <path d="M0 450 Q640 380 1280 450 L1280 720 L0 720Z" fill="#232a35"/>
+  <g transform="translate(470 470)"><rect width="340" height="150" rx="18" fill="#0e1218"/><circle cx="90" cy="75" r="52" fill="#151a22" stroke="#343d4c" stroke-width="4"/><path d="M90 75 L130 45" stroke="#f6a723" stroke-width="6" stroke-linecap="round"/><circle cx="250" cy="75" r="52" fill="#151a22" stroke="#343d4c" stroke-width="4"/><path d="M250 75 L215 50" stroke="#6cb2ff" stroke-width="6" stroke-linecap="round"/></g>
+  <circle cx="300" cy="640" r="170" fill="none" stroke="#0b0e13" stroke-width="34"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="700"><rect x="40" y="40" width="250" height="44" rx="8" fill="#0a0d12" opacity=".8"/><text x="60" y="70" font-size="22" fill="#f3c552">BEISPIEL · SAMPLE</text></g>
+</svg>

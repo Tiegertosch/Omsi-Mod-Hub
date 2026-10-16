@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c3c55"/><stop offset=".6" stop-color="#7a5a3a"/><stop offset="1" stop-color="#3a2a1c"/></linearGradient></defs>
+  <rect width="1280" height="720" fill="url(#dusk)"/>
+  <circle cx="960" cy="300" r="70" fill="#f6a723" opacity=".55"/>
+  <path d="M0 420 L180 330 L360 400 L560 300 L760 390 L980 310 L1280 400 L1280 720 L0 720Z" fill="#26313a"/>
+  <path d="M0 500 L240 440 L520 500 L820 430 L1280 510 L1280 720 L0 720Z" fill="#1b252b"/>
+  <path d="M560 720 L700 470 L740 470 L980 720Z" fill="#2c3036"/>
+  <path d="M760 720 L718 470 L722 470" stroke="#f3c552" stroke-width="6" stroke-dasharray="30 26" fill="none"/>
+  <g transform="translate(420 470)"><rect x="0" y="0" width="8" height="150" fill="#a1aab9"/><circle cx="4" cy="0" r="28" fill="#f3c552"/><text x="4" y="10" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="#1b5e3a">H</text></g>
+  <g fill="#162026"><circle cx="160" cy="520" r="46"/><circle cx="230" cy="540" r="38"/><circle cx="1100" cy="540" r="52"/><circle cx="1180" cy="560" r="40"/></g>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="700"><rect x="40" y="40" width="250" height="44" rx="8" fill="#0a0d12" opacity=".8"/><text x="60" y="70" font-size="22" fill="#f3c552">BEISPIEL · SAMPLE</text></g>
+</svg>

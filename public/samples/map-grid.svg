@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#121a17"/>
+  <path d="M0 520 C 260 470 420 600 700 540 S 1100 420 1280 470 L1280 720 L0 720 Z" fill="#14324a"/>
+  <g stroke="#26322d" stroke-width="2"><path d="M0 120H1280M0 240H1280M0 360H1280M160 0V720M400 0V720M640 0V720M880 0V720M1120 0V720"/></g>
+  <g fill="#1c2621"><rect x="180" y="140" width="200" height="80" rx="6"/><rect x="420" y="260" width="200" height="80" rx="6"/><rect x="660" y="140" width="200" height="80" rx="6"/><rect x="900" y="260" width="200" height="80" rx="6"/><rect x="180" y="380" width="200" height="60" rx="6"/></g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="10">
+    <path d="M90 640 L160 360 L400 360 L400 120 L880 120 L1120 240 L1200 80" stroke="#f6a723"/>
+    <path d="M60 300 L640 300 L640 600 L1220 600" stroke="#6cb2ff"/>
+    <path d="M300 680 L520 460 L880 460 L1060 360" stroke="#45d39a"/>
+  </g>
+  <g fill="#0a0d12" stroke="#e9edf3" stroke-width="5"><circle cx="160" cy="360" r="12"/><circle cx="400" cy="120" r="12"/><circle cx="640" cy="300" r="12"/><circle cx="880" cy="460" r="12"/><circle cx="1120" cy="240" r="12"/><circle cx="640" cy="600" r="12"/></g>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="700"><rect x="40" y="40" width="250" height="44" rx="8" fill="#0a0d12" opacity=".8"/><text x="60" y="70" font-size="22" fill="#f3c552">BEISPIEL · SAMPLE</text></g>
+</svg>

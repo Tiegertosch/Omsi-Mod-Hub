@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#14171d"/>
+  <g transform="translate(160 260)">
+    <rect width="960" height="230" rx="28" fill="#f2f4f7"/>
+    <path d="M0 150 H960 V190 H0Z" fill="#c8102e"/>
+    <path d="M0 120 C 300 120 520 40 960 40 V80 C 560 80 300 160 0 160Z" fill="#ffcc00"/>
+    <rect x="22" y="26" width="916" height="70" rx="10" fill="#1c2733" opacity=".85"/>
+    <g fill="#0b0e13"><circle cx="180" cy="230" r="46"/><circle cx="780" cy="230" r="46"/></g>
+  </g>
+  <g transform="translate(160 560)">
+    <rect width="90" height="90" rx="12" fill="#c8102e"/><rect x="110" width="90" height="90" rx="12" fill="#ffcc00"/><rect x="220" width="90" height="90" rx="12" fill="#f2f4f7"/><rect x="330" width="90" height="90" rx="12" fill="#1c2733" stroke="#343d4c" stroke-width="3"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="700"><rect x="40" y="40" width="250" height="44" rx="8" fill="#0a0d12" opacity=".8"/><text x="60" y="70" font-size="22" fill="#f3c552">BEISPIEL · SAMPLE</text></g>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#161b22"/>
+  <path d="M0 0 H1280 V120 L640 60 L0 120Z" fill="#0f1318"/>
+  <g fill="#e9edf3" opacity=".8"><rect x="200" y="110" width="120" height="10" rx="5"/><rect x="580" y="90" width="120" height="10" rx="5"/><rect x="960" y="110" width="120" height="10" rx="5"/></g>
+  <rect y="520" width="1280" height="200" fill="#20262f"/>
+  <g stroke="#f3c552" stroke-width="6" stroke-dasharray="40 30"><path d="M320 520 L220 720M640 520 L640 720M960 520 L1060 720"/></g>
+  <g><rect x="80" y="300" width="220" height="220" rx="16" fill="#e9edf3"/><rect x="96" y="320" width="188" height="90" rx="8" fill="#1c2733"/><rect x="96" y="300" width="188" height="16" fill="#1b1203"/><rect x="104" y="303" width="120" height="10" fill="#f6a723"/></g>
+  <g><rect x="500" y="300" width="220" height="220" rx="16" fill="#e9edf3"/><rect x="516" y="320" width="188" height="90" rx="8" fill="#1c2733"/><rect x="516" y="300" width="188" height="16" fill="#1b1203"/><rect x="524" y="303" width="80" height="10" fill="#f6a723"/></g>
+  <g><rect x="920" y="300" width="220" height="220" rx="16" fill="#c8cfd9"/><rect x="936" y="320" width="188" height="90" rx="8" fill="#1c2733"/></g>
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="700"><rect x="40" y="40" width="250" height="44" rx="8" fill="#0a0d12" opacity=".8"/><text x="60" y="70" font-size="22" fill="#f3c552">BEISPIEL · SAMPLE</text></g>
+</svg>

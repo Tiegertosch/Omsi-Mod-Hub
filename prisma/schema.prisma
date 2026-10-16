@@ -1,0 +1,425 @@
+// OMSI Mod Hub – Datenmodell
+//
+// Lokal läuft das Schema auf SQLite. Für PostgreSQL in Produktion:
+//   1. provider = "postgresql" setzen,
+//   2. Adapter in src/lib/db.ts auf @prisma/adapter-pg umstellen,
+//   3. Migrationen neu erzeugen (siehe docs/ARCHITECTURE.md).
+// Deshalb werden hier bewusst keine provider-spezifischen Typen (@db.*) verwendet.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+}
+
+enum ProjectStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  REJECTED
+  HIDDEN
+  ARCHIVED
+}
+
+enum LinkSourceType {
+  ORIGINAL_SOURCE // offizielle Seite des Erstellers
+  FILE_HOSTER // externer Dateihoster
+  MIRROR // zusätzliche Spiegelquelle
+  OTHER
+}
+
+enum LinkStatus {
+  UNCHECKED
+  OK
+  BROKEN
+  BLOCKED
+}
+
+enum ReportReason {
+  BROKEN_LINK
+  MALWARE
+  COPYRIGHT
+  WRONG_INFORMATION
+  INAPPROPRIATE
+  SPAM
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+// ---------------------------------------------------------------------------
+// Benutzer & Authentifizierung (Better Auth)
+//
+// Felder von User, Session, Account, Verification und RateLimit folgen dem
+// Schema von Better Auth inkl. der Plugins "username" und "admin".
+// Passwörter liegen gehasht (scrypt) in Account.password, nie im User.
+// ---------------------------------------------------------------------------
+
+model User {
+  id              String    @id @default(cuid())
+  /// Anzeigename
+  name            String
+  email           String    @unique
+  emailVerified   Boolean   @default(false)
+  image           String?
+  /// immer kleingeschrieben, [a-z0-9_-], 3–32 Zeichen; unveränderlich (URLs)
+  username        String    @unique
+  displayUsername String?
+  /// "user" | "creator" | "admin" – wird nur serverseitig gesetzt
+  role            String    @default("user")
+  banned          Boolean   @default(false)
+  banReason       String?
+  banExpires      DateTime?
+  preferredLocale String?
+  /// Entwicklungs-Beispieldaten, per `pnpm db:clear-samples` entfernbar
+  isSample        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sessions        Session[]
+  accounts        Account[]
+  creatorProfile  CreatorProfile?
+  projects        Project[]
+  contributions   ProjectContributor[]
+  reports         Report[]             @relation("ReportReporter")
+  resolvedReports Report[]             @relation("ReportResolver")
+  auditLogs       AuditLog[]
+
+  @@index([role])
+  @@index([banned])
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  /// für Sicherheit und Rate-Limits; wird mit der Session gelöscht
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  impersonatedBy String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  /// Passwort-Hash (scrypt) für providerId "credential"
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+/// Zähler für Rate-Limits (Better Auth und eigene Server Actions, Präfix "app:")
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  /// Unix-Zeit in Millisekunden
+  lastRequest BigInt
+}
+
+model CreatorProfile {
+  userId       String             @id
+  displayName  String
+  bio          String?
+  websiteUrl   String?
+  avatarUrl    String?
+  verification VerificationStatus @default(UNVERIFIED)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([displayName])
+}
+
+// ---------------------------------------------------------------------------
+// Kategorien & Tags
+// ---------------------------------------------------------------------------
+
+model Category {
+  id        String  @id @default(cuid())
+  /// stabiler URL-Slug, z. B. "busse" -> /mods/busse
+  slug      String  @unique
+  parentId  String?
+  sortOrder Int     @default(0)
+  /// Name eines lucide-Icons für die Darstellung
+  icon      String?
+
+  parent       Category?             @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Category[]            @relation("CategoryTree")
+  translations CategoryTranslation[]
+  projects     Project[]
+
+  @@index([parentId])
+  @@index([sortOrder])
+}
+
+model CategoryTranslation {
+  id          String  @id @default(cuid())
+  categoryId  String
+  locale      String
+  name        String
+  description String?
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  translations TagTranslation[]
+  projects     ProjectTag[]
+}
+
+model TagTranslation {
+  id     String @id @default(cuid())
+  tagId  String
+  locale String
+  name   String
+
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([tagId, locale])
+}
+
+model ProjectTag {
+  projectId String
+  tagId     String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, tagId])
+  @@index([tagId])
+}
+
+// ---------------------------------------------------------------------------
+// Projekte
+// ---------------------------------------------------------------------------
+
+model Project {
+  id                 String        @id @default(cuid())
+  slug               String        @unique
+  creatorId          String
+  categoryId         String
+  status             ProjectStatus @default(DRAFT)
+  /// Originalsprache der Projekttexte; Fallback bei fehlender Übersetzung
+  defaultLocale      String        @default("de")
+  /// Lizenz / Nutzungsbedingungen des Erstellers (Freitext)
+  license            String
+  /// Seite der Originalquelle (z. B. Forenthread oder Website des Erstellers)
+  sourceUrl          String?
+  /// kompatible OMSI-Version(en), z. B. "OMSI 2.3.004"
+  gameCompatibility  String?
+  coverImageUrl      String?
+  coverImageAlt      String?
+  /// gemessene Aufrufe externer Downloadseiten (keine Downloads!)
+  outboundClickCount Int           @default(0)
+  isSample           Boolean       @default(false)
+  /// Begründung der Moderation (z. B. bei Zurückweisung), für den Creator sichtbar
+  moderationNote     String?
+  /// Zeitpunkt der letzten Einreichung zur Prüfung
+  submittedAt        DateTime?
+  publishedAt        DateTime?
+  /// Zeitpunkt der letzten veröffentlichten Version
+  lastReleaseAt      DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  creator      User                 @relation(fields: [creatorId], references: [id], onDelete: Restrict)
+  category     Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  translations ProjectTranslation[]
+  versions     ProjectVersion[]
+  screenshots  Screenshot[]
+  tags         ProjectTag[]
+  contributors ProjectContributor[]
+  reports      Report[]
+
+  @@index([status, publishedAt])
+  @@index([status, lastReleaseAt])
+  @@index([status, outboundClickCount])
+  @@index([categoryId, status])
+  @@index([creatorId, status])
+  @@index([status, submittedAt])
+}
+
+model ProjectTranslation {
+  id           String  @id @default(cuid())
+  projectId    String
+  locale       String
+  title        String
+  summary      String
+  description  String
+  installation String?
+  /// Voraussetzungen und benötigte Add-ons
+  requirements String?
+  /// normalisierter Suchtext (kleingeschrieben: Titel, Kurzbeschreibung, Beschreibung, Tags)
+  searchText   String
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, locale])
+  @@index([locale])
+}
+
+model ProjectContributor {
+  id        String  @id @default(cuid())
+  projectId String
+  /// optional verknüpftes Konto; Mitwirkende ohne Konto sind möglich
+  userId    String?
+  name      String
+  role      String?
+  sortOrder Int     @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([userId])
+}
+
+model ProjectVersion {
+  id         String   @id @default(cuid())
+  projectId  String
+  version    String
+  changelog  String?
+  releasedAt DateTime
+  createdAt  DateTime @default(now())
+
+  project Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  links   ExternalLink[]
+
+  @@unique([projectId, version])
+  @@index([projectId, releasedAt])
+}
+
+model ExternalLink {
+  id            String         @id @default(cuid())
+  versionId     String
+  url           String
+  label         String?
+  /// Hostname des Anbieters, serverseitig aus der URL abgeleitet
+  provider      String
+  sourceType    LinkSourceType @default(FILE_HOSTER)
+  status        LinkStatus     @default(UNCHECKED)
+  lastCheckedAt DateTime?
+  clickCount    Int            @default(0)
+  sortOrder     Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  version ProjectVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@index([versionId])
+  @@index([status])
+}
+
+model Screenshot {
+  id        String   @id @default(cuid())
+  projectId String
+  imageUrl  String
+  altText   String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, sortOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Moderation
+// ---------------------------------------------------------------------------
+
+model Report {
+  id           String       @id @default(cuid())
+  /// null bei Meldungen von Gästen
+  reporterId   String?
+  projectId    String
+  reason       ReportReason
+  description  String?
+  status       ReportStatus @default(OPEN)
+  resolvedById String?
+  createdAt    DateTime     @default(now())
+  resolvedAt   DateTime?
+
+  reporter   User?   @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: SetNull)
+  resolvedBy User?   @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([projectId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  /// null für System-Aktionen
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String
+  /// JSON-Text mit Zusatzinformationen (keine personenbezogenen Daten)
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([actorId])
+}
+
+// Geplant für spätere Schritte (noch nicht angelegt):
+//   Favorite (userId, projectId), Comment, Rating, ProjectDependency
+//   sowie Auth.js-Tabellen (Account, Session, VerificationToken).
