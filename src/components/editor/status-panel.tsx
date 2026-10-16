@@ -41,7 +41,7 @@ export function StatusPanel({
       </div>
       <p className="text-sm text-muted">{t(`statusHelp.${status}`)}</p>
 
-      {moderationNote && status === "REJECTED" ? (
+      {moderationNote && (status === "REJECTED" || status === "HIDDEN") ? (
         <div className="rounded-lg border border-danger/40 bg-danger/5 px-4 py-3 text-sm">
           <p className="font-semibold text-danger">{projectsT("moderationNote")}</p>
           <p className="mt-1 whitespace-pre-line text-fg/90">{moderationNote}</p>

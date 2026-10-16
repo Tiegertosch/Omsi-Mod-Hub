@@ -182,27 +182,60 @@
     "imprint": {
       "title": "Imprint",
       "sections": [
-        { "heading": "Operator", "body": "[Operator name and address]\n[Street, number]\n[Postcode, city, country]" },
-        { "heading": "Contact", "body": "Email: [contact address]" },
-        { "heading": "Responsible for content", "body": "[Name, address] – information required by applicable law still has to be added." }
+        {
+          "heading": "Operator",
+          "body": "[Operator name and address]\n[Street, number]\n[Postcode, city, country]"
+        },
+        {
+          "heading": "Contact",
+          "body": "Email: [contact address]"
+        },
+        {
+          "heading": "Responsible for content",
+          "body": "[Name, address] – information required by applicable law still has to be added."
+        }
       ]
     },
     "privacy": {
       "title": "Privacy",
       "sections": [
-        { "heading": "Controller", "body": "[Name and contact details of the controller]" },
-        { "heading": "Technically necessary data (to be reviewed)", "body": "When the site is accessed, the server processes technically necessary connection data. A cookie (NEXT_LOCALE) is set to remember the language. For reports, the IP address is briefly used in memory as a hash to limit abuse and is not stored." },
-        { "heading": "User accounts (to be reviewed)", "body": "For an account we store the email address, username, display name, preferred language and a hashed password. For each sign-in session, the IP address and browser identifier are stored to detect abuse; they are deleted together with the session. A technically necessary session cookie is set for signing in. For confirmation and password emails, the email address is transmitted to the email service provider [add provider]." },
-        { "heading": "External links", "body": "Clicks on external download links are counted without personal reference. After the redirect, the privacy policy of the respective provider applies." },
-        { "heading": "Further information", "body": "[Legal bases, retention periods, hosting provider, data subject rights and the right to lodge a complaint must be added.]" }
+        {
+          "heading": "Controller",
+          "body": "[Name and contact details of the controller]"
+        },
+        {
+          "heading": "Technically necessary data (to be reviewed)",
+          "body": "When the site is accessed, the server processes technically necessary connection data. A cookie (NEXT_LOCALE) is set to remember the language. For reports, the IP address is briefly used in memory as a hash to limit abuse and is not stored."
+        },
+        {
+          "heading": "User accounts (to be reviewed)",
+          "body": "For an account we store the email address, username, display name, preferred language and a hashed password. For each sign-in session, the IP address and browser identifier are stored to detect abuse; they are deleted together with the session. A technically necessary session cookie is set for signing in. For confirmation and password emails as well as notifications about moderation decisions on your own projects, the email address is transmitted to the email service provider [add provider]."
+        },
+        {
+          "heading": "External links",
+          "body": "Clicks on external download links are counted without personal reference. After the redirect, the privacy policy of the respective provider applies."
+        },
+        {
+          "heading": "Further information",
+          "body": "[Legal bases, retention periods, hosting provider, data subject rights and the right to lodge a complaint must be added.]"
+        }
       ]
     },
     "terms": {
       "title": "Terms of use",
       "sections": [
-        { "heading": "Scope", "body": "OMSI Mod Hub is a catalogue that describes projects for OMSI 2 and links to external download sources. No mod files are hosted." },
-        { "heading": "External content", "body": "The providers of external pages and files are responsible for their content. [Liability provisions must be added and reviewed.]" },
-        { "heading": "Creator contributions", "body": "[Rules for submitted projects, rights to content and moderation must be added.]" }
+        {
+          "heading": "Scope",
+          "body": "OMSI Mod Hub is a catalogue that describes projects for OMSI 2 and links to external download sources. No mod files are hosted."
+        },
+        {
+          "heading": "External content",
+          "body": "The providers of external pages and files are responsible for their content. [Liability provisions must be added and reviewed.]"
+        },
+        {
+          "heading": "Creator contributions",
+          "body": "[Rules for submitted projects, rights to content and moderation must be added.]"
+        }
       ]
     }
   },
@@ -312,20 +345,153 @@
   "Admin": {
     "title": "Administration",
     "description": "Overview of content, accounts and reports.",
+    "navLabel": "Admin area",
+    "nav": {
+      "overview": "Overview",
+      "projects": "Projects",
+      "reports": "Reports",
+      "users": "Accounts",
+      "categories": "Categories",
+      "tags": "Tags",
+      "audit": "Audit log"
+    },
     "stats": {
       "users": "Accounts",
       "creators": "Creators",
       "published": "Published projects",
-      "pending": "Drafts & in review",
+      "pendingReview": "Awaiting review",
       "openReports": "Open reports"
     },
     "reportsTitle": "Latest open reports",
     "noReports": "No open reports.",
     "usersTitle": "Latest accounts",
     "guest": "Guest",
-    "unverified": "unconfirmed",
-    "banned": "suspended",
-    "actionsSoon": "Approving and rejecting submitted projects is available. Further moderation actions (hide, suspend, handle reports) are coming in the next development step."
+    "unverified": "unverified",
+    "banned": "banned",
+    "banExpired": "ban expired",
+    "save": "Save",
+    "saving": "Saving …",
+    "saved": "Saved.",
+    "errors": {
+      "validation": "Please check the highlighted fields.",
+      "unauthorized": "You are not allowed to do this or your session has expired.",
+      "not_found": "The entry could not be found.",
+      "invalid_transition": "This change is not possible in the current state. Please reload the page.",
+      "forbidden_target": "This account cannot be banned.",
+      "in_use": "The entry is still in use and cannot be deleted.",
+      "rate_limit": "Too many changes in a short time. Please wait a moment.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "fieldErrors": {
+      "required": "This field is required.",
+      "tooLong": "The text is too long.",
+      "slug": "3–80 characters: lowercase letters, digits and hyphens.",
+      "slugTaken": "This slug is already taken (project URLs count too).",
+      "icon": "Please choose an icon from the list.",
+      "number": "Please enter a whole number between 0 and 9999.",
+      "duration": "Please choose a duration."
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Review, handle and close reports from visitors.",
+      "filterLabel": "Filter by state",
+      "status": {
+        "OPEN": "Open",
+        "IN_REVIEW": "In progress",
+        "RESOLVED": "Resolved",
+        "DISMISSED": "Dismissed"
+      },
+      "empty": "No reports in this state.",
+      "moreOpen": "{count} open reports for this project",
+      "reportedBy": "Reported by {reporter} on {date}",
+      "creator": "Creator: @{username}",
+      "noDescription": "No description.",
+      "internalNote": "Internal note:",
+      "closedBy": "Closed by {admin} on {date}",
+      "viewProject": "View project",
+      "note": "Internal note (optional)",
+      "noteHint": "Only visible to admins. Leaving it empty keeps an existing note.",
+      "actions": {
+        "start": "Start working on it",
+        "resolve": "Mark as resolved",
+        "dismiss": "Dismiss",
+        "reopen": "Reopen"
+      }
+    },
+    "users": {
+      "title": "Accounts",
+      "description": "Search accounts and ban them for violations. Admin rights are granted via the CLI only.",
+      "search": "Search",
+      "searchPlaceholder": "Username, name or email",
+      "filterLabel": "Filter accounts",
+      "filters": {
+        "all": "All",
+        "banned": "Banned",
+        "creator": "Creators",
+        "admin": "Admins"
+      },
+      "count": "{count, plural, one {# account} other {# accounts}}",
+      "empty": "No accounts found.",
+      "registered": "Registered on {date}",
+      "published": "{count, plural, one {# published project} other {# published projects}}",
+      "banReason": "Reason for the ban",
+      "banReasonHint": "Up to 300 characters. If the projects are hidden as well, the creator sees this text as a moderation note.",
+      "banUntil": "Banned until {date}",
+      "banPermanent": "Banned permanently",
+      "publicProfile": "Public profile",
+      "cannotBanAdmin": "Admins cannot be banned.",
+      "cannotBanSelf": "This is your own account.",
+      "ban": "Ban account",
+      "banDuration": "Duration",
+      "durations": {
+        "1d": "1 day",
+        "7d": "7 days",
+        "30d": "30 days",
+        "permanent": "Permanent"
+      },
+      "hideProjects": "Hide all published projects of this account",
+      "banConfirm": "Ban @{username}",
+      "unban": "Lift ban"
+    },
+    "taxonomy": {
+      "categoriesTitle": "Categories",
+      "categoriesDescription": "Create and edit catalogue categories. Slugs are fixed once created because they appear in URLs.",
+      "newCategory": "New category",
+      "tagsTitle": "Tags",
+      "tagsDescription": "Create, rename and remove tags. Changes immediately affect search and filters.",
+      "newTag": "New tag",
+      "slug": "Slug",
+      "categorySlugHint": "Used in the address /mods/slug. Cannot be changed later.",
+      "tagSlugHint": "Used in the filter ?tag=slug. Cannot be changed later.",
+      "icon": "Icon",
+      "iconNone": "Default icon",
+      "sortOrder": "Order",
+      "locale": {
+        "de": "German",
+        "en": "English"
+      },
+      "nameIn": "Name ({language})",
+      "descriptionIn": "Description ({language}, optional)",
+      "createCategory": "Create category",
+      "createTag": "Create tag",
+      "delete": "Delete …",
+      "deleteConfirm": "Delete permanently",
+      "projectCount": "{count, plural, one {# project} other {# projects}}",
+      "subcategory": "Subcategory",
+      "categoryInUse": "Categories with projects or subcategories cannot be deleted. Move the projects first.",
+      "deleteCategoryWarning": "The category will be deleted permanently.",
+      "deleteTagWarning": "{count, plural, =0 {The tag will be deleted permanently.} one {The tag will be deleted permanently and removed from # project.} other {The tag will be deleted permanently and removed from # projects.}}"
+    },
+    "audit": {
+      "title": "Audit log",
+      "description": "The latest 100 moderation and management actions.",
+      "empty": "No entries yet.",
+      "time": "Time",
+      "actor": "Who",
+      "action": "Action",
+      "details": "Details",
+      "system": "System/CLI"
+    }
   },
   "ProjectStatus": {
     "DRAFT": "Draft",
@@ -506,8 +672,8 @@
     }
   },
   "Review": {
-    "title": "Projects & approvals",
-    "description": "Review submitted projects and approve or reject them.",
+    "title": "Projects & reviews",
+    "description": "Approve or reject submitted projects and hide published projects if necessary.",
     "filterLabel": "Filter by status",
     "empty": "No projects with this status.",
     "submittedAt": "Submitted on {date}",
@@ -516,14 +682,39 @@
     "approve": "Approve",
     "reject": "Reject",
     "rejectNote": "Reason for the creator",
-    "rejectNoteHint": "Required, at most 1000 characters. Shown to the creator in the dashboard.",
-    "toReview": "Manage approvals"
+    "rejectNoteHint": "Required, up to 1000 characters. The creator sees the reason in the dashboard and by email.",
+    "toReview": "Manage approvals",
+    "hide": "Hide",
+    "hideNote": "Reason for the creator",
+    "hideNoteHint": "Required, up to 1000 characters. The project disappears from the catalogue; the creator sees the reason in the dashboard and by email.",
+    "unhide": "Show again",
+    "publicPage": "Public page",
+    "noteLabel": "Moderation note:",
+    "openReports": "{count, plural, one {# open report} other {# open reports}}"
   },
   "Email": {
     "verifySubject": "Please confirm your email address – OMSI Mod Hub",
     "verifyBody": "Hello {name},\n\nplease confirm your email address for OMSI Mod Hub by opening this link:\n\n{url}\n\nThe link is valid for 24 hours. If you did not register, you can ignore this email.",
     "resetSubject": "Reset your password – OMSI Mod Hub",
-    "resetBody": "Hello {name},\n\nyou can set a new password for OMSI Mod Hub using this link:\n\n{url}\n\nThe link is valid for one hour. If you did not request this, you can ignore this email – your password stays unchanged."
+    "resetBody": "Hello {name},\n\nyou can set a new password for OMSI Mod Hub using this link:\n\n{url}\n\nThe link is valid for one hour. If you did not request this, you can ignore this email – your password stays unchanged.",
+    "decision": {
+      "approve": {
+        "subject": "Approved: {title} – OMSI Mod Hub",
+        "body": "Hello {name},\n\nyour project “{title}” has been reviewed and is now publicly listed in the catalogue:\n\n{url}\n\nThank you for your contribution!"
+      },
+      "reject": {
+        "subject": "Not approved: {title} – OMSI Mod Hub",
+        "body": "Hello {name},\n\nyour project “{title}” was rejected after review. Note from moderation:\n\n{note}\n\nYou can update the project and submit it again:\n\n{url}"
+      },
+      "hide": {
+        "subject": "Hidden: {title} – OMSI Mod Hub",
+        "body": "Hello {name},\n\nyour project “{title}” has been hidden by moderation and is not publicly visible for now. Note from moderation:\n\n{note}\n\nYou can find details in your dashboard:\n\n{url}"
+      },
+      "unhide": {
+        "subject": "Visible again: {title} – OMSI Mod Hub",
+        "body": "Hello {name},\n\nyour project “{title}” is publicly listed in the catalogue again:\n\n{url}"
+      }
+    }
   },
   "Errors": {
     "notFoundTitle": "Page not found",

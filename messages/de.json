@@ -182,27 +182,60 @@
     "imprint": {
       "title": "Impressum",
       "sections": [
-        { "heading": "Angaben zum Betreiber", "body": "[Name und Anschrift des Betreibers]\n[Straße, Hausnummer]\n[PLZ, Ort, Land]" },
-        { "heading": "Kontakt", "body": "E-Mail: [Kontaktadresse]" },
-        { "heading": "Verantwortlich für den Inhalt", "body": "[Name, Anschrift] – Angaben nach den anwendbaren Vorschriften müssen noch ergänzt werden." }
+        {
+          "heading": "Angaben zum Betreiber",
+          "body": "[Name und Anschrift des Betreibers]\n[Straße, Hausnummer]\n[PLZ, Ort, Land]"
+        },
+        {
+          "heading": "Kontakt",
+          "body": "E-Mail: [Kontaktadresse]"
+        },
+        {
+          "heading": "Verantwortlich für den Inhalt",
+          "body": "[Name, Anschrift] – Angaben nach den anwendbaren Vorschriften müssen noch ergänzt werden."
+        }
       ]
     },
     "privacy": {
       "title": "Datenschutz",
       "sections": [
-        { "heading": "Verantwortlicher", "body": "[Name und Kontaktdaten des Verantwortlichen]" },
-        { "heading": "Technisch notwendige Daten (zu prüfen)", "body": "Beim Aufruf der Seite verarbeitet der Server technisch notwendige Verbindungsdaten. Zur Sprachwahl wird ein Cookie (NEXT_LOCALE) gesetzt. Bei Meldungen wird die IP-Adresse kurzzeitig im Arbeitsspeicher als Hash zur Missbrauchsbegrenzung verwendet und nicht gespeichert." },
-        { "heading": "Benutzerkonten (zu prüfen)", "body": "Für ein Konto werden E-Mail-Adresse, Benutzername, Anzeigename, bevorzugte Sprache und ein gehashtes Passwort gespeichert. Zu jeder Anmeldesitzung werden IP-Adresse und Browserkennung gespeichert, um Missbrauch zu erkennen; sie werden mit der Sitzung gelöscht. Zur Anmeldung wird ein technisch notwendiges Sitzungs-Cookie gesetzt. Für Bestätigungs- und Passwort-E-Mails wird die E-Mail-Adresse an den E-Mail-Dienstleister übermittelt [Anbieter ergänzen]." },
-        { "heading": "Externe Links", "body": "Klicks auf externe Downloadlinks werden ohne Personenbezug gezählt. Nach der Weiterleitung gelten die Datenschutzbestimmungen des jeweiligen Anbieters." },
-        { "heading": "Weitere Angaben", "body": "[Rechtsgrundlagen, Speicherdauer, Hosting-Anbieter, Betroffenenrechte und Beschwerderecht müssen ergänzt werden.]" }
+        {
+          "heading": "Verantwortlicher",
+          "body": "[Name und Kontaktdaten des Verantwortlichen]"
+        },
+        {
+          "heading": "Technisch notwendige Daten (zu prüfen)",
+          "body": "Beim Aufruf der Seite verarbeitet der Server technisch notwendige Verbindungsdaten. Zur Sprachwahl wird ein Cookie (NEXT_LOCALE) gesetzt. Bei Meldungen wird die IP-Adresse kurzzeitig im Arbeitsspeicher als Hash zur Missbrauchsbegrenzung verwendet und nicht gespeichert."
+        },
+        {
+          "heading": "Benutzerkonten (zu prüfen)",
+          "body": "Für ein Konto werden E-Mail-Adresse, Benutzername, Anzeigename, bevorzugte Sprache und ein gehashtes Passwort gespeichert. Zu jeder Anmeldesitzung werden IP-Adresse und Browserkennung gespeichert, um Missbrauch zu erkennen; sie werden mit der Sitzung gelöscht. Zur Anmeldung wird ein technisch notwendiges Sitzungs-Cookie gesetzt. Für Bestätigungs- und Passwort-E-Mails sowie Benachrichtigungen über Moderationsentscheidungen zu eigenen Projekten wird die E-Mail-Adresse an den E-Mail-Dienstleister übermittelt [Anbieter ergänzen]."
+        },
+        {
+          "heading": "Externe Links",
+          "body": "Klicks auf externe Downloadlinks werden ohne Personenbezug gezählt. Nach der Weiterleitung gelten die Datenschutzbestimmungen des jeweiligen Anbieters."
+        },
+        {
+          "heading": "Weitere Angaben",
+          "body": "[Rechtsgrundlagen, Speicherdauer, Hosting-Anbieter, Betroffenenrechte und Beschwerderecht müssen ergänzt werden.]"
+        }
       ]
     },
     "terms": {
       "title": "Nutzungsbedingungen",
       "sections": [
-        { "heading": "Gegenstand", "body": "OMSI Mod Hub ist ein Katalog, der Projekte für OMSI 2 beschreibt und auf externe Downloadquellen verweist. Es werden keine Mod-Dateien gehostet." },
-        { "heading": "Externe Inhalte", "body": "Für Inhalte externer Seiten und Dateien sind deren Anbieter verantwortlich. [Haftungsregelungen müssen ergänzt und geprüft werden.]" },
-        { "heading": "Beiträge von Creatorn", "body": "[Regeln für eingestellte Projekte, Rechte an Inhalten und Moderation müssen ergänzt werden.]" }
+        {
+          "heading": "Gegenstand",
+          "body": "OMSI Mod Hub ist ein Katalog, der Projekte für OMSI 2 beschreibt und auf externe Downloadquellen verweist. Es werden keine Mod-Dateien gehostet."
+        },
+        {
+          "heading": "Externe Inhalte",
+          "body": "Für Inhalte externer Seiten und Dateien sind deren Anbieter verantwortlich. [Haftungsregelungen müssen ergänzt und geprüft werden.]"
+        },
+        {
+          "heading": "Beiträge von Creatorn",
+          "body": "[Regeln für eingestellte Projekte, Rechte an Inhalten und Moderation müssen ergänzt werden.]"
+        }
       ]
     }
   },
@@ -312,11 +345,21 @@
   "Admin": {
     "title": "Administration",
     "description": "Überblick über Inhalte, Konten und Meldungen.",
+    "navLabel": "Adminbereich",
+    "nav": {
+      "overview": "Übersicht",
+      "projects": "Projekte",
+      "reports": "Meldungen",
+      "users": "Konten",
+      "categories": "Kategorien",
+      "tags": "Tags",
+      "audit": "Protokoll"
+    },
     "stats": {
       "users": "Konten",
       "creators": "Creator",
       "published": "Veröffentlichte Projekte",
-      "pending": "Entwürfe & in Prüfung",
+      "pendingReview": "Warten auf Freigabe",
       "openReports": "Offene Meldungen"
     },
     "reportsTitle": "Neueste offene Meldungen",
@@ -325,7 +368,130 @@
     "guest": "Gast",
     "unverified": "nicht bestätigt",
     "banned": "gesperrt",
-    "actionsSoon": "Freigeben und Zurückweisen eingereichter Projekte ist möglich. Weitere Moderationsaktionen (Ausblenden, Sperren, Meldungen bearbeiten) folgen im nächsten Entwicklungsschritt."
+    "banExpired": "Sperre abgelaufen",
+    "save": "Speichern",
+    "saving": "Wird gespeichert …",
+    "saved": "Gespeichert.",
+    "errors": {
+      "validation": "Bitte prüfe die markierten Felder.",
+      "unauthorized": "Dafür fehlen dir die Rechte oder deine Sitzung ist abgelaufen.",
+      "not_found": "Der Eintrag wurde nicht gefunden.",
+      "invalid_transition": "Diese Änderung ist im aktuellen Zustand nicht möglich. Lade die Seite neu.",
+      "forbidden_target": "Dieses Konto kann nicht gesperrt werden.",
+      "in_use": "Der Eintrag wird noch verwendet und kann nicht gelöscht werden.",
+      "rate_limit": "Zu viele Änderungen in kurzer Zeit. Bitte warte einen Moment.",
+      "generic": "Das hat nicht geklappt. Bitte versuche es erneut."
+    },
+    "fieldErrors": {
+      "required": "Dieses Feld ist erforderlich.",
+      "tooLong": "Der Text ist zu lang.",
+      "slug": "3–80 Zeichen: Kleinbuchstaben, Ziffern und Bindestriche.",
+      "slugTaken": "Dieses Kürzel ist bereits vergeben (auch Projekt-URLs zählen).",
+      "icon": "Bitte wähle ein Icon aus der Liste.",
+      "number": "Bitte gib eine ganze Zahl zwischen 0 und 9999 ein.",
+      "duration": "Bitte wähle eine Dauer."
+    },
+    "reports": {
+      "title": "Meldungen",
+      "description": "Meldungen von Besuchern prüfen, bearbeiten und abschließen.",
+      "filterLabel": "Nach Bearbeitungsstand filtern",
+      "status": {
+        "OPEN": "Offen",
+        "IN_REVIEW": "In Bearbeitung",
+        "RESOLVED": "Erledigt",
+        "DISMISSED": "Verworfen"
+      },
+      "empty": "Keine Meldungen in diesem Status.",
+      "moreOpen": "{count} offene Meldungen zu diesem Projekt",
+      "reportedBy": "Gemeldet von {reporter} am {date}",
+      "creator": "Creator: @{username}",
+      "noDescription": "Ohne Beschreibung.",
+      "internalNote": "Interne Notiz:",
+      "closedBy": "Abgeschlossen von {admin} am {date}",
+      "viewProject": "Projekt ansehen",
+      "note": "Interne Notiz (optional)",
+      "noteHint": "Nur für Admins sichtbar. Ein leeres Feld lässt eine vorhandene Notiz unverändert.",
+      "actions": {
+        "start": "In Bearbeitung nehmen",
+        "resolve": "Als erledigt markieren",
+        "dismiss": "Verwerfen",
+        "reopen": "Wieder öffnen"
+      }
+    },
+    "users": {
+      "title": "Konten",
+      "description": "Konten suchen und bei Verstößen sperren. Admin-Rechte werden ausschließlich per CLI vergeben.",
+      "search": "Suchen",
+      "searchPlaceholder": "Benutzername, Name oder E-Mail",
+      "filterLabel": "Konten filtern",
+      "filters": {
+        "all": "Alle",
+        "banned": "Gesperrt",
+        "creator": "Creator",
+        "admin": "Admins"
+      },
+      "count": "{count, plural, one {# Konto} other {# Konten}}",
+      "empty": "Keine Konten gefunden.",
+      "registered": "Registriert am {date}",
+      "published": "{count, plural, one {# veröffentlichtes Projekt} other {# veröffentlichte Projekte}}",
+      "banReason": "Grund der Sperre",
+      "banReasonHint": "Höchstens 300 Zeichen. Werden die Projekte mit ausgeblendet, sieht der Creator diesen Text als Hinweis der Moderation.",
+      "banUntil": "Gesperrt bis {date}",
+      "banPermanent": "Unbefristet gesperrt",
+      "publicProfile": "Öffentliches Profil",
+      "cannotBanAdmin": "Admins können nicht gesperrt werden.",
+      "cannotBanSelf": "Das ist dein eigenes Konto.",
+      "ban": "Konto sperren",
+      "banDuration": "Dauer",
+      "durations": {
+        "1d": "1 Tag",
+        "7d": "7 Tage",
+        "30d": "30 Tage",
+        "permanent": "Unbefristet"
+      },
+      "hideProjects": "Alle veröffentlichten Projekte dieses Kontos ausblenden",
+      "banConfirm": "@{username} sperren",
+      "unban": "Sperre aufheben"
+    },
+    "taxonomy": {
+      "categoriesTitle": "Kategorien",
+      "categoriesDescription": "Kategorien des Katalogs anlegen und bearbeiten. Kürzel bleiben nach dem Anlegen fest, weil sie in URLs stehen.",
+      "newCategory": "Neue Kategorie",
+      "tagsTitle": "Tags",
+      "tagsDescription": "Tags anlegen, umbenennen und entfernen. Änderungen wirken sich sofort auf Suche und Filter aus.",
+      "newTag": "Neuer Tag",
+      "slug": "Kürzel",
+      "categorySlugHint": "Erscheint in der Adresse /mods/kuerzel. Kann später nicht geändert werden.",
+      "tagSlugHint": "Erscheint im Filter ?tag=kuerzel. Kann später nicht geändert werden.",
+      "icon": "Icon",
+      "iconNone": "Standard-Icon",
+      "sortOrder": "Reihenfolge",
+      "locale": {
+        "de": "Deutsch",
+        "en": "Englisch"
+      },
+      "nameIn": "Name ({language})",
+      "descriptionIn": "Beschreibung ({language}, optional)",
+      "createCategory": "Kategorie anlegen",
+      "createTag": "Tag anlegen",
+      "delete": "Löschen …",
+      "deleteConfirm": "Endgültig löschen",
+      "projectCount": "{count, plural, one {# Projekt} other {# Projekte}}",
+      "subcategory": "Unterkategorie",
+      "categoryInUse": "Kategorien mit Projekten oder Unterkategorien können nicht gelöscht werden. Verschiebe die Projekte zuerst.",
+      "deleteCategoryWarning": "Die Kategorie wird dauerhaft gelöscht.",
+      "deleteTagWarning": "{count, plural, =0 {Der Tag wird dauerhaft gelöscht.} one {Der Tag wird dauerhaft gelöscht und aus # Projekt entfernt.} other {Der Tag wird dauerhaft gelöscht und aus # Projekten entfernt.}}"
+    },
+    "audit": {
+      "title": "Protokoll",
+      "description": "Die letzten 100 Moderations- und Verwaltungsaktionen.",
+      "empty": "Noch keine Einträge.",
+      "time": "Zeit",
+      "actor": "Wer",
+      "action": "Aktion",
+      "details": "Details",
+      "system": "System/CLI"
+    }
   },
   "ProjectStatus": {
     "DRAFT": "Entwurf",
@@ -507,7 +673,7 @@
   },
   "Review": {
     "title": "Projekte & Freigaben",
-    "description": "Eingereichte Projekte prüfen und freigeben oder zurückweisen.",
+    "description": "Eingereichte Projekte freigeben oder zurückweisen, veröffentlichte Projekte bei Bedarf ausblenden.",
     "filterLabel": "Nach Status filtern",
     "empty": "Keine Projekte in diesem Status.",
     "submittedAt": "Eingereicht am {date}",
@@ -516,14 +682,39 @@
     "approve": "Freigeben",
     "reject": "Zurückweisen",
     "rejectNote": "Begründung für den Creator",
-    "rejectNoteHint": "Pflicht, höchstens 1000 Zeichen. Wird dem Creator im Dashboard angezeigt.",
-    "toReview": "Freigaben verwalten"
+    "rejectNoteHint": "Pflicht, höchstens 1000 Zeichen. Der Creator sieht die Begründung im Dashboard und per E-Mail.",
+    "toReview": "Freigaben verwalten",
+    "hide": "Ausblenden",
+    "hideNote": "Begründung für den Creator",
+    "hideNoteHint": "Pflicht, höchstens 1000 Zeichen. Das Projekt verschwindet aus dem Katalog; der Creator sieht die Begründung im Dashboard und per E-Mail.",
+    "unhide": "Wieder einblenden",
+    "publicPage": "Öffentliche Seite",
+    "noteLabel": "Hinweis der Moderation:",
+    "openReports": "{count, plural, one {# offene Meldung} other {# offene Meldungen}}"
   },
   "Email": {
     "verifySubject": "Bitte bestätige deine E-Mail-Adresse – OMSI Mod Hub",
     "verifyBody": "Hallo {name},\n\nbitte bestätige deine E-Mail-Adresse für OMSI Mod Hub, indem du diesen Link öffnest:\n\n{url}\n\nDer Link ist 24 Stunden gültig. Wenn du dich nicht registriert hast, kannst du diese E-Mail ignorieren.",
     "resetSubject": "Passwort zurücksetzen – OMSI Mod Hub",
-    "resetBody": "Hallo {name},\n\nüber diesen Link kannst du ein neues Passwort für OMSI Mod Hub festlegen:\n\n{url}\n\nDer Link ist eine Stunde gültig. Wenn du das nicht angefordert hast, kannst du diese E-Mail ignorieren – dein Passwort bleibt unverändert."
+    "resetBody": "Hallo {name},\n\nüber diesen Link kannst du ein neues Passwort für OMSI Mod Hub festlegen:\n\n{url}\n\nDer Link ist eine Stunde gültig. Wenn du das nicht angefordert hast, kannst du diese E-Mail ignorieren – dein Passwort bleibt unverändert.",
+    "decision": {
+      "approve": {
+        "subject": "Freigegeben: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\ndein Projekt „{title}“ wurde geprüft und ist jetzt öffentlich im Katalog sichtbar:\n\n{url}\n\nDanke für deinen Beitrag!"
+      },
+      "reject": {
+        "subject": "Nicht freigegeben: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\ndein Projekt „{title}“ wurde nach der Prüfung zurückgewiesen. Hinweis der Moderation:\n\n{note}\n\nDu kannst das Projekt anpassen und erneut einreichen:\n\n{url}"
+      },
+      "hide": {
+        "subject": "Ausgeblendet: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\ndein Projekt „{title}“ wurde von der Moderation ausgeblendet und ist vorerst nicht öffentlich sichtbar. Hinweis der Moderation:\n\n{note}\n\nDetails findest du in deinem Dashboard:\n\n{url}"
+      },
+      "unhide": {
+        "subject": "Wieder sichtbar: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\ndein Projekt „{title}“ ist wieder öffentlich im Katalog sichtbar:\n\n{url}"
+      }
+    }
   },
   "Errors": {
     "notFoundTitle": "Seite nicht gefunden",

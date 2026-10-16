@@ -96,6 +96,16 @@ Auth.js v5 ist seit Jahren im Beta-Stadium, die stabile v4 ist nicht für den Ap
 
 `User.role` ist ein String (`user`, `creator`, `admin`), weil das Admin-Plugin Rollen als Text (auch kommagetrennt) speichert; geprüft wird über `hasRole()`. Rollen sind kein Eingabefeld: weder bei der Registrierung noch über `update-user` setzbar, und die Admin-Endpunkte erfordern die Rolle `admin` (per E2E-Test geprüft). Das erste Admin-Konto entsteht über das lokale CLI-Skript `pnpm user:set-role` (mit Audit-Log); es gibt keinen Seed und keine Web-Route dafür. Sperren laufen über `banned`/`banReason`/`banExpires` des Admin-Plugins; gesperrte Konten gelten in `getCurrentUser()` als abgemeldet und erscheinen nicht öffentlich. Projekte haben einen Status-Lebenszyklus (DRAFT → PENDING_REVIEW → PUBLISHED, außerdem REJECTED/HIDDEN/ARCHIVED) für reversible Moderation statt Löschung.
 
+**Adminbereich** (`/admin/*`, Seiten unter `src/app/[locale]/admin`):
+
+- **Prüfung an drei Stellen:** jede Seite (`requireAdmin`), jede Datenfunktion (`assertAdmin`) und jede Action (`adminActor()` in `src/server/admin-action.ts` bzw. `currentAdmin()` in `review.ts`). Das Layout rendert die Admin-Navigation nur für Admins (hinter `<Suspense>`), damit der Bereich für andere nicht erkennbar ist. Admin-Actions haben ein Rate-Limit pro Konto (120/min) gegen versehentliche Massenänderungen.
+- **Statusregeln** als reine Funktionen in `src/lib/moderation.ts` (unit-getestet): `approve`/`reject` nur aus `PENDING_REVIEW`, `hide` nur aus `PUBLISHED`, `unhide` nur aus `HIDDEN`; Zurückweisen und Ausblenden verlangen eine Begründung (`moderationNote`, für den Creator sichtbar). Meldungen: `OPEN → IN_REVIEW → RESOLVED/DISMISSED`, abgeschlossene lassen sich wieder öffnen; `Report.resolutionNote` ist intern.
+- **Gleichzeitige Entscheidungen:** Statuswechsel laufen als bedingtes `updateMany` (`where: { id, status: alterStatus }`); die zweite Entscheidung erhält „nicht möglich“ statt den Zustand zu überschreiben.
+- **Sperren** schreiben direkt `banned`/`banReason`/`banExpires` und löschen alle Sessions des Kontos in einer Transaktion (statt `auth.api.banUser`, um die Prüfung im eigenen DAL zu halten). Beim Login weist Better Auth gesperrte Konten ab und hebt abgelaufene Sperren selbst auf. Eigenes Konto und Admins sind ausgenommen (`canBanUser`).
+- **Kategorien/Tags:** Kürzel sind nach dem Anlegen fest. Ein neues Kategorie-Kürzel darf keinem Projekt-Slug entsprechen, weil Kategorien in `/mods/[slug]` Vorrang haben. Kategorien sind nur ohne Projekte und Unterkategorien löschbar (zusätzlich `onDelete: Restrict`). Umbenennen oder Löschen eines Tags berechnet die Suchspalte der betroffenen Projekte in derselben Transaktion neu.
+- **Benachrichtigungen:** Nach jeder Projektentscheidung geht eine Klartext-Mail in der bevorzugten Sprache des Creators raus (`projectDecisionEmail` in `src/server/emails.ts`), ohne auf den Versand zu warten. Links zeigen bei Freigabe/Wiedereinblenden auf die öffentliche Seite, sonst ins Dashboard.
+- **Audit-Log:** Jede Admin-Aktion schreibt einen Eintrag (Aktion, Objekt, Zusatzdaten als JSON); Ansicht unter `/admin/audit`.
+
 ### Sicherheit
 
 - Nutzertexte werden als Text gerendert (kein `dangerouslySetInnerHTML`, kein Markdown) → kein XSS über Projekttexte. Markdown käme nur mit Sanitizer.

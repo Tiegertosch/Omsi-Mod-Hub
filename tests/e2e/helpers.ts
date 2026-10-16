@@ -1,7 +1,11 @@
+import { execSync } from "node:child_process";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
-import { expect, type Page } from "@playwright/test";
+import { expect, type Browser, type Page } from "@playwright/test";
+import sharp from "sharp";
+
+import { slugify } from "../../src/lib/slug";
 
 export const E2E_MAIL_DOMAIN = "e2e.example.com";
 const MAIL_DIR = path.join(process.cwd(), ".dev-mail");
@@ -65,4 +69,58 @@ export async function login(page: Page, identifier: string, password: string) {
   await page.getByLabel("E-Mail oder Benutzername").fill(identifier);
   await page.getByLabel("Passwort", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Anmelden", exact: true }).click();
+}
+
+export async function testPng(width = 800, height = 450) {
+  return sharp({ create: { width, height, channels: 3, background: "#2b6cb0" } }).png().toBuffer();
+}
+
+export async function becomeCreator(page: Page, displayName: string) {
+  await page.goto("/de/dashboard/projects");
+  await expect(page.getByRole("heading", { name: "Creator werden" })).toBeVisible();
+  await page.getByLabel("Öffentlicher Name").fill(displayName);
+  await page.getByRole("button", { name: "Creator-Profil anlegen" }).click();
+  await expect(page.getByRole("heading", { name: "Noch keine Projekte" })).toBeVisible();
+}
+
+/** Legt ein Projekt mit Titelbild und Version an; liefert ID und Slug. */
+export async function createSubmittableProject(page: Page, title: string) {
+  await page.goto("/de/dashboard/projects/new");
+  await page.getByLabel(/^Kategorie/).selectOption({ label: "Busse & Fahrzeuge" });
+  await page.getByLabel(/^Lizenz/).fill("Private Nutzung erlaubt");
+  await page.getByRole("tabpanel").getByLabel("Titel", { exact: true }).fill(title);
+  await page.getByRole("tabpanel").getByLabel("Kurzbeschreibung").fill("Ein Testbus aus dem E2E-Test.");
+  await page.getByRole("tabpanel").getByLabel("Beschreibung", { exact: true }).fill("Ausführliche Beschreibung.\n\nZweiter Absatz.");
+  await page.getByRole("button", { name: "Projekt anlegen" }).click();
+  await expect(page).toHaveURL(/\/de\/dashboard\/projects\/[a-z0-9]+\/edit$/);
+  const id = /projects\/([a-z0-9]+)\/edit/.exec(page.url())?.[1] ?? "";
+
+  await expect(page.getByRole("button", { name: "Zur Prüfung einreichen" })).toBeDisabled();
+
+  await page.locator("#cover-upload-file").setInputFiles({ name: "cover.png", mimeType: "image/png", buffer: await testPng() });
+  await page.locator("#cover-upload-alt").fill("Blauer Testbus");
+  await page.getByRole("button", { name: "Titelbild hochladen" }).click();
+  await expect(page.getByText("Bild gespeichert.")).toBeVisible();
+
+  const newVersion = page.locator("details", { hasText: "Neue Version" });
+  await newVersion.getByLabel("Versionsnummer").fill("1.0.0");
+  await newVersion.getByLabel("URL").fill("https://example.com/e2e-download");
+  await newVersion.getByRole("button", { name: "Version anlegen" }).click();
+  await expect(page.locator("summary", { hasText: "1.0.0" })).toBeVisible();
+
+  return { id, slug: slugify(title) };
+}
+
+/** Neuer Browser-Kontext mit frisch registriertem Admin (Rolle per CLI). */
+export async function createAdmin(browser: Browser) {
+  const context = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
+  const page = await context.newPage();
+  const user = uniqueUser("e2e-admin");
+  await registerAndVerify(page, user);
+  execSync(`pnpm user:set-role ${user.email} admin`, { stdio: "pipe" });
+  return { page, user };
+}
+
+export async function adminPage(browser: Browser) {
+  return (await createAdmin(browser)).page;
 }

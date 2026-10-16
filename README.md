@@ -4,7 +4,7 @@ Internationales Katalog- und Downloadportal für Mods des Omnibus-Simulators **O
 
 Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und gelangen zur Originalquelle des Erstellers. Das Portal **hostet selbst keine Mod-Archive** – Downloads verweisen immer auf externe Seiten, die klar als solche gekennzeichnet sind.
 
-> **Status:** Öffentlicher Bereich, Benutzerkonten und Creator-Dashboard (inkl. Freigabe durch Admins) sind umgesetzt. Weitere Moderationsfunktionen folgen – siehe [Nächste Schritte](#nächste-schritte).
+> **Status:** Öffentlicher Bereich, Benutzerkonten, Creator-Dashboard und Adminbereich (Freigaben, Ausblenden, Meldungen, Sperren, Kategorien/Tags, Protokoll) sind umgesetzt – siehe [Nächste Schritte](#nächste-schritte).
 
 ## Funktionsumfang (aktueller Stand)
 
@@ -15,7 +15,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Serverseitige Suche, Tag-Filter (UND), Sortierung, Pagination, teilbare URLs | ✅ |
 | Projekt-Detailseite mit Versionen, Changelog, Installation, Voraussetzungen, Lizenz, Mitwirkenden | ✅ |
 | Externe Downloadlinks mit Kennzeichnung, Zählung der Aufrufe über `/go/[id]` | ✅ |
-| Meldefunktion (Server Action, Rate-Limit, Honeypot) | ✅ speichert Meldungen; Bearbeitung im Adminbereich folgt |
+| Meldefunktion (Server Action, Rate-Limit, Honeypot) | ✅ Bearbeitung unter `/admin/reports` |
 | Creator-Verzeichnis und -Profile | ✅ |
 | Deutsch/Englisch: sprachabhängige Routen, Metadaten, Fallback für Projekttexte | ✅ |
 | SEO: Titel, Beschreibungen, Canonical, hreflang, Open Graph, Sitemap, robots.txt | ✅ |
@@ -27,9 +27,12 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Titelbild und Screenshots: sicherer Upload (Signaturprüfung, ≤ 5 MB, Neukodierung zu WebP ohne Metadaten) | ✅ |
 | Versionen mit Changelog und mehreren externen Downloadlinks | ✅ |
 | Status: Entwurf → Einreichen → Freigabe/Zurückweisung (mit Begründung), Zurückziehen, Archivieren; Vorschau | ✅ |
-| Admin: Freigabe-Warteschlange `/admin/projects` mit Audit-Log | ✅ |
+| Admin: Freigabe-Warteschlange und Ausblenden/Wiedereinblenden veröffentlichter Projekte (mit Begründung) `/admin/projects` | ✅ |
+| Admin: Meldungen bearbeiten (offen → in Bearbeitung → erledigt/verworfen, interne Notiz) `/admin/reports` | ✅ |
+| Admin: Konten suchen und befristet/unbefristet sperren (beendet Sitzungen, optional Projekte ausblenden) `/admin/users` | ✅ |
+| Admin: Kategorien und Tags anlegen, bearbeiten, löschen `/admin/categories`, `/admin/tags`; Protokoll `/admin/audit` | ✅ |
+| E-Mail an Creator bei Freigabe, Zurückweisung, Ausblenden und Wiedereinblenden | ✅ |
 | Rechtliche Seiten | ⚠️ nur als gekennzeichnete, ungeprüfte Vorlagen |
-| Ausblenden, Meldungen bearbeiten, Nutzer- und Kategorienverwaltung | ⏳ nächster Schritt |
 
 ## Technologie
 
@@ -127,7 +130,7 @@ Mit PostgreSQL wurde der Code bisher **nicht getestet**, da lokal kein Server ve
 | `pnpm build` / `pnpm start` | Produktionsbuild / -server |
 | `pnpm test:e2e` | Playwright-Tests gegen den Produktionsbuild (vorher `pnpm build`, DB geseedet) |
 
-Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungs- und Reset-Links aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) werden danach automatisch entfernt; der Meldungstest legt einen Report an, `pnpm db:seed` setzt die Beispieldaten zurück.
+Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungs- und Reset-Links aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen und Protokolleinträgen sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
 
 ## Projektstruktur
 
@@ -148,14 +151,16 @@ src/
     creators/          Creator-Karten
     auth/, account/    Anmeldeformulare, Konto-Menü, Einstellungsformulare
     editor/, creator/  Projekteditor (Daten, Medien, Versionen, Status), Creator-Profil
-    admin/             Freigabe-Aktionen
+    admin/             Navigation, Moderation, Meldungen, Sperren, Kategorie-/Tag-Formulare
     ui/                Basiskomponenten (Button, Badge, Formularfelder, Leer-/Lade-/Hinweiszustände)
   i18n/                next-intl: Routing, Navigation, Request-Konfiguration
   lib/                 auth.ts (Better-Auth-Konfiguration) und reine Hilfsfunktionen
   server/
     session.ts         Data Access Layer: aktueller Nutzer, requireUser/requireAdmin
     data/              Datenbankabfragen (nur serverseitig)
-    actions/           Server Actions (Meldungen, Anmeldung, Konto)
+    actions/           Server Actions (Anmeldung, Konto, Projekte, Moderation, Meldungen, Konten, Kategorien/Tags)
+    admin-action.ts    gemeinsame Prüfung für Admin-Actions (Rolle, Rate-Limit)
+    emails.ts          lokalisierte E-Mail-Texte (Bestätigung, Passwort, Moderationsentscheidungen)
     mail.ts            E-Mail-Versand (file/console/smtp)
     images.ts, storage.ts  Bildprüfung/-neukodierung (sharp) und Ablage
   app/media/[key]/     Auslieferung hochgeladener Bilder
@@ -168,7 +173,8 @@ tests/
 
 ## Bekannte Einschränkungen
 
-- **Moderation unvollständig:** Freigeben/Zurückweisen funktioniert; Ausblenden veröffentlichter Projekte, Meldungen bearbeiten sowie `/admin/users`, `/admin/reports` und `/admin/categories` folgen. Creator werden über Entscheidungen noch nicht per E-Mail benachrichtigt (Hinweis erscheint im Dashboard).
+- **Moderation:** Admin-Rechte werden bewusst nur per CLI vergeben und entzogen; Admins können nicht gesperrt werden. Eine Sperre blendet Projekte nur auf Wunsch aus, und das Aufheben der Sperre blendet sie nicht automatisch wieder ein. Kategorien sind einstufig verwaltbar (keine Oberkategorie wählbar); Kürzel von Kategorien und Tags sind nach dem Anlegen fest. Gesperrte Nutzer sehen beim Login nur „Konto gesperrt“, nicht den Grund. Das Protokoll zeigt die letzten 100 Einträge ohne Filter.
+- **Benachrichtigungen** werden ohne Warteschlange im Hintergrund versendet; schlägt der Versand fehl, wird das nur protokolliert (kein erneuter Versuch). An Beispielkonten wird nichts gesendet.
 - **Bildspeicher lokal:** Uploads liegen im Dateisystem (`UPLOAD_DIR`). Für mehrere Server-Instanzen oder Serverless-Hosting ist ein Objektspeicher (z. B. S3) nötig; die Schnittstelle ist in `src/server/storage.ts` gekapselt. Backups müssen dieses Verzeichnis einschließen.
 - **Reihenfolge von Screenshots** lässt sich noch nicht ändern (Upload-Reihenfolge); Bildbeschreibungen nur beim Hochladen.
 - **SMTP-Versand nicht getestet:** Getestet ist der Ablauf mit `MAIL_TRANSPORT=file`. Der SMTP-Transport ist implementiert, mangels Zugangsdaten aber nicht gegen einen echten Server geprüft.
@@ -183,8 +189,8 @@ tests/
 
 ## Nächste Schritte
 
-1. **Adminbereich vervollständigen:** veröffentlichte Projekte ausblenden/wiederherstellen, Meldungen bearbeiten (Status, Verknüpfung zur Moderationsaktion), Nutzerverwaltung (Rollen, Sperren über das Better-Auth-Admin-Plugin), Kategorien/Tags, Audit-Log-Ansicht.
-2. **Benachrichtigungen:** E-Mail an Creator bei Freigabe/Zurückweisung.
+1. **Moderation ausbauen:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern/paginieren, Linkstatus (`BROKEN`/`BLOCKED`) aus Meldungen heraus setzen.
+2. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption für Benachrichtigungen.
 3. **Konto:** E-Mail ändern, Konto löschen, aktive Sitzungen anzeigen.
 4. **Caching der öffentlichen Seiten** mit `'use cache'` + `cacheTag`/`revalidateTag` und echten 404-Status (siehe ARCHITECTURE.md).
 5. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.

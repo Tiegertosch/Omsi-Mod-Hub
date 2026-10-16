@@ -383,16 +383,18 @@ model Screenshot {
 // ---------------------------------------------------------------------------
 
 model Report {
-  id           String       @id @default(cuid())
+  id             String       @id @default(cuid())
   /// null bei Meldungen von Gästen
-  reporterId   String?
-  projectId    String
-  reason       ReportReason
-  description  String?
-  status       ReportStatus @default(OPEN)
-  resolvedById String?
-  createdAt    DateTime     @default(now())
-  resolvedAt   DateTime?
+  reporterId     String?
+  projectId      String
+  reason         ReportReason
+  description    String?
+  status         ReportStatus @default(OPEN)
+  resolvedById   String?
+  /// interne Notiz der Moderation, nicht öffentlich
+  resolutionNote String?
+  createdAt      DateTime     @default(now())
+  resolvedAt     DateTime?
 
   reporter   User?   @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: SetNull)
   resolvedBy User?   @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
@@ -421,5 +423,4 @@ model AuditLog {
 }
 
 // Geplant für spätere Schritte (noch nicht angelegt):
-//   Favorite (userId, projectId), Comment, Rating, ProjectDependency
-//   sowie Auth.js-Tabellen (Account, Session, VerificationToken).
+//   Favorite (userId, projectId), Comment, Rating, ProjectDependency.

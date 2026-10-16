@@ -7,6 +7,8 @@ const variants = {
   secondary: "bg-surface-3 text-fg hover:bg-border-strong border border-border-strong",
   ghost: "text-muted hover:text-fg hover:bg-surface-3",
   outline: "border border-border-strong text-fg hover:border-accent hover:text-accent",
+  /** für folgenreiche Aktionen wie Sperren oder Löschen */
+  danger: "bg-danger text-bg hover:bg-danger/85",
 } as const;
 
 const sizes = {

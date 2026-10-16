@@ -8,7 +8,7 @@ import { admin, username } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { adminAc, defaultStatements, userAc } from "better-auth/plugins/admin/access";
 
-import { resetPasswordEmail, verificationEmail } from "@/server/auth-emails";
+import { resetPasswordEmail, verificationEmail } from "@/server/emails";
 import { sendMailInBackground } from "@/server/mail";
 
 import { PASSWORD_MAX, PASSWORD_MIN, USERNAME_MAX, USERNAME_MIN, USERNAME_PATTERN } from "./auth-rules";

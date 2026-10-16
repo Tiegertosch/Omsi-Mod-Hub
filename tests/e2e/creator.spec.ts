@@ -1,64 +1,10 @@
-import { execSync } from "node:child_process";
+import { expect, test } from "@playwright/test";
 
-import { expect, test, type Browser, type Page } from "@playwright/test";
-import sharp from "sharp";
-
-import { slugify } from "../../src/lib/slug";
-
-import { randomIp, registerAndVerify, uniqueUser } from "./helpers";
+import { adminPage, becomeCreator, createSubmittableProject, randomIp, registerAndVerify, uniqueUser } from "./helpers";
 
 test.beforeEach(async ({ context }) => {
   await context.setExtraHTTPHeaders({ "x-forwarded-for": randomIp() });
 });
-
-async function testPng(width = 800, height = 450) {
-  return sharp({ create: { width, height, channels: 3, background: "#2b6cb0" } }).png().toBuffer();
-}
-
-async function becomeCreator(page: Page, displayName: string) {
-  await page.goto("/de/dashboard/projects");
-  await expect(page.getByRole("heading", { name: "Creator werden" })).toBeVisible();
-  await page.getByLabel("Öffentlicher Name").fill(displayName);
-  await page.getByRole("button", { name: "Creator-Profil anlegen" }).click();
-  await expect(page.getByRole("heading", { name: "Noch keine Projekte" })).toBeVisible();
-}
-
-/** Legt ein Projekt mit Titelbild und Version an; liefert ID und Slug. */
-async function createSubmittableProject(page: Page, title: string) {
-  await page.goto("/de/dashboard/projects/new");
-  await page.getByLabel(/^Kategorie/).selectOption({ label: "Busse & Fahrzeuge" });
-  await page.getByLabel(/^Lizenz/).fill("Private Nutzung erlaubt");
-  await page.getByRole("tabpanel").getByLabel("Titel", { exact: true }).fill(title);
-  await page.getByRole("tabpanel").getByLabel("Kurzbeschreibung").fill("Ein Testbus aus dem E2E-Test.");
-  await page.getByRole("tabpanel").getByLabel("Beschreibung", { exact: true }).fill("Ausführliche Beschreibung.\n\nZweiter Absatz.");
-  await page.getByRole("button", { name: "Projekt anlegen" }).click();
-  await expect(page).toHaveURL(/\/de\/dashboard\/projects\/[a-z0-9]+\/edit$/);
-  const id = /projects\/([a-z0-9]+)\/edit/.exec(page.url())?.[1] ?? "";
-
-  await expect(page.getByRole("button", { name: "Zur Prüfung einreichen" })).toBeDisabled();
-
-  await page.locator("#cover-upload-file").setInputFiles({ name: "cover.png", mimeType: "image/png", buffer: await testPng() });
-  await page.locator("#cover-upload-alt").fill("Blauer Testbus");
-  await page.getByRole("button", { name: "Titelbild hochladen" }).click();
-  await expect(page.getByText("Bild gespeichert.")).toBeVisible();
-
-  const newVersion = page.locator("details", { hasText: "Neue Version" });
-  await newVersion.getByLabel("Versionsnummer").fill("1.0.0");
-  await newVersion.getByLabel("URL").fill("https://example.com/e2e-download");
-  await newVersion.getByRole("button", { name: "Version anlegen" }).click();
-  await expect(page.locator("summary", { hasText: "1.0.0" })).toBeVisible();
-
-  return { id, slug: slugify(title) };
-}
-
-async function adminPage(browser: Browser) {
-  const context = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
-  const page = await context.newPage();
-  const admin = uniqueUser("e2e-admin");
-  await registerAndVerify(page, admin);
-  execSync(`pnpm user:set-role ${admin.email} admin`, { stdio: "pipe" });
-  return page;
-}
 
 test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", async ({ page, browser }) => {
   const user = uniqueUser("e2e-creator");
@@ -156,7 +102,17 @@ test("Fremde Projekte sind nicht erreichbar – auch nicht per manipulierter ID"
   // Eigenes Projekt öffnen und die versteckte Projekt-ID im Formular austauschen
   const own = await createSubmittableProject(other, `E2E Eigen ${Date.now().toString(36)}`);
   await other.goto(`/de/dashboard/projects/${own.id}/edit`);
-  await other.locator('input[name="projectId"]').first().evaluate((el, id) => ((el as HTMLInputElement).value = id), foreign.id);
+  // Erst beim Absenden austauschen: Vor der Hydration gesetzte Werte überschreibt React wieder.
+  await other.evaluate((id) => {
+    window.addEventListener(
+      "submit",
+      (event) => {
+        const input = (event.target as HTMLFormElement).querySelector<HTMLInputElement>('input[name="projectId"]');
+        if (input) input.value = id;
+      },
+      { capture: true },
+    );
+  }, foreign.id);
   await other.getByRole("button", { name: "Speichern", exact: true }).click();
   await expect(other.getByRole("alert").filter({ hasText: "Das Projekt wurde nicht gefunden." })).toBeVisible();
 
