@@ -2,6 +2,7 @@ import "server-only";
 
 import { cookies, headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { connection } from "next/server";
 import { cache } from "react";
 
 import { auth } from "@/lib/auth";
@@ -27,8 +28,13 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   // Cookies aus cookies() statt aus den Original-Headern lesen: Nach einer
   // Server Action (z. B. Passwortwechsel mit neuer Session) enthalten sie
   // bereits das neu gesetzte Session-Cookie.
-  const requestHeaders = new Headers(await headers());
-  requestHeaders.set("cookie", (await cookies()).toString());
+  const [incoming, cookieStore] = await Promise.all([headers(), cookies()]);
+  const requestHeaders = new Headers(incoming);
+  requestHeaders.set("cookie", cookieStore.toString());
+  // Better Auth prüft den Ablauf der Session gegen die aktuelle Uhrzeit (new Date()).
+  // Ohne connection() würde der Runtime-Prefetch (partialPrefetching) diesen Aufruf
+  // vorab rendern wollen und mit „blocking-prerender-current-time“ abbrechen.
+  await connection();
   const session = await auth.api.getSession({ headers: requestHeaders });
   if (!session) return null;
   const { user } = session;
