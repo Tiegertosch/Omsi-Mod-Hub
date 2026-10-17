@@ -3,6 +3,7 @@ import { execSync } from "node:child_process";
 import { expect, test } from "@playwright/test";
 
 import {
+  codeFields,
   enterCode,
   login,
   randomIp,
@@ -24,7 +25,8 @@ test("Registrierung, E-Mail-Bestätigung, Abmeldung und Anmeldung mit Benutzerna
   const since = Date.now() - 1000;
   await register(page, user);
 
-  await expect(page.getByText(`an ${user.email} geschickt`)).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Fortschritt der Registrierung" }).locator("[aria-current=step]")).toHaveText("2");
+  await expect(page.getByText(user.email, { exact: true })).toBeVisible();
   const firstCode = await waitForMailCode(user.email, since);
   // Die Mail enthält nur den Code und einen Link zur Eingabeseite, keinen Bestätigungslink.
   const mail = await waitForMail(user.email, /Bestätigungscode/, since);
@@ -40,7 +42,7 @@ test("Registrierung, E-Mail-Bestätigung, Abmeldung und Anmeldung mit Benutzerna
   await login(page, user.username, user.password);
   await expect(page).toHaveURL(/\/de\/confirm-email\?unverified=1$/);
   await expect(page.getByText("Dein Konto ist noch nicht bestätigt.")).toBeVisible();
-  await expect(page.getByLabel("E-Mail-Adresse")).toHaveValue(user.email);
+  await expect(page.getByText(user.email, { exact: true })).toBeVisible();
   const loginCode = await waitForMailCode(user.email, beforeLogin);
 
   // Der neue Code ersetzt den alten.
@@ -243,7 +245,7 @@ test("Nach zu vielen falschen Eingaben ist ein neuer Code nötig", async ({ page
     await enterCode(page, wrong);
     // Die Meldung steht schon vom vorigen Versuch da; erst das Zurücksetzen des
     // Formulars zeigt, dass dieser Versuch verarbeitet wurde.
-    await expect(page.getByLabel("Bestätigungscode")).toHaveValue("");
+    await expect(codeFields(page).first()).toHaveValue("");
     await expect(page.getByRole("alert").filter({ hasText: "Der Code ist falsch" })).toBeVisible();
   }
   await enterCode(page, code);
@@ -263,7 +265,82 @@ test("Registrierung mit vergebener Adresse sieht gleich aus, verschickt aber kei
   const otherPage = await other.newPage();
   const since = Date.now() - 500;
   await register(otherPage, { ...uniqueUser(), email: user.email });
-  await expect(otherPage.getByText(`an ${user.email} geschickt`)).toBeVisible();
+  await expect(otherPage.getByText(user.email, { exact: true })).toBeVisible();
   await expect(waitForMail(user.email, /Bestätigungscode/, since, 3_000)).rejects.toThrow();
+  await other.close();
+});
+
+test("Code Ziffer für Ziffer eintippen: Fokus springt weiter, Rücktaste zurück", async ({ page }) => {
+  const user = uniqueUser();
+  const since = Date.now() - 1000;
+  await register(page, user);
+  const code = await waitForMailCode(user.email, since);
+  const fields = codeFields(page);
+  await expect(fields).toHaveCount(6);
+
+  // Das erste Feld hat den Fokus; ein Tippfehler wird mit der Rücktaste korrigiert.
+  await page.keyboard.type(code.slice(0, 3));
+  await page.keyboard.type("9");
+  await page.keyboard.press("Backspace");
+  await expect(fields.nth(3)).toHaveValue("");
+  await page.keyboard.press("Backspace");
+  await expect(fields.nth(2)).toHaveValue("");
+  await page.keyboard.type(code.slice(2));
+  for (let index = 0; index < 6; index++) await expect(fields.nth(index)).toHaveValue(code[index]);
+
+  await page.getByRole("button", { name: "Bestätigen", exact: true }).click();
+  await expect(page).toHaveURL(/\/de\/dashboard$/);
+});
+
+test("E-Mail-Adresse bearbeiten: zurück zu Schritt 1, Code an die neue Adresse", async ({ page }) => {
+  const user = uniqueUser();
+  const wrongEmail = `${user.username}-tippfehler@e2e.example.com`;
+  await register(page, { ...user, email: wrongEmail });
+  await expect(page.getByText(wrongEmail, { exact: true })).toBeVisible();
+
+  await page.getByRole("link", { name: "E-Mail-Adresse bearbeiten" }).click();
+  await expect(page).toHaveURL(/\/de\/register\?edit=1$/);
+  await expect(page.getByRole("navigation", { name: "Fortschritt der Registrierung" }).locator("[aria-current=step]")).toHaveText("1");
+  await expect(page.getByLabel("Benutzername")).toHaveValue(user.username);
+  await expect(page.getByLabel("E-Mail-Adresse")).toHaveValue(wrongEmail);
+
+  // Falsches Passwort: Das Konto bleibt unverändert, der Name gilt als vergeben.
+  await page.getByLabel("E-Mail-Adresse").fill(user.email);
+  await page.getByLabel("Passwort", { exact: true }).fill("Ganz-anderes-Passwort-1");
+  await page.getByLabel("Passwort wiederholen").fill("Ganz-anderes-Passwort-1");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Konto erstellen" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Benutzername ist bereits vergeben" })).toBeVisible();
+
+  const since = Date.now() - 500;
+  await page.getByLabel("E-Mail-Adresse").fill(user.email);
+  await page.getByLabel("Passwort", { exact: true }).fill(user.password);
+  await page.getByLabel("Passwort wiederholen").fill(user.password);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Konto erstellen" }).click();
+  await expect(page).toHaveURL(/\/de\/confirm-email$/);
+  await expect(page.getByText(user.email, { exact: true })).toBeVisible();
+
+  await enterCode(page, await waitForMailCode(user.email, since));
+  await expect(page).toHaveURL(/\/de\/dashboard$/);
+
+  // Das Konto läuft jetzt auf die neue Adresse.
+  await page.goto("/de/dashboard/settings");
+  await expect(page.getByLabel("Aktuelle Adresse")).toHaveValue(user.email);
+});
+
+test("Code-Seite auf einem anderen Gerät: Adresse eingeben", async ({ page, browser }) => {
+  const user = uniqueUser();
+  const since = Date.now() - 1000;
+  await register(page, user);
+  const code = await waitForMailCode(user.email, since);
+
+  const other = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
+  const otherPage = await other.newPage();
+  await otherPage.goto("/de/confirm-email");
+  await expect(otherPage.getByRole("link", { name: "E-Mail-Adresse bearbeiten" })).toHaveCount(0);
+  await otherPage.getByLabel("E-Mail-Adresse").fill(user.email);
+  await enterCode(otherPage, code);
+  await expect(otherPage).toHaveURL(/\/de\/dashboard$/);
   await other.close();
 });

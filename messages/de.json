@@ -305,7 +305,7 @@
       "code": "Bitte gib den 6-stelligen Code aus der E-Mail ein."
     },
     "confirmTitle": "E-Mail-Adresse bestätigen",
-    "codeSentTo": "Wir haben einen {length}-stelligen Code an {email} geschickt. Gib ihn hier ein, um dein Konto zu aktivieren.",
+    "codeSentTo": "Wir haben einen {length}-stelligen Code geschickt an:",
     "codeSentGeneric": "Gib den {length}-stelligen Code aus unserer E-Mail ein, um dein Konto zu aktivieren.",
     "unverifiedNotice": "Dein Konto ist noch nicht bestätigt. Wir haben dir gerade einen Code per E-Mail geschickt.",
     "code": "Bestätigungscode",
@@ -314,7 +314,14 @@
     "noCode": "Keine E-Mail bekommen?",
     "resendCode": "Code erneut senden",
     "codeResent": "Wenn zu {email} ein unbestätigtes Konto gehört, haben wir einen neuen Code geschickt. Ältere Codes gelten damit nicht mehr.",
-    "codeExistingAccount": "Dein Konto ist schon bestätigt? Dann <login>melde dich an</login> oder <reset>setze dein Passwort zurück</reset>."
+    "codeExistingAccount": "Dein Konto ist schon bestätigt? Dann <login>melde dich an</login> oder <reset>setze dein Passwort zurück</reset>.",
+    "stepsLabel": "Fortschritt der Registrierung",
+    "stepAccount": "Konto anlegen",
+    "stepConfirm": "E-Mail bestätigen",
+    "stepOf": "Schritt {step} von {total}:",
+    "codeDigit": "Ziffer {index} von {total}",
+    "editEmail": "E-Mail-Adresse bearbeiten",
+    "editEmailNotice": "Korrigiere deine E-Mail-Adresse und gib zur Sicherheit dein Passwort erneut ein. Lass den Benutzernamen unverändert, damit dein angelegtes Konto übernommen wird."
   },
   "Account": {
     "menuLabel": "Konto",

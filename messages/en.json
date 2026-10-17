@@ -305,7 +305,7 @@
       "code": "Please enter the 6-digit code from the email."
     },
     "confirmTitle": "Confirm your email address",
-    "codeSentTo": "We sent a {length}-digit code to {email}. Enter it here to activate your account.",
+    "codeSentTo": "We sent a {length}-digit code to:",
     "codeSentGeneric": "Enter the {length}-digit code from our email to activate your account.",
     "unverifiedNotice": "Your account has not been confirmed yet. We just sent you a code by email.",
     "code": "Confirmation code",
@@ -314,7 +314,14 @@
     "noCode": "Didn't get an email?",
     "resendCode": "Send code again",
     "codeResent": "If an unconfirmed account belongs to {email}, we sent a new code. Older codes are no longer valid.",
-    "codeExistingAccount": "Already confirmed your account? Then <login>sign in</login> or <reset>reset your password</reset>."
+    "codeExistingAccount": "Already confirmed your account? Then <login>sign in</login> or <reset>reset your password</reset>.",
+    "stepsLabel": "Registration progress",
+    "stepAccount": "Create account",
+    "stepConfirm": "Confirm email",
+    "stepOf": "Step {step} of {total}:",
+    "codeDigit": "Digit {index} of {total}",
+    "editEmail": "Edit email address",
+    "editEmailNotice": "Correct your email address and enter your password again for security. Keep the same username so your new account is reused."
   },
   "Account": {
     "menuLabel": "Account",

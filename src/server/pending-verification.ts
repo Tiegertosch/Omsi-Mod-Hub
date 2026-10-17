@@ -3,15 +3,18 @@ import "server-only";
 import { cookies } from "next/headers";
 
 /**
- * Merkt sich nach Registrierung oder Anmeldung eines unbestätigten Kontos die
- * Adresse, damit die Code-Seite sie vorausfüllen kann – ohne sie in die URL zu
- * schreiben (Logs, Verlauf). Das Cookie ist nur eine Komfortfunktion: Die
- * Adresse bleibt auf der Seite änderbar und wird bei jeder Eingabe neu geprüft.
+ * Merkt sich nach Registrierung oder Anmeldung eines unbestätigten Kontos
+ * Benutzername und Adresse: Die Code-Seite zeigt die Adresse an, und „E-Mail-
+ * Adresse bearbeiten“ füllt Schritt 1 damit vor – ohne beides in die URL zu
+ * schreiben (Logs, Verlauf). Das Cookie ist nur eine Komfortfunktion und
+ * berechtigt zu nichts; jede Aktion prüft Code bzw. Passwort selbst.
  */
-const COOKIE = "omh-pending-email";
+const COOKIE = "omh-pending-registration";
 
-export async function rememberPendingEmail(email: string): Promise<void> {
-  (await cookies()).set(COOKIE, email, {
+export type PendingRegistration = { email: string; username: string };
+
+export async function rememberPendingRegistration(pending: PendingRegistration): Promise<void> {
+  (await cookies()).set(COOKIE, JSON.stringify(pending), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -20,11 +23,19 @@ export async function rememberPendingEmail(email: string): Promise<void> {
   });
 }
 
-export async function readPendingEmail(): Promise<string> {
-  const value = (await cookies()).get(COOKIE)?.value ?? "";
-  return value.length <= 254 ? value : "";
+export async function readPendingRegistration(): Promise<PendingRegistration | null> {
+  const raw = (await cookies()).get(COOKIE)?.value;
+  if (!raw || raw.length > 600) return null;
+  try {
+    const value = JSON.parse(raw) as Partial<PendingRegistration>;
+    if (typeof value.email !== "string" || typeof value.username !== "string") return null;
+    if (value.email.length > 254 || value.username.length > 64) return null;
+    return { email: value.email, username: value.username };
+  } catch {
+    return null;
+  }
 }
 
-export async function clearPendingEmail(): Promise<void> {
+export async function clearPendingRegistration(): Promise<void> {
   (await cookies()).delete(COOKIE);
 }

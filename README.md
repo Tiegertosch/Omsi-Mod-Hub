@@ -24,7 +24,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Deutsch/Englisch: sprachabhängige Routen, Metadaten, Fallback für Projekttexte | ✅ |
 | SEO: Titel, Beschreibungen, Canonical, hreflang, Open Graph, Sitemap, robots.txt | ✅ |
 | Zwischenspeicherung öffentlicher Daten (`use cache` mit Tags), echte HTTP-404 für unbekannte Projekte, Kategorien, Creator und Seiten | ✅ |
-| Registrierung mit E-Mail-Bestätigung per 6-stelligem Code (erneut senden möglich), Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
+| Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code aus der E-Mail (eine Box pro Ziffer, erneut senden, Adresse korrigieren), Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
 | Passwort vergessen / zurücksetzen per E-Mail-Link | ✅ |
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
 | Konto: E-Mail-Adresse ändern (Bestätigung über alte und neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto mit allen Projekten löschen | ✅ |

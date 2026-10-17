@@ -18,8 +18,13 @@ import { db } from "@/lib/db";
 import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 import { mapAuthError } from "@/server/auth-errors";
-import { clearPendingEmail, rememberPendingEmail } from "@/server/pending-verification";
+import {
+  clearPendingRegistration,
+  readPendingRegistration,
+  rememberPendingRegistration,
+} from "@/server/pending-verification";
 import { clientKey, consumeRateLimits, hashKey } from "@/server/rate-limit";
+import { changeUnverifiedEmail } from "@/server/unverified-account";
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -79,8 +84,8 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   const allowed = await consumeRateLimits([{ key: await clientKey("register"), limit: 5, windowMs: HOUR }]);
   if (!allowed) return { status: "error", code: "rate_limit", values };
 
+  const username = parsed.data.username.toLowerCase();
   try {
-    const username = parsed.data.username.toLowerCase();
     await auth.api.signUpEmail({
       body: {
         name: username,
@@ -93,18 +98,27 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
     });
   } catch (error) {
     const code = mapAuthError(error);
-    return {
-      status: "error",
-      code,
-      values,
-      fieldErrors: code === "username_taken" ? { username: "username" } : undefined,
-    };
+    // „E-Mail-Adresse bearbeiten“: gleicher Benutzername, noch unbestätigtes
+    // Konto und richtiges Passwort – dann nur die Adresse ändern.
+    const reclaimed =
+      code === "username_taken" &&
+      (await consumeRateLimits([{ key: `register-edit:id:${hashKey(username)}`, limit: 5, windowMs: HOUR }])) &&
+      (await changeUnverifiedEmail({ username, password: parsed.data.password, newEmail: parsed.data.email })) !==
+        "denied";
+    if (!reclaimed) {
+      return {
+        status: "error",
+        code,
+        values,
+        fieldErrors: code === "username_taken" ? { username: "username" } : undefined,
+      };
+    }
   }
 
   // Auch bei bereits registrierter E-Mail gleicher Ablauf (Schutz vor Ausspähen);
   // der Code geht nur an unbestätigte Konten (siehe src/lib/auth.ts).
   await sendVerificationCode(parsed.data.email);
-  await rememberPendingEmail(parsed.data.email);
+  await rememberPendingRegistration({ email: parsed.data.email, username });
   redirect(`/${locale}/confirm-email`);
 }
 
@@ -137,8 +151,13 @@ const codeSchema = z.object({
 export async function verifyEmailCodeAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const locale = localeSchema.parse(text(formData, "locale"));
   const values = { email: text(formData, "email") };
-  // Leerzeichen aus kopierten Codes („123 456“) ignorieren.
-  const parsed = codeSchema.safeParse({ email: values.email, code: text(formData, "code").replace(/\s+/g, "") });
+  // Ohne JavaScript kommt jede Ziffer einzeln; Leerzeichen aus kopierten Codes ignorieren.
+  const code = formData
+    .getAll("code")
+    .filter((digit): digit is string => typeof digit === "string")
+    .join("")
+    .replace(/\s+/g, "");
+  const parsed = codeSchema.safeParse({ email: values.email, code });
   if (!parsed.success) {
     return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom(parsed.error), values };
   }
@@ -160,7 +179,7 @@ export async function verifyEmailCodeAction(_prev: FormState, formData: FormData
     return { status: "error", code: mapAuthError(error), values };
   }
 
-  await clearPendingEmail();
+  await clearPendingRegistration();
   const homeLocale = preferredLocale && (routing.locales as readonly string[]).includes(preferredLocale) ? preferredLocale : locale;
   redirect(safeRedirectPath(text(formData, "next"), `/${homeLocale}/dashboard`));
 }
@@ -180,7 +199,8 @@ export async function resendVerificationCodeAction(_prev: FormState, formData: F
   if (!(await resendAllowed(parsed.data.email))) return { status: "error", code: "resend_cooldown", values };
 
   await sendVerificationCode(parsed.data.email);
-  await rememberPendingEmail(parsed.data.email);
+  const pending = await readPendingRegistration();
+  if (pending?.email !== parsed.data.email) await rememberPendingRegistration({ email: parsed.data.email, username: "" });
   return { status: "success", message: parsed.data.email };
 }
 
@@ -227,12 +247,13 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     if (code !== "email_not_verified") return { status: "error", code, values };
     // Better Auth meldet das erst nach korrektem Passwort: Die Adresse darf
     // also angezeigt werden. Höchstens ein neuer Code pro Minute.
-    const email = identifier.includes("@")
-      ? identifier
-      : (await db.user.findUnique({ where: { username: identifier }, select: { email: true } }))?.email;
-    if (!email) return { status: "error", code: "generic", values };
-    if (await resendAllowed(email)) await sendVerificationCode(email);
-    await rememberPendingEmail(email);
+    const account = await db.user.findUnique({
+      where: identifier.includes("@") ? { email: identifier } : { username: identifier },
+      select: { email: true, username: true },
+    });
+    if (!account) return { status: "error", code: "generic", values };
+    if (await resendAllowed(account.email)) await sendVerificationCode(account.email);
+    await rememberPendingRegistration(account);
     const next = safeRedirectPath(text(formData, "next"), "");
     redirect(`/${locale}/confirm-email?unverified=1${next ? `&next=${encodeURIComponent(next)}` : ""}`);
   }

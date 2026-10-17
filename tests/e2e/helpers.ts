@@ -73,9 +73,17 @@ export async function waitForMailCode(to: string, since: number): Promise<string
   return code;
 }
 
-/** Gibt auf der Code-Seite einen Code ein (die Adresse ist vorausgefüllt). */
+/** Die sechs Ziffernfelder der Code-Seite. */
+export function codeFields(page: Page) {
+  return page.getByRole("group", { name: "Bestätigungscode" }).getByRole("textbox");
+}
+
+/**
+ * Gibt auf der Code-Seite einen Code ein (die Adresse ist bekannt). `fill` ins
+ * erste Feld entspricht Einfügen bzw. Autofill und verteilt den Code.
+ */
 export async function enterCode(page: Page, code: string) {
-  await page.getByLabel("Bestätigungscode").fill(code);
+  await codeFields(page).first().fill(code);
   await page.getByRole("button", { name: "Bestätigen", exact: true }).click();
 }
 

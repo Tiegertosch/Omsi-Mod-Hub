@@ -12,7 +12,8 @@ import { registerAction } from "@/server/actions/auth";
 
 import { useFormMessages } from "./use-form-messages";
 
-export function RegisterForm() {
+/** `initial`: Werte aus Schritt 2 („E-Mail-Adresse bearbeiten“); das Passwort wird neu eingegeben. */
+export function RegisterForm({ initial }: { initial?: { username: string; email: string } }) {
   const locale = useLocale();
   const [state, formAction] = useActionState(registerAction, idleState);
   const { t, fieldError, formError, value } = useFormMessages(state);
@@ -27,6 +28,7 @@ export function RegisterForm() {
         <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
       </div>
       {formError ? <FormAlert tone="error">{formError}</FormAlert> : null}
+      {initial && !formError ? <p className="text-sm text-muted">{t("editEmailNotice")}</p> : null}
 
       <TextField
         id="register-username"
@@ -36,7 +38,7 @@ export function RegisterForm() {
         required
         maxLength={USERNAME_MAX}
         spellCheck={false}
-        defaultValue={value("username")}
+        defaultValue={value("username") ?? initial?.username}
         hint={t("usernameHint")}
         error={fieldError("username")}
       />
@@ -48,7 +50,7 @@ export function RegisterForm() {
         autoComplete="email"
         required
         maxLength={254}
-        defaultValue={value("email")}
+        defaultValue={value("email") ?? initial?.email}
         error={fieldError("email")}
       />
       <TextField
