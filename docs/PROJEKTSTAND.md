@@ -1,6 +1,6 @@
 # Projektstand OMSI Mod Hub
 
-Stand: **17.10.2026**, Konto-Funktionen auf dem Branch `feature/account-management`. Diese Datei fasst zusammen, was gebaut wurde, warum Entscheidungen so gefallen sind, wie die Beta betrieben wird und was offen ist. Details stehen in [README.md](../README.md), [ARCHITECTURE.md](ARCHITECTURE.md) und [DEPLOYMENT.md](DEPLOYMENT.md).
+Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Geräte, Konto löschen). Diese Datei fasst zusammen, was gebaut wurde, warum Entscheidungen so gefallen sind, wie die Beta betrieben wird und was offen ist. Details stehen in [README.md](../README.md), [ARCHITECTURE.md](ARCHITECTURE.md) und [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Kurzfassung
 
