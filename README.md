@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/made-with-ai.png" alt="Made with AI – dieses Projekt wurde mit KI erstellt" width="400">
+</p>
+
 # OMSI Mod Hub
 
 Internationales Katalog- und Downloadportal für Mods des Omnibus-Simulators **OMSI 2** (Arbeitstitel).
