@@ -115,6 +115,7 @@ sudo chmod 440 /etc/sudoers.d/omsi-mod-hub && sudo visudo -c
 
 ```bash
 sudo -iu omsi
+mkdir -p ~/.ssh && chmod 700 ~/.ssh   # der Systemnutzer hat noch keinen .ssh-Ordner
 ssh-keygen -t ed25519 -f ~/.ssh/github_deploy -N "" -C "omsi-mod-hub-server"
 cat > ~/.ssh/config <<'EOF'
 Host github.com
@@ -124,7 +125,7 @@ EOF
 cat ~/.ssh/github_deploy.pub
 ```
 
-Den angezeigten Schlüssel auf GitHub eintragen: Repo → **Settings → Deploy keys → Add deploy key**, Titel z. B. „Beta-Server“, **„Allow write access“ nicht anhaken**. Dann testen (Fingerprint mit `yes` bestätigen):
+Der letzte Befehl gibt den öffentlichen Schlüssel im Terminal aus: eine Zeile, die mit `ssh-ed25519` beginnt und mit `omsi-mod-hub-server` endet. Die ganze Zeile kopieren (nur die `.pub`-Datei; der private Schlüssel `github_deploy` bleibt auf dem Server) und auf GitHub eintragen: Repo → **Settings → Deploy keys → Add deploy key**, Titel z. B. „Beta-Server“, **„Allow write access“ nicht anhaken**. Dann testen (Fingerprint mit `yes` bestätigen):
 
 ```bash
 ssh -T git@github.com          # „Hi Tiegertosch/Omsi-Mod-Hub! You've successfully authenticated…“
