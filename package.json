@@ -22,7 +22,8 @@
     "db:reset": "prisma migrate reset",
     "db:clear-samples": "tsx prisma/seed.ts --clear-samples",
     "db:studio": "prisma studio",
-    "user:set-role": "tsx scripts/set-role.ts"
+    "user:set-role": "tsx scripts/set-role.ts",
+    "mail:test": "tsx scripts/send-test-mail.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "7.10.1",

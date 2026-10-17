@@ -1,0 +1,37 @@
+# systemd-Dienst für OMSI Mod Hub.
+# Kopieren nach /etc/systemd/system/omsi-mod-hub.service, dann:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now omsi-mod-hub
+
+[Unit]
+Description=OMSI Mod Hub (Next.js)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=omsi
+Group=omsi
+WorkingDirectory=/opt/omsi-mod-hub/current
+EnvironmentFile=/etc/omsi-mod-hub/env
+Environment=NODE_ENV=production
+# Nur lokal erreichbar; nach außen spricht ausschließlich Caddy.
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+
+# Härtung: Schreibzugriff nur auf Daten und den Next-Cache der Releases
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/omsi-mod-hub /opt/omsi-mod-hub/releases
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

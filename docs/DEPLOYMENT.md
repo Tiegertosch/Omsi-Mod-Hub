@@ -1,0 +1,280 @@
+# Deployment: geschlossene Beta auf einem eigenen Server
+
+Diese Anleitung bringt OMSI Mod Hub auf einen eigenen Linux-Server (VPS). Die Beta ist **geschlossen**: Die ganze Seite liegt hinter einem gemeinsamen Benutzernamen und Passwort (HTTP Basic Auth) und wird nicht von Suchmaschinen indexiert.
+
+Ausgangspunkt: ein frisch angelegter Server mit **Ubuntu 24.04 LTS**. Alle Befehle sind zum Kopieren gedacht; Platzhalter in `GROSSBUCHSTABEN` ersetzen. Zeitbedarf beim ersten Mal: etwa 1–2 Stunden.
+
+## Überblick
+
+```
+Internet ─► Caddy :443  (HTTPS über Let's Encrypt, Basic Auth, noindex)
+              └─► Next.js 127.0.0.1:3000   (systemd-Dienst „omsi-mod-hub“, Nutzer „omsi“)
+                    ├─ /var/lib/omsi-mod-hub/db/omsi.db     SQLite-Datenbank
+                    ├─ /var/lib/omsi-mod-hub/uploads/       hochgeladene Bilder
+                    └─ /var/lib/omsi-mod-hub/backups/       tägliche Backups
+/opt/omsi-mod-hub/releases/<zeit>/   ein Ordner pro Deployment (Code + Build)
+/opt/omsi-mod-hub/current            Symlink auf die aktive Version
+/etc/omsi-mod-hub/env                Konfiguration und Secrets (nicht im Repo)
+```
+
+**Warum kein Docker?** `next build` rendert die öffentlichen Seiten mit den echten Daten vor und braucht deshalb Zugriff auf die Produktionsdatenbank. Beim Bauen direkt auf dem Server ist das einfach gegeben. Außerdem werden die nativen Module (`better-sqlite3`, `sharp`) passend für den Server kompiliert.
+
+## Was du vorher brauchst
+
+| Was | Hinweis |
+|---|---|
+| VPS | z. B. Hetzner Cloud **CX22** oder das aktuelle vergleichbare Modell (mind. 2 vCPU, 4 GB RAM, 40 GB SSD), Standort Deutschland, Ubuntu 24.04. Beim Anlegen deinen **SSH-Schlüssel** hinterlegen und **Backups** aktivieren. |
+| AV-Vertrag | In der Hetzner-Konsole den Vertrag zur Auftragsverarbeitung abschließen (der Server verarbeitet personenbezogene Daten der Tester). |
+| Subdomain | z. B. `beta.DEINE-DOMAIN.de`. Zugriff auf die DNS-Einstellungen der Domain. |
+| E-Mail-Postfach | Ein Postfach für den Versand, z. B. `no-reply@DEINE-DOMAIN.de`, mit SMTP-Server, Port (465 oder 587), Benutzername und Passwort. |
+| GitHub | Admin-Zugriff auf das Repo, um einen Deploy Key einzutragen. |
+
+## 1. Server vorbereiten
+
+Als `root` anmelden (IP aus der Hetzner-Konsole):
+
+```bash
+ssh root@SERVER-IP
+apt update && apt -y full-upgrade
+```
+
+**Eigenen Admin-Nutzer anlegen** (statt dauerhaft als root zu arbeiten) und den SSH-Schlüssel übernehmen:
+
+```bash
+adduser --gecos "" ADMIN-NAME          # Passwort für sudo vergeben
+usermod -aG sudo ADMIN-NAME
+rsync --archive --chown=ADMIN-NAME:ADMIN-NAME ~/.ssh /home/ADMIN-NAME
+```
+
+In einem **zweiten Terminal** testen, bevor du weitermachst: `ssh ADMIN-NAME@SERVER-IP` und `sudo -v`. Erst wenn das klappt, Passwort-Login und Root-Login abschalten:
+
+```bash
+sudo tee /etc/ssh/sshd_config.d/99-hardening.conf >/dev/null <<'EOF'
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+EOF
+sudo systemctl restart ssh
+```
+
+Ab hier alles als `ADMIN-NAME`.
+
+**Firewall, automatische Sicherheitsupdates, Swap:**
+
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 443
+sudo ufw --force enable
+
+sudo apt install -y unattended-upgrades
+sudo dpkg-reconfigure -f noninteractive unattended-upgrades
+
+# 2 GB Swap als Reserve für den Build
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+## 2. Software installieren
+
+```bash
+# Werkzeuge (Build-Tools nur als Fallback für native Module)
+sudo apt install -y git curl sqlite3 build-essential python3 \
+  debian-keyring debian-archive-keyring apt-transport-https gnupg
+
+# Node.js 24 LTS (NodeSource)
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo corepack enable            # stellt „pnpm“ in der Version aus package.json bereit
+node --version                  # v24.x
+
+# Caddy (offizielles Paket)
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg /etc/apt/sources.list.d/caddy-stable.list
+sudo apt update && sudo apt install -y caddy
+```
+
+## 3. Dienstnutzer und Verzeichnisse
+
+```bash
+sudo adduser --system --group --home /home/omsi --shell /bin/bash omsi
+
+sudo mkdir -p /opt/omsi-mod-hub/releases /var/lib/omsi-mod-hub/{db,uploads,backups} /etc/omsi-mod-hub
+sudo chown -R omsi:omsi /opt/omsi-mod-hub /var/lib/omsi-mod-hub
+sudo chmod 750 /var/lib/omsi-mod-hub
+sudo chown omsi:omsi /etc/omsi-mod-hub && sudo chmod 700 /etc/omsi-mod-hub
+
+# „omsi“ darf nur den eigenen Dienst neu starten (für deploy.sh)
+echo 'omsi ALL=(root) NOPASSWD: /usr/bin/systemctl restart omsi-mod-hub' | sudo tee /etc/sudoers.d/omsi-mod-hub
+sudo chmod 440 /etc/sudoers.d/omsi-mod-hub && sudo visudo -c
+```
+
+## 4. Zugriff auf das private Repo (Deploy Key)
+
+```bash
+sudo -iu omsi
+ssh-keygen -t ed25519 -f ~/.ssh/github_deploy -N "" -C "omsi-mod-hub-server"
+cat > ~/.ssh/config <<'EOF'
+Host github.com
+  IdentityFile ~/.ssh/github_deploy
+  IdentitiesOnly yes
+EOF
+cat ~/.ssh/github_deploy.pub
+```
+
+Den angezeigten Schlüssel auf GitHub eintragen: Repo → **Settings → Deploy keys → Add deploy key**, Titel z. B. „Beta-Server“, **„Allow write access“ nicht anhaken**. Dann testen (Fingerprint mit `yes` bestätigen):
+
+```bash
+ssh -T git@github.com          # „Hi Tiegertosch/Omsi-Mod-Hub! You've successfully authenticated…“
+```
+
+Code einmalig holen, um die Konfigurationsdateien zu kopieren:
+
+```bash
+git clone --depth 1 git@github.com:Tiegertosch/Omsi-Mod-Hub.git /tmp/omsi-setup
+cp /tmp/omsi-setup/deploy/deploy.sh /tmp/omsi-setup/deploy/backup.sh /opt/omsi-mod-hub/
+chmod 750 /opt/omsi-mod-hub/*.sh
+cp /tmp/omsi-setup/deploy/env.production.example /etc/omsi-mod-hub/env
+chmod 600 /etc/omsi-mod-hub/env
+exit                            # zurück zu ADMIN-NAME
+```
+
+## 5. Konfiguration
+
+```bash
+sudo -u omsi nano /etc/omsi-mod-hub/env
+```
+
+- `NEXT_PUBLIC_SITE_URL` und `BETTER_AUTH_URL`: `https://beta.DEINE-DOMAIN.de`
+- `BETTER_AUTH_SECRET`: **neu** erzeugen (nicht das lokale wiederverwenden):
+  `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`
+- `SMTP_URL`: Port 465 → `smtps://BENUTZER:PASSWORT@SMTP-SERVER:465`, Port 587 → `smtp://…:587`. Sonderzeichen in Benutzer und Passwort URL-kodieren (`@` → `%40`, `:` → `%3A`, `#` → `%23`, `%` → `%25`). Ist der Benutzer die E-Mail-Adresse, wird daraus z. B. `no-reply%40DEINE-DOMAIN.de`.
+- `MAIL_FROM`: Absender mit derselben Adresse wie das Postfach.
+
+**SMTP testen** (mit dem Testcode aus Schritt 4):
+
+```bash
+sudo -iu omsi
+cd /tmp/omsi-setup && ln -s /etc/omsi-mod-hub/env .env
+COREPACK_ENABLE_DOWNLOAD_PROMPT=0 pnpm install --frozen-lockfile
+pnpm mail:test DEINE-EIGENE@ADRESSE.de
+exit
+```
+
+Die Ausgabe nennt bei Fehlern die wahrscheinliche Ursache (Anmeldung, TLS/Port, Absender). Landet die Testmail im Spam, beim Mail-Anbieter SPF und DKIM für die Domain prüfen.
+
+## 6. DNS, Caddy und Dienste
+
+**DNS:** Bei deinem Domain-Anbieter einen **A-Eintrag** `beta` → `SERVER-IP` anlegen (und, falls der Server IPv6 hat, einen **AAAA-Eintrag**). Prüfen, bis die IP erscheint:
+
+```bash
+getent hosts beta.DEINE-DOMAIN.de
+```
+
+**Caddy** (erst wenn der DNS-Eintrag wirkt, sonst schlägt das Zertifikat fehl):
+
+```bash
+caddy hash-password             # Beta-Passwort zweimal eingeben, Hash kopieren
+sudo cp /tmp/omsi-setup/deploy/Caddyfile.example /etc/caddy/Caddyfile
+sudo nano /etc/caddy/Caddyfile  # E-Mail, Domain, Benutzername und Hash eintragen
+sudo mkdir -p /var/log/caddy && sudo chown caddy:caddy /var/log/caddy
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
+
+**systemd-Dienste:**
+
+```bash
+sudo cp /tmp/omsi-setup/deploy/omsi-mod-hub.service \
+        /tmp/omsi-setup/deploy/omsi-mod-hub-backup.service \
+        /tmp/omsi-setup/deploy/omsi-mod-hub-backup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable omsi-mod-hub
+sudo systemctl enable --now omsi-mod-hub-backup.timer
+```
+
+## 7. Erstes Deployment
+
+```bash
+sudo -iu omsi
+INITIAL_SEED=1 /opt/omsi-mod-hub/deploy.sh
+exit
+```
+
+`INITIAL_SEED=1` legt **nur beim ersten Mal** die Kategorien und Tags an (ohne Beispieldaten). Später nicht mehr verwenden, sonst werden im Adminbereich geänderte Namen und Icons überschrieben.
+
+Prüfen:
+
+```bash
+curl -I https://beta.DEINE-DOMAIN.de                   # 401 (Passwort nötig)
+curl -I -u BETA_BENUTZER https://beta.DEINE-DOMAIN.de  # 307 bzw. 200 nach Passworteingabe
+curl https://beta.DEINE-DOMAIN.de/api/health           # {"status":"ok"}
+```
+
+Aufräumen: `sudo rm -rf /tmp/omsi-setup`
+
+## 8. Erstes Admin-Konto
+
+1. Im Browser `https://beta.DEINE-DOMAIN.de` öffnen (Beta-Zugangsdaten eingeben), registrieren und die E-Mail bestätigen.
+2. Auf dem Server die Rolle setzen:
+
+```bash
+sudo -iu omsi
+cd /opt/omsi-mod-hub/current && pnpm user:set-role DEINE@ADRESSE.de admin
+exit
+```
+
+Danach ist unter *Konto → Administration* der Adminbereich erreichbar.
+
+## Betrieb
+
+**Update auf den neuesten Stand von `main`:**
+
+```bash
+sudo -iu omsi /opt/omsi-mod-hub/deploy.sh
+```
+
+Das Skript baut in einem neuen Ordner, die laufende Version bleibt bis zum Umschalten aktiv. Schlägt der Health-Check nach dem Neustart fehl, stellt es automatisch auf die vorherige Version zurück. Ändert sich `deploy/deploy.sh` oder `deploy/backup.sh` im Repo, die Kopie unter `/opt/omsi-mod-hub/` von Hand aktualisieren: `cp /opt/omsi-mod-hub/current/deploy/*.sh /opt/omsi-mod-hub/`.
+
+**Manuelles Zurückstellen** auf eine ältere Version (Migrationen werden dabei nicht zurückgedreht):
+
+```bash
+sudo -iu omsi
+ls /opt/omsi-mod-hub/releases
+ln -sfn /opt/omsi-mod-hub/releases/ZEITSTEMPEL /opt/omsi-mod-hub/current
+sudo systemctl restart omsi-mod-hub
+```
+
+**Logs:**
+
+```bash
+journalctl -u omsi-mod-hub -f            # App
+sudo tail -f /var/log/caddy/omsi-mod-hub.log
+systemctl list-timers omsi-mod-hub-backup.timer
+```
+
+**Backups:** täglich um 03:30 Uhr nach `/var/lib/omsi-mod-hub/backups` (14 Tage). Manuell: `sudo -iu omsi /opt/omsi-mod-hub/backup.sh`. Wiederherstellen steht im Kopf von `deploy/backup.sh`.
+
+Diese Backups liegen auf demselben Server. Für den Fall, dass er ausfällt oder gelöscht wird, zusätzlich **außerhalb** sichern, z. B. Hetzner-Server-Backups (bereits aktiviert) und/oder eine Hetzner Storage Box per `rsync`:
+
+```bash
+# Beispiel (als omsi, nach Einrichten eines SSH-Schlüssels für die Storage Box):
+rsync -az --delete -e 'ssh -p 23' /var/lib/omsi-mod-hub/backups/ uXXXXX@uXXXXX.your-storagebox.de:omsi-mod-hub/
+```
+
+Einmal testweise wiederherstellen, um sicherzugehen, dass die Backups brauchbar sind.
+
+**Monitoring:** Bei einem Dienst wie UptimeRobot `https://beta.DEINE-DOMAIN.de/api/health` alle 5 Minuten prüfen lassen; der Pfad ist von der Basic Auth ausgenommen.
+
+**Beispieldaten:** Auf dem Server nie `pnpm db:seed` ohne `SEED_SAMPLES=false` ausführen – das legt fiktive Creator und Projekte an.
+
+## Vor dem öffentlichen Start
+
+- [ ] Impressum, Datenschutzerklärung und Nutzungsbedingungen vollständig und rechtlich geprüft (die Texte im Repo sind Entwürfe mit Platzhaltern)
+- [ ] Basic Auth und `X-Robots-Tag` im Caddyfile entfernen; `robots.txt` und Sitemap prüfen
+- [ ] Content-Security-Policy ergänzen
+- [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen
+- [ ] Backup außerhalb des Servers eingerichtet und Wiederherstellung getestet
+- [ ] Bei Wachstum: PostgreSQL, Objektspeicher für Bilder, gemeinsamer Cache-Handler (siehe ARCHITECTURE.md)

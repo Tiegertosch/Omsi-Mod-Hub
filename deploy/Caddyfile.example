@@ -1,0 +1,47 @@
+# Caddy-Konfiguration für die geschlossene Beta.
+# Kopieren nach /etc/caddy/Caddyfile, Platzhalter ersetzen, dann:
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+#
+# Caddy holt das TLS-Zertifikat (Let's Encrypt) automatisch, sobald der
+# DNS-Eintrag auf den Server zeigt und die Ports 80/443 offen sind.
+
+{
+	# Kontaktadresse für Let's Encrypt (Ablaufwarnungen)
+	email ADMIN@EXAMPLE.COM
+}
+
+BETA.EXAMPLE.COM {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		# Beta nicht in Suchmaschinen aufnehmen (zusätzlich zur Basic Auth)
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+
+	# Bild-Uploads laufen über Server Actions (Limit dort: 6 MB)
+	request_body {
+		max_size 8MB
+	}
+
+	# Geschlossene Beta: alles außer dem Health-Check hinter Benutzername/Passwort.
+	# Hash erzeugen mit:  caddy hash-password
+	@geschuetzt not path /api/health
+	basic_auth @geschuetzt {
+		BETA_BENUTZER BCRYPT_HASH_AUS_CADDY_HASH_PASSWORD
+	}
+
+	reverse_proxy 127.0.0.1:3000 {
+		# Zugangsdaten der Basic Auth nicht an die App weitergeben
+		header_up -Authorization
+	}
+
+	log {
+		output file /var/log/caddy/omsi-mod-hub.log {
+			roll_size 20MiB
+			roll_keep 5
+		}
+	}
+}

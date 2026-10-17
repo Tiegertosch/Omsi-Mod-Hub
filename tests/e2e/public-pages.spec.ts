@@ -107,3 +107,10 @@ test("Unbekannte Adressen liefern einen echten HTTP-404", async ({ page }) => {
     expect(response?.status(), path).toBe(200);
   }
 });
+
+test("Health-Check meldet eine erreichbare Datenbank", async ({ request }) => {
+  const response = await request.get("/api/health");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["cache-control"]).toContain("no-store");
+  expect(await response.json()).toEqual({ status: "ok" });
+});

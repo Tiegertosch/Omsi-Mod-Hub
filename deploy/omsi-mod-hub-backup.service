@@ -1,0 +1,11 @@
+# Einmaliges Backup; ausgelöst durch omsi-mod-hub-backup.timer.
+# Kopieren nach /etc/systemd/system/ (zusammen mit dem Timer).
+
+[Unit]
+Description=OMSI Mod Hub Backup (Datenbank und Bilder)
+
+[Service]
+Type=oneshot
+User=omsi
+Group=omsi
+ExecStart=/opt/omsi-mod-hub/backup.sh

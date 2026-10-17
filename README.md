@@ -105,6 +105,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm db:reset` | Datenbank zurücksetzen, alle Migrationen und den Seed neu ausführen (**löscht alle Daten**) |
 | `pnpm db:studio` | Prisma Studio öffnen |
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Rolle eines bestätigten Kontos setzen (lokales CLI, mit Audit-Log) |
+| `pnpm mail:test <email>` | SMTP-Konfiguration prüfen und eine Testmail senden |
 
 **Beispieldaten:** Alle Creator und Projekte aus dem Seed sind fiktiv, mit `isSample = true` markiert, in der Oberfläche als „Beispieldaten“ gekennzeichnet, per `noindex` von Suchmaschinen ausgeschlossen und verlinken nur auf `example.com`. Die Illustrationen unter `public/samples/` wurden eigens erstellt. Der Seed legt **keine Admin-Konten und keine Passwörter** an.
 
@@ -132,6 +133,16 @@ Mit PostgreSQL wurde der Code bisher **nicht getestet**, da lokal kein Server ve
 | `pnpm test:e2e` | Playwright-Tests gegen den Produktionsbuild (vorher `pnpm build`, DB geseedet) |
 
 Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungs- und Reset-Links aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
+
+## Betrieb / Deployment
+
+Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy als HTTPS-Reverse-Proxy mit Basic Auth, SQLite und Bilder auf der Festplatte). Die Schritt-für-Schritt-Anleitung steht in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), die Dateien dazu unter [deploy/](deploy/):
+
+- `deploy.sh`: Deployment mit Release-Ordnern, Health-Check und automatischem Rollback
+- `backup.sh`: tägliches Backup von Datenbank und Bildern
+- systemd-Units, `Caddyfile.example`, `env.production.example`
+
+`GET /api/health` meldet, ob die App und die Datenbank erreichbar sind; der Endpunkt ist für das Monitoring gedacht.
 
 ## Projektstruktur
 
@@ -166,7 +177,8 @@ src/
     images.ts, storage.ts  Bildprüfung/-neukodierung (sharp) und Ablage
   app/media/[key]/     Auslieferung hochgeladener Bilder
   proxy.ts             Spracherkennung, Vorab-Weiterleitung geschützter Bereiche
-scripts/               set-role.ts (Rollen per CLI), cleanup-e2e.ts
+scripts/               set-role.ts (Rollen per CLI), send-test-mail.ts (SMTP-Test), cleanup-e2e.ts
+deploy/                Server-Konfiguration und Skripte (siehe docs/DEPLOYMENT.md)
 tests/
   unit/                Vitest
   e2e/                 Playwright
@@ -178,7 +190,7 @@ tests/
 - **Benachrichtigungen** werden ohne Warteschlange im Hintergrund versendet; schlägt der Versand fehl, wird das nur protokolliert (kein erneuter Versuch). An Beispielkonten wird nichts gesendet.
 - **Bildspeicher lokal:** Uploads liegen im Dateisystem (`UPLOAD_DIR`). Für mehrere Server-Instanzen oder Serverless-Hosting ist ein Objektspeicher (z. B. S3) nötig; die Schnittstelle ist in `src/server/storage.ts` gekapselt. Backups müssen dieses Verzeichnis einschließen.
 - **Reihenfolge von Screenshots** lässt sich noch nicht ändern (Upload-Reihenfolge); Bildbeschreibungen nur beim Hochladen.
-- **SMTP-Versand nicht getestet:** Getestet ist der Ablauf mit `MAIL_TRANSPORT=file`. Der SMTP-Transport ist implementiert, mangels Zugangsdaten aber nicht gegen einen echten Server geprüft.
+- **SMTP-Versand:** Die E2E-Tests nutzen `MAIL_TRANSPORT=file`. Den SMTP-Zugang prüft `pnpm mail:test <adresse>` (lokal gegen einen Test-SMTP-Server geprüft, noch nicht gegen einen echten Anbieter).
 - **IP-basierte Rate-Limits** lesen `X-Forwarded-For`. Das ist nur hinter einem Reverse Proxy belastbar, der diesen Header setzt bzw. überschreibt; direkt im Internet ließe sich das IP-Limit umgehen. Limits pro Konto/E-Mail bleiben wirksam.
 - **Benutzernamen** sind nach der Registrierung unveränderlich (Teil der Profil-URL). Konto löschen und E-Mail ändern sind noch nicht umgesetzt.
 - **Zwischenspeicherung:** Öffentliche Daten sind gecacht (Details in ARCHITECTURE.md). Listen und Katalog zeigen nach einer Änderung für eine Anfrage noch den alten Stand; Aufrufzähler sind bis zu einige Minuten alt. Änderungen direkt in der Datenbank (Seed, Prisma Studio, CLI) erscheinen erst nach Ablauf der Cache-Dauer oder nach einem Neustart. Der Cache liegt im Arbeitsspeicher – für mehrere Server-Instanzen ist ein gemeinsamer Cache-Handler nötig. `pnpm build` braucht Zugriff auf die Datenbank.

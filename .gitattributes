@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# Dateien, die auf dem Linux-Server ausgeführt bzw. gelesen werden, immer mit LF auschecken
+*.sh text eol=lf
+deploy/** text eol=lf

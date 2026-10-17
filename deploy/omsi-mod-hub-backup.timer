@@ -1,0 +1,14 @@
+# Tägliches Backup um 03:30 Uhr (Serverzeit). Aktivieren mit:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now omsi-mod-hub-backup.timer
+
+[Unit]
+Description=Tägliches Backup von OMSI Mod Hub
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
