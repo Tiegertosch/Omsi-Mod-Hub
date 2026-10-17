@@ -10,6 +10,7 @@ export type FormErrorCode =
   | "rate_limit"
   | "token_invalid"
   | "current_password_wrong"
+  | "admin_account"
   | "unauthorized"
   | "generic";
 
@@ -22,7 +23,9 @@ export type FieldErrorCode =
   | "acceptTerms"
   | "required"
   | "name"
-  | "locale";
+  | "locale"
+  | "emailSame"
+  | "confirmUsername";
 
 export type FormState<E extends string = FormErrorCode, F extends string = FieldErrorCode> =
   | { status: "idle" }

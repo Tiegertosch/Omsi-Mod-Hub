@@ -32,6 +32,27 @@ export function verificationEmail(user: MailUser, url: string): MailMessage {
   return { to: user.email, subject: t("verifySubject"), text: t("verifyBody", { name: user.name, url }) };
 }
 
+/** Schritt 1 der E-Mail-Änderung: Bestätigung über die bisherige Adresse. */
+export function changeEmailConfirmationEmail(user: MailUser, newEmail: string, url: string): MailMessage {
+  const t = translator(mailLocale(user));
+  return {
+    to: user.email,
+    subject: t("changeEmailConfirmSubject"),
+    text: t("changeEmailConfirmBody", { name: user.name, newEmail, url }),
+  };
+}
+
+/** Schritt 2: Bestätigung der neuen Adresse (`user.email` ist hier schon die neue). */
+export function changeEmailVerificationEmail(user: MailUser, url: string): MailMessage {
+  const t = translator(mailLocale(user));
+  return { to: user.email, subject: t("changeEmailVerifySubject"), text: t("changeEmailVerifyBody", { name: user.name, url }) };
+}
+
+export function accountDeletedEmail(user: MailUser): MailMessage {
+  const t = translator(mailLocale(user));
+  return { to: user.email, subject: t("accountDeletedSubject"), text: t("accountDeletedBody", { name: user.name }) };
+}
+
 export function resetPasswordEmail(user: MailUser, url: string): MailMessage {
   const t = translator(mailLocale(user));
   return { to: user.email, subject: t("resetSubject"), text: t("resetBody", { name: user.name, url }) };

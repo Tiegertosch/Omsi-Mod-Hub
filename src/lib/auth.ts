@@ -8,7 +8,12 @@ import { admin, username } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { adminAc, defaultStatements, userAc } from "better-auth/plugins/admin/access";
 
-import { resetPasswordEmail, verificationEmail } from "@/server/emails";
+import {
+  changeEmailConfirmationEmail,
+  changeEmailVerificationEmail,
+  resetPasswordEmail,
+  verificationEmail,
+} from "@/server/emails";
 import { sendMailInBackground } from "@/server/mail";
 
 import { PASSWORD_MAX, PASSWORD_MIN, USERNAME_MAX, USERNAME_MIN, USERNAME_PATTERN } from "./auth-rules";
@@ -65,10 +70,23 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60 * 24,
     sendVerificationEmail: async ({ user, url }) => {
-      sendMailInBackground(verificationEmail(user, url));
+      // Bei einer E-Mail-Änderung ist das Konto schon bestätigt und `user.email`
+      // enthält die neue Adresse; Registrierung und Anmeldung betreffen nur
+      // unbestätigte Konten.
+      sendMailInBackground(user.emailVerified ? changeEmailVerificationEmail(user, url) : verificationEmail(user, url));
     },
   },
   user: {
+    // Zweistufig: erst Bestätigung über die bisherige, dann über die neue Adresse.
+    // Ist die neue Adresse vergeben, antwortet Better Auth gleich, verschickt aber nichts.
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+        sendMailInBackground(changeEmailConfirmationEmail(user, newEmail, url));
+      },
+    },
+    // deleteUser bleibt deaktiviert: Das Löschen übernimmt eine eigene Server
+    // Action, weil Projekte und Bilder mit entfernt werden müssen.
     additionalFields: {
       preferredLocale: { type: "string", required: false, input: true },
       isSample: { type: "boolean", required: false, input: false, defaultValue: false },
@@ -78,6 +96,10 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 30,
     updateAge: 60 * 60 * 24,
   },
+  // Nur über Server Actions erreichbar (auth.api.* ist davon nicht betroffen):
+  // Dort gelten Passwortabfrage, Validierung und eigene Limits. "/list-sessions"
+  // würde die Session-Tokens aller Geräte an den Browser ausliefern.
+  disabledPaths: ["/change-email", "/update-user", "/list-sessions"],
   // Gilt für alle HTTP-Anfragen an /api/auth/*. Server Actions haben eigene Limits.
   rateLimit: {
     enabled: true,

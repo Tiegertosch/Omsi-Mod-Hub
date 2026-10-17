@@ -1,13 +1,13 @@
 # Projektstand OMSI Mod Hub
 
-Stand: **17.10.2026**, `main` auf Commit `1014f0c`. Diese Datei fasst zusammen, was gebaut wurde, warum Entscheidungen so gefallen sind, wie die Beta betrieben wird und was offen ist. Details stehen in [README.md](../README.md), [ARCHITECTURE.md](ARCHITECTURE.md) und [DEPLOYMENT.md](DEPLOYMENT.md).
+Stand: **17.10.2026**, Konto-Funktionen auf dem Branch `feature/account-management`. Diese Datei fasst zusammen, was gebaut wurde, warum Entscheidungen so gefallen sind, wie die Beta betrieben wird und was offen ist. Details stehen in [README.md](../README.md), [ARCHITECTURE.md](ARCHITECTURE.md) und [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Kurzfassung
 
 - Zweisprachiges (DE/EN) Katalogportal für OMSI-2-Mods. **Es werden keine Mod-Dateien gehostet**, nur externe Links. Zielgruppe ist international, die Standardsprache Englisch.
-- Fertig sind: öffentlicher Katalog, Konten, Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
+- Fertig sind: öffentlicher Katalog, Konten (inklusive E-Mail ändern, Geräteübersicht, Konto löschen), Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
 - **Geschlossene Beta live** unter `https://beta.omsi-modhub.de`, hinter Basic Auth, nicht indexiert. Die Datenbank wurde dort am 17.10.2026 mit PostgreSQL neu gestartet.
-- Tests: 91 Unit-Tests (Vitest) und 30 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
+- Tests: 104 Unit-Tests (Vitest) und 36 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
 
 ## Arbeitsweise mit dem Nutzer
 
@@ -38,7 +38,7 @@ Stand: **17.10.2026**, `main` auf Commit `1014f0c`. Diese Datei fasst zusammen, 
   - Meldeformular
   - Download-Links über `/go/[linkId]` mit Klickzähler (Raw SQL, verändert `updatedAt` nicht)
   - Rechtsseiten (nur **Entwürfe**), SEO, Sitemap, Dark Mode
-- **Konten:** Registrierung mit Bestätigung, Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen.
+- **Konten:** Registrierung mit Bestätigung, Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
   - Titelbild und Screenshots, Versionen mit Links
@@ -63,6 +63,7 @@ Stand: **17.10.2026**, `main` auf Commit `1014f0c`. Diese Datei fasst zusammen, 
 - **Echter 404:** Der Proxy prüft Projekte, Kategorien, Creator und Rechtsseiten vor dem Rendern (`src/server/route-existence.ts`). `ensureStatic` scheidet aus, weil Session-Header und `searchParams` das verhindern.
 - **`getCurrentUser()`** ruft vor Better Auth `connection()` auf, sonst kommt es beim Runtime-Prefetch zum Fehler „blocking-prerender-current-time“. `cookies()` wird *vor* `connection()` gelesen.
 - **Direkte `auth.api`-Aufrufe** umgehen Rate-Limit und Origin-Prüfung von Better Auth. Deshalb haben die Server Actions eigene Limits (`src/server/rate-limit.ts`, Präfix `app:`).
+- **Über HTTP gesperrt** (`disabledPaths` in `src/lib/auth.ts`): `/change-email`, `/update-user`, `/list-sessions`. Sie laufen nur über Server Actions mit Passwortabfrage und Validierung. Wer eine neue Oberfläche baut, die Better Auth direkt aus dem Browser nutzt, muss das berücksichtigen.
 - **PostgreSQL:** `contains` unterscheidet Groß- und Kleinschreibung; für Anzeigename und Name wird `mode: "insensitive"` verwendet. Enums sind native PostgreSQL-Typen. Die SQLite-Migrationen wurden durch eine neue Initial-Migration ersetzt.
 - **pnpm:**
   - `minimumReleaseAge` ist aktiv; frische Pakete brauchen eine Ausnahme in `pnpm-workspace.yaml`.
@@ -115,6 +116,5 @@ Stand: **17.10.2026**, `main` auf Commit `1014f0c`. Diese Datei fasst zusammen, 
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
 3. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
 4. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
-5. **Konto:** E-Mail-Adresse ändern, Konto löschen, aktive Sitzungen anzeigen.
-6. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
-7. **Smoke-Skript:** Es lag nur im Scratchpad der Sitzung. Seine Klickzähler-Prüfungen erwarten noch Werte ohne Cache; bei Bedarf neu und an das Caching angepasst schreiben.
+5. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
+6. **Smoke-Skript:** Es lag nur im Scratchpad der Sitzung. Seine Klickzähler-Prüfungen erwarten noch Werte ohne Cache; bei Bedarf neu und an das Caching angepasst schreiben.

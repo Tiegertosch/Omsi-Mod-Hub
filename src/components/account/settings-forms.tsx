@@ -9,7 +9,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { localeLabels, routing } from "@/i18n/routing";
 import { DISPLAY_NAME_MAX, PASSWORD_MAX, PASSWORD_MIN } from "@/lib/auth-rules";
 import { idleState } from "@/lib/form-state";
-import { changePasswordAction, updateProfileAction } from "@/server/actions/account";
+import { changeEmailAction, changePasswordAction, updateProfileAction } from "@/server/actions/account";
 
 export function ProfileForm({
   name,
@@ -133,6 +133,50 @@ export function PasswordForm() {
       </label>
       <SubmitButton pendingLabel={authT("submitting")} variant="secondary">
         {t("savePassword")}
+      </SubmitButton>
+    </form>
+  );
+}
+
+export function EmailForm({ email }: { email: string }) {
+  const locale = useLocale();
+  const t = useTranslations("Account");
+  const [state, formAction] = useActionState(changeEmailAction, idleState);
+  const { fieldError, formError, value, t: authT } = useFormMessages(state);
+
+  return (
+    <form action={formAction} className="space-y-5" noValidate>
+      <input type="hidden" name="locale" value={locale} />
+      {formError ? <FormAlert tone="error">{formError}</FormAlert> : null}
+      {state.status === "success" ? (
+        <FormAlert tone="success">{t("emailChangeSent", { email: state.message ?? email })}</FormAlert>
+      ) : null}
+
+      <TextField id="settings-current-email" label={t("currentEmail")} value={email} readOnly disabled />
+      <TextField
+        id="settings-new-email"
+        name="newEmail"
+        type="email"
+        label={t("newEmail")}
+        autoComplete="email"
+        required
+        maxLength={254}
+        defaultValue={value("newEmail")}
+        hint={t("emailChangeHint")}
+        error={fieldError("newEmail")}
+      />
+      <TextField
+        id="settings-email-password"
+        name="currentPassword"
+        type="password"
+        label={t("currentPassword")}
+        autoComplete="current-password"
+        required
+        maxLength={PASSWORD_MAX}
+        error={fieldError("currentPassword")}
+      />
+      <SubmitButton pendingLabel={authT("submitting")} variant="secondary">
+        {t("saveEmail")}
       </SubmitButton>
     </form>
   );

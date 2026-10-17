@@ -21,8 +21,10 @@ export function randomIp() {
   return `10.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250) + 1}`;
 }
 
-/** Wartet auf die neueste Mail an `to` (MAIL_TRANSPORT=file) und liefert den enthaltenen Link. */
-export async function waitForMailLink(to: string, subjectPattern: RegExp, since: number): Promise<string> {
+type SentMail = { to: string; subject: string; text: string };
+
+/** Wartet auf die neueste Mail an `to` (MAIL_TRANSPORT=file), deren Betreff passt. */
+export async function waitForMail(to: string, subjectPattern: RegExp, since: number): Promise<SentMail> {
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
     try {
@@ -32,11 +34,8 @@ export async function waitForMailLink(to: string, subjectPattern: RegExp, since:
       for (const file of files) {
         if (Number.parseInt(file, 10) < since) break;
         const full = path.join(MAIL_DIR, file);
-        const mail = JSON.parse(await readFile(full, "utf8")) as { to: string; subject: string; text: string };
-        if (mail.to === to && subjectPattern.test(mail.subject)) {
-          const link = /https?:\/\/\S+/.exec(mail.text)?.[0];
-          if (link) return link;
-        }
+        const mail = JSON.parse(await readFile(full, "utf8")) as SentMail;
+        if (mail.to === to && subjectPattern.test(mail.subject)) return mail;
       }
     } catch {
       // Ordner existiert evtl. noch nicht
@@ -44,6 +43,14 @@ export async function waitForMailLink(to: string, subjectPattern: RegExp, since:
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   throw new Error(`Keine Mail an ${to} gefunden.`);
+}
+
+/** Wie waitForMail, liefert aber den enthaltenen Link. */
+export async function waitForMailLink(to: string, subjectPattern: RegExp, since: number): Promise<string> {
+  const mail = await waitForMail(to, subjectPattern, since);
+  const link = /https?:\/\/\S+/.exec(mail.text)?.[0];
+  if (!link) throw new Error(`Mail an ${to} enthält keinen Link.`);
+  return link;
 }
 
 export async function register(page: Page, user: ReturnType<typeof uniqueUser>) {

@@ -286,7 +286,8 @@
       "token_invalid": "The link is invalid or has expired. Please request a new one.",
       "current_password_wrong": "The current password is incorrect.",
       "unauthorized": "Your session has expired. Please sign in again.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "admin_account": "Admin accounts cannot delete themselves."
     },
     "fieldErrors": {
       "username": "This username is not valid.",
@@ -296,7 +297,9 @@
       "acceptTerms": "Please confirm that you have read the terms of use.",
       "required": "This field is required.",
       "name": "Please enter a display name of at most {max} characters.",
-      "locale": "Please choose a language."
+      "locale": "Please choose a language.",
+      "emailSame": "This is already your current address.",
+      "confirmUsername": "The username does not match."
     }
   },
   "Account": {
@@ -340,7 +343,38 @@
     "newPasswordConfirm": "Repeat new password",
     "revokeOthers": "Sign out on all other devices",
     "savePassword": "Change password",
-    "passwordChanged": "Your password has been changed."
+    "passwordChanged": "Your password has been changed.",
+    "emailSection": "Email address",
+    "currentEmail": "Current address",
+    "newEmail": "New email address",
+    "emailChangeHint": "For your security, you first confirm the change via a link sent to your current address, then via a link sent to the new one. Until then, your current address stays active.",
+    "saveEmail": "Change email address",
+    "emailChangeSent": "If the new address can be used, you will shortly find a confirmation link in your current inbox ({email}). A second link to the new address follows after that.",
+    "emailChangeConfirmed": "Link confirmed. If your previous address is still shown below, open the link we just sent to your new address.",
+    "emailChangeFailed": "The confirmation link is invalid or has expired. Please start the change again.",
+    "sessionsSection": "Signed-in devices",
+    "sessionsText": "Your account is currently signed in here. End any sessions you don't recognise, then change your password.",
+    "thisDevice": "This device",
+    "unknownDevice": "Unknown device",
+    "deviceOn": "{browser} on {os}",
+    "signedInAt": "Signed in on {date}",
+    "lastActive": "last active on {date}",
+    "ipAddress": "IP {ip}",
+    "revokeSession": "Sign out",
+    "revokeSessionFor": "Sign out {device}",
+    "revokeOtherSessions": "Sign out all other devices",
+    "otherSessionsRevoked": "All other devices have been signed out.",
+    "deleteSection": "Delete account",
+    "deleteText": "Deleting is permanent and cannot be undone.",
+    "deleteWhat": "This deletes your account, your creator profile and all your projects including versions, links and images. Reports you filed about other projects are kept without any link to your account.",
+    "deleteProjectCount": "{count, plural, =0 {You currently have no projects.} one {# project will be deleted, {published} of them published.} other {# projects will be deleted, {published} of them published.}}",
+    "deleteOpen": "Delete account …",
+    "deleteConfirmLabel": "To confirm, enter your username: {username}",
+    "deleteSubmit": "Permanently delete account",
+    "deleteAdminBlocked": "Admin accounts cannot delete themselves. Remove the admin role on the server first with pnpm user:set-role.",
+    "deletedTitle": "Account deleted",
+    "deletedText": "Your account and your content have been deleted. Thanks for being part of it.",
+    "backHome": "Back to the homepage"
   },
   "Admin": {
     "title": "Administration",
@@ -714,7 +748,13 @@
         "subject": "Visible again: {title} – OMSI Mod Hub",
         "body": "Hello {name},\n\nyour project “{title}” is publicly listed in the catalogue again:\n\n{url}"
       }
-    }
+    },
+    "changeEmailConfirmSubject": "Change your email address – OMSI Mod Hub",
+    "changeEmailConfirmBody": "Hi {name},\n\nsomeone asked to change the email address of your OMSI Mod Hub account to {newEmail}. If that was you, confirm the change with this link:\n\n{url}\n\nAfter that, we will send another link to the new address. The link is valid for 24 hours.\n\nIf that wasn't you, ignore this email and consider changing your password. Your address stays the same.",
+    "changeEmailVerifySubject": "Confirm your new email address – OMSI Mod Hub",
+    "changeEmailVerifyBody": "Hi {name},\n\nplease confirm this address as the new email address of your OMSI Mod Hub account:\n\n{url}\n\nThe address is only changed after that. The link is valid for 24 hours. If you didn't request this, you can ignore this email.",
+    "accountDeletedSubject": "Your account has been deleted – OMSI Mod Hub",
+    "accountDeletedBody": "Hi {name},\n\nyour OMSI Mod Hub account has been deleted, together with your creator profile and your projects.\n\nIf you didn't do this yourself, please contact us using the details on the website."
   },
   "Errors": {
     "notFoundTitle": "Page not found",

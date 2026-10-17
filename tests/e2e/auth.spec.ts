@@ -74,11 +74,12 @@ test("Normale Nutzer erhalten keinen Adminzugang – auch nicht über die API", 
   expect(response?.status()).toBeLessThan(500);
 
   const headers = { origin: baseURL ?? "", "content-type": "application/json" };
-  // Die Anfrage ist authentifiziert (Namensänderung klappt) …
-  const ok = await page.request.post("/api/auth/update-user", { headers, data: { name: "Neuer Name" } });
-  expect(ok.status()).toBe(200);
-  // … aber die Rolle lässt sich weder über update-user noch über Admin-Endpunkte setzen.
-  await page.request.post("/api/auth/update-user", { headers, data: { role: "admin" } });
+  // Die Anfragen sind authentifiziert …
+  const session = await page.request.get("/api/auth/get-session", { headers });
+  expect(((await session.json()) as { user?: { email?: string } } | null)?.user?.email).toBe(user.email);
+  // … aber die Rolle lässt sich weder über update-user (über HTTP gesperrt) noch über Admin-Endpunkte setzen.
+  const updateUser = await page.request.post("/api/auth/update-user", { headers, data: { role: "admin" } });
+  expect(updateUser.status()).toBe(404);
   const setRole = await page.request.post("/api/auth/admin/set-role", {
     headers,
     data: { userId: "irrelevant", role: "admin" },
@@ -168,15 +169,17 @@ test("Einstellungen: Anzeigename, Sprache und Passwort", async ({ page }) => {
   await expect(page).toHaveURL(/\/en\/dashboard\/settings$/);
   await expect(page.getByLabel("Display name")).toHaveValue("Busfahrerin Test");
 
-  await page.getByLabel("Current password").fill("falsch-falsch-falsch");
-  await page.getByLabel("New password", { exact: true }).fill("Noch-ein-Passwort-9");
-  await page.getByLabel("Repeat new password").fill("Noch-ein-Passwort-9");
-  await page.getByRole("button", { name: "Change password" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "current password is incorrect" })).toBeVisible();
+  // „Current password“ steht auch in den Formularen für E-Mail und Löschen.
+  const passwordSection = page.getByRole("region", { name: "Change password" });
+  await passwordSection.getByLabel("Current password").fill("falsch-falsch-falsch");
+  await passwordSection.getByLabel("New password", { exact: true }).fill("Noch-ein-Passwort-9");
+  await passwordSection.getByLabel("Repeat new password").fill("Noch-ein-Passwort-9");
+  await passwordSection.getByRole("button", { name: "Change password" }).click();
+  await expect(passwordSection.getByRole("alert").filter({ hasText: "current password is incorrect" })).toBeVisible();
 
-  await page.getByLabel("Current password").fill(user.password);
-  await page.getByLabel("New password", { exact: true }).fill("Noch-ein-Passwort-9");
-  await page.getByLabel("Repeat new password").fill("Noch-ein-Passwort-9");
-  await page.getByRole("button", { name: "Change password" }).click();
-  await expect(page.getByRole("status")).toContainText("Your password has been changed");
+  await passwordSection.getByLabel("Current password").fill(user.password);
+  await passwordSection.getByLabel("New password", { exact: true }).fill("Noch-ein-Passwort-9");
+  await passwordSection.getByLabel("Repeat new password").fill("Noch-ein-Passwort-9");
+  await passwordSection.getByRole("button", { name: "Change password" }).click();
+  await expect(passwordSection.getByRole("status")).toContainText("Your password has been changed");
 });

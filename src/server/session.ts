@@ -22,6 +22,8 @@ export type CurrentUser = {
   role: string;
   preferredLocale: string | null;
   createdAt: Date;
+  /** ID (nicht Token) der aktuellen Session, z. B. für die Geräteübersicht */
+  sessionId: string;
 };
 
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
@@ -49,6 +51,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     role: user.role ?? "user",
     preferredLocale: user.preferredLocale ?? null,
     createdAt: user.createdAt,
+    sessionId: session.session.id,
   };
 });
 

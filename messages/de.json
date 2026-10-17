@@ -286,7 +286,8 @@
       "token_invalid": "Der Link ist ungültig oder abgelaufen. Fordere bitte einen neuen an.",
       "current_password_wrong": "Das aktuelle Passwort ist falsch.",
       "unauthorized": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
-      "generic": "Das hat nicht geklappt. Bitte versuche es erneut."
+      "generic": "Das hat nicht geklappt. Bitte versuche es erneut.",
+      "admin_account": "Admin-Konten können nicht selbst gelöscht werden."
     },
     "fieldErrors": {
       "username": "Dieser Benutzername ist ungültig.",
@@ -296,7 +297,9 @@
       "acceptTerms": "Bitte bestätige, dass du die Nutzungsbedingungen gelesen hast.",
       "required": "Dieses Feld ist erforderlich.",
       "name": "Bitte gib einen Anzeigenamen mit höchstens {max} Zeichen ein.",
-      "locale": "Bitte wähle eine Sprache."
+      "locale": "Bitte wähle eine Sprache.",
+      "emailSame": "Das ist bereits deine aktuelle Adresse.",
+      "confirmUsername": "Der Benutzername stimmt nicht überein."
     }
   },
   "Account": {
@@ -340,7 +343,38 @@
     "newPasswordConfirm": "Neues Passwort wiederholen",
     "revokeOthers": "Auf allen anderen Geräten abmelden",
     "savePassword": "Passwort ändern",
-    "passwordChanged": "Dein Passwort wurde geändert."
+    "passwordChanged": "Dein Passwort wurde geändert.",
+    "emailSection": "E-Mail-Adresse",
+    "currentEmail": "Aktuelle Adresse",
+    "newEmail": "Neue E-Mail-Adresse",
+    "emailChangeHint": "Zur Sicherheit bestätigst du die Änderung erst über einen Link an deine bisherige Adresse, danach über einen Link an die neue. Bis dahin bleibt die bisherige Adresse aktiv.",
+    "saveEmail": "E-Mail-Adresse ändern",
+    "emailChangeSent": "Wenn die neue Adresse verwendet werden kann, findest du gleich einen Bestätigungslink in deinem bisherigen Postfach ({email}). Danach folgt ein zweiter Link an die neue Adresse.",
+    "emailChangeConfirmed": "Link bestätigt. Wird unten noch die bisherige Adresse angezeigt, öffne jetzt den Link, den wir an die neue Adresse geschickt haben.",
+    "emailChangeFailed": "Der Bestätigungslink ist ungültig oder abgelaufen. Starte die Änderung bitte erneut.",
+    "sessionsSection": "Angemeldete Geräte",
+    "sessionsText": "Hier ist dein Konto gerade angemeldet. Beende Sitzungen, die du nicht kennst, und ändere danach dein Passwort.",
+    "thisDevice": "Dieses Gerät",
+    "unknownDevice": "Unbekanntes Gerät",
+    "deviceOn": "{browser} unter {os}",
+    "signedInAt": "Angemeldet am {date}",
+    "lastActive": "zuletzt aktiv am {date}",
+    "ipAddress": "IP {ip}",
+    "revokeSession": "Abmelden",
+    "revokeSessionFor": "{device} abmelden",
+    "revokeOtherSessions": "Alle anderen Geräte abmelden",
+    "otherSessionsRevoked": "Alle anderen Geräte wurden abgemeldet.",
+    "deleteSection": "Konto löschen",
+    "deleteText": "Das Löschen ist endgültig und lässt sich nicht rückgängig machen.",
+    "deleteWhat": "Gelöscht werden dein Konto, dein Creator-Profil und alle deine Projekte mit Versionen, Links und Bildern. Meldungen, die du zu fremden Projekten abgegeben hast, bleiben ohne Bezug zu deinem Konto erhalten.",
+    "deleteProjectCount": "{count, plural, =0 {Du hast derzeit keine Projekte.} one {# Projekt wird mitgelöscht, davon {published} veröffentlicht.} other {# Projekte werden mitgelöscht, davon {published} veröffentlicht.}}",
+    "deleteOpen": "Konto löschen …",
+    "deleteConfirmLabel": "Gib zur Bestätigung deinen Benutzernamen ein: {username}",
+    "deleteSubmit": "Konto endgültig löschen",
+    "deleteAdminBlocked": "Admin-Konten können nicht selbst gelöscht werden. Entziehe die Admin-Rolle zuerst auf dem Server mit pnpm user:set-role.",
+    "deletedTitle": "Konto gelöscht",
+    "deletedText": "Dein Konto und deine Inhalte wurden gelöscht. Danke, dass du dabei warst.",
+    "backHome": "Zur Startseite"
   },
   "Admin": {
     "title": "Administration",
@@ -714,7 +748,13 @@
         "subject": "Wieder sichtbar: {title} – OMSI Mod Hub",
         "body": "Hallo {name},\n\ndein Projekt „{title}“ ist wieder öffentlich im Katalog sichtbar:\n\n{url}"
       }
-    }
+    },
+    "changeEmailConfirmSubject": "E-Mail-Adresse ändern – OMSI Mod Hub",
+    "changeEmailConfirmBody": "Hallo {name},\n\nfür dein Konto bei OMSI Mod Hub wurde angefragt, die E-Mail-Adresse auf {newEmail} zu ändern. Wenn du das warst, bestätige die Änderung über diesen Link:\n\n{url}\n\nDanach schicken wir einen weiteren Link an die neue Adresse. Der Link ist 24 Stunden gültig.\n\nWenn du das nicht warst, ignoriere diese E-Mail und ändere am besten dein Passwort. Deine Adresse bleibt unverändert.",
+    "changeEmailVerifySubject": "Neue E-Mail-Adresse bestätigen – OMSI Mod Hub",
+    "changeEmailVerifyBody": "Hallo {name},\n\nbitte bestätige diese Adresse als neue E-Mail-Adresse deines Kontos bei OMSI Mod Hub:\n\n{url}\n\nErst danach wird die Adresse übernommen. Der Link ist 24 Stunden gültig. Wenn du das nicht angefragt hast, kannst du diese E-Mail ignorieren.",
+    "accountDeletedSubject": "Dein Konto wurde gelöscht – OMSI Mod Hub",
+    "accountDeletedBody": "Hallo {name},\n\ndein Konto bei OMSI Mod Hub wurde gelöscht, zusammen mit deinem Creator-Profil und deinen Projekten.\n\nWenn du das nicht selbst veranlasst hast, wende dich bitte über die Kontaktangaben auf der Website an uns."
   },
   "Errors": {
     "notFoundTitle": "Seite nicht gefunden",

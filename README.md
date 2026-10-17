@@ -23,6 +23,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Registrierung mit E-Mail-Bestätigung, Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
 | Passwort vergessen / zurücksetzen per E-Mail-Link | ✅ |
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
+| Konto: E-Mail-Adresse ändern (Bestätigung über alte und neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto mit allen Projekten löschen | ✅ |
 | Rollen `user` / `creator` / `admin`, serverseitig geprüft; Adminübersicht (Kennzahlen, Meldungen, neue Konten) | ✅ |
 | Creator werden (Creator-Profil), Projektliste, Editor: Texte DE/EN, Kategorie, Tags, Lizenz, Mitwirkende | ✅ |
 | Titelbild und Screenshots: sicherer Upload (Signaturprüfung, ≤ 5 MB, Neukodierung zu WebP ohne Metadaten) | ✅ |
@@ -194,7 +195,7 @@ tests/
 - **Reihenfolge von Screenshots** lässt sich noch nicht ändern (Upload-Reihenfolge); Bildbeschreibungen nur beim Hochladen.
 - **SMTP-Versand:** Die E2E-Tests nutzen `MAIL_TRANSPORT=file`. Den SMTP-Zugang prüft `pnpm mail:test <adresse>` (lokal gegen einen Test-SMTP-Server geprüft, noch nicht gegen einen echten Anbieter).
 - **IP-basierte Rate-Limits** lesen `X-Forwarded-For`. Das ist nur hinter einem Reverse Proxy belastbar, der diesen Header setzt bzw. überschreibt; direkt im Internet ließe sich das IP-Limit umgehen. Limits pro Konto/E-Mail bleiben wirksam.
-- **Benutzernamen** sind nach der Registrierung unveränderlich (Teil der Profil-URL). Konto löschen und E-Mail ändern sind noch nicht umgesetzt.
+- **Benutzernamen** sind nach der Registrierung unveränderlich (Teil der Profil-URL). Admins können ihr Konto nicht selbst löschen; die Rolle wird zuvor per CLI entzogen. Beim Löschen eines Kontos entstehen Protokolleinträge `user.self_delete` ohne Akteur; das E2E-Aufräumskript (`scripts/cleanup-e2e.ts`) entfernt sie bewusst nicht, weil sie sich nicht von echten unterscheiden lassen.
 - **Zwischenspeicherung:** Öffentliche Daten sind gecacht (Details in ARCHITECTURE.md). Listen und Katalog zeigen nach einer Änderung für eine Anfrage noch den alten Stand; Aufrufzähler sind bis zu einige Minuten alt. Änderungen direkt in der Datenbank (Seed, Prisma Studio, CLI) erscheinen erst nach Ablauf der Cache-Dauer oder nach einem Neustart. Der Cache liegt im Arbeitsspeicher – für mehrere Server-Instanzen ist ein gemeinsamer Cache-Handler nötig. `pnpm build` braucht Zugriff auf die Datenbank.
 - **404-Prüfung im Proxy:** Für Projekt-, Kategorie-, Creator- und Rechtsseiten fragt der Proxy pro Aufruf (auch für Prefetches) die Datenbank über eindeutige Indizes ab. Bei sehr viel Verkehr wäre ein kurzer Zwischenspeicher dafür sinnvoll.
 - **Suche:** Teilstring-Suche über eine normalisierte Suchspalte – ausreichend für das MVP, aber ohne Relevanz-Ranking und bei vielen Tausend Projekten langsam. Geplant: PostgreSQL-Volltextsuche bzw. `pg_trgm`.
@@ -207,7 +208,6 @@ tests/
 
 1. **Moderation ausbauen:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern/paginieren, Linkstatus (`BROKEN`/`BLOCKED`) aus Meldungen heraus setzen.
 2. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption für Benachrichtigungen.
-3. **Konto:** E-Mail ändern, Konto löschen, aktive Sitzungen anzeigen.
-4. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
-5. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.
-6. **Suche und Skalierung:** PostgreSQL-Volltextsuche bzw. `pg_trgm`, verwaltete Datenbank mit Point-in-Time-Recovery, gemeinsamer Cache-Handler bei mehreren Instanzen.
+3. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
+4. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.
+5. **Suche und Skalierung:** PostgreSQL-Volltextsuche bzw. `pg_trgm`, verwaltete Datenbank mit Point-in-Time-Recovery, gemeinsamer Cache-Handler bei mehreren Instanzen.
