@@ -180,10 +180,16 @@ getent hosts beta.DEINE-DOMAIN.de
 caddy hash-password             # Beta-Passwort zweimal eingeben, Hash kopieren
 sudo cp /tmp/omsi-setup/deploy/Caddyfile.example /etc/caddy/Caddyfile
 sudo nano /etc/caddy/Caddyfile  # E-Mail, Domain, Benutzername und Hash eintragen
-sudo mkdir -p /var/log/caddy && sudo chown caddy:caddy /var/log/caddy
+sudo caddy fmt --overwrite /etc/caddy/Caddyfile
 sudo caddy validate --config /etc/caddy/Caddyfile
-sudo systemctl reload caddy
+# Die Prüfung läuft als root und legt dabei die Log-Datei an – danach dem
+# Caddy-Nutzer übergeben, sonst startet der Dienst mit „permission denied“.
+sudo mkdir -p /var/log/caddy && sudo chown -R caddy:caddy /var/log/caddy
+sudo systemctl restart caddy
+sudo systemctl status caddy --no-pager   # „active (running)“
 ```
+
+Bei einer späteren Änderung am Caddyfile genügt `sudo systemctl reload caddy`, sofern Caddy läuft.
 
 **systemd-Dienste:**
 
