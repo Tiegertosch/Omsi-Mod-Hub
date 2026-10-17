@@ -39,7 +39,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 
 - **Next.js 16.4** (App Router, Cache Components, Turbopack), **React 19.3**, **TypeScript** (strict)
 - **Tailwind CSS 4** mit eigenen Design-Tokens, Icons von **lucide-react**
-- **Prisma 7.10** mit **SQLite** (lokal) – vorbereitet für **PostgreSQL**
+- **Prisma 7.10** mit **PostgreSQL** (Treiber-Adapter `@prisma/adapter-pg`)
 - **Better Auth 1.7** (E-Mail/Passwort, Plugins `username` und `admin`), **nodemailer** für E-Mails
 - **next-intl 4** für Internationalisierung
 - **Zod 4** für Validierung
@@ -52,19 +52,30 @@ Begründungen und Architekturentscheidungen: [docs/ARCHITECTURE.md](docs/ARCHITE
 
 - Node.js **≥ 20.19** (getestet mit 24.22)
 - pnpm **12** (`npm install -g pnpm`)
+- **PostgreSQL** (getestet mit 18; unter Windows über den offiziellen Installer)
 
 ## Installation
+
+Einmalig eine Rolle und eine Datenbank anlegen (fragt nach dem Passwort des Nutzers `postgres`; `CREATEDB` braucht Prisma lokal für eine Hilfsdatenbank beim Erzeugen von Migrationen):
+
+```bash
+psql -U postgres -h localhost \
+  -c "CREATE ROLE omsi_mod_hub LOGIN CREATEDB PASSWORD 'EIGENES-PASSWORT';" \
+  -c "CREATE DATABASE omsi_mod_hub OWNER omsi_mod_hub;"
+```
+
+Unter Windows liegt `psql` unter `C:\Program Files\PostgreSQL\<Version>\bin\psql.exe`.
 
 ```bash
 pnpm install          # installiert Abhängigkeiten und erzeugt den Prisma-Client
 cp .env.example .env  # Windows PowerShell: Copy-Item .env.example .env
-                      # → BETTER_AUTH_SECRET setzen (siehe unten)
-pnpm db:migrate       # legt die SQLite-Datenbank an und wendet Migrationen an
+                      # → DATABASE_URL (Passwort) und BETTER_AUTH_SECRET setzen
+pnpm db:migrate       # wendet die Migrationen an
 pnpm db:seed          # Kategorien, Tags und gekennzeichnete Beispieldaten
 pnpm dev              # http://localhost:3000
 ```
 
-pnpm 12 führt Build-Skripte von Abhängigkeiten nur nach Freigabe aus. Die benötigten Freigaben (`better-sqlite3`, `prisma`, `@prisma/engines`, `esbuild`) stehen bereits in `pnpm-workspace.yaml`.
+pnpm 12 führt Build-Skripte von Abhängigkeiten nur nach Freigabe aus. Die benötigten Freigaben (`prisma`, `@prisma/engines`, `esbuild`) stehen bereits in `pnpm-workspace.yaml`; `better-sqlite3` kommt nur indirekt über Prisma Studio mit und wird nicht gebaut.
 
 ## Umgebungsvariablen
 
@@ -109,16 +120,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 
 **Beispieldaten:** Alle Creator und Projekte aus dem Seed sind fiktiv, mit `isSample = true` markiert, in der Oberfläche als „Beispieldaten“ gekennzeichnet, per `noindex` von Suchmaschinen ausgeschlossen und verlinken nur auf `example.com`. Die Illustrationen unter `public/samples/` wurden eigens erstellt. Der Seed legt **keine Admin-Konten und keine Passwörter** an.
 
-**Backups (SQLite):** Server stoppen und `prisma/dev.db` kopieren. Für PostgreSQL ist `pg_dump` vorgesehen.
-
-### Umstieg auf PostgreSQL
-
-1. `provider = "postgresql"` in `prisma/schema.prisma` setzen.
-2. `pnpm add @prisma/adapter-pg` und in `src/lib/db.ts` sowie `prisma/seed.ts` `PrismaBetterSqlite3` durch `PrismaPg` ersetzen.
-3. `DATABASE_URL` auf die PostgreSQL-Instanz setzen.
-4. Den Ordner `prisma/migrations` durch eine neu erzeugte Initial-Migration ersetzen (`pnpm db:migrate --name init`), da Migrationen providerspezifisch sind.
-
-Mit PostgreSQL wurde der Code bisher **nicht getestet**, da lokal kein Server verfügbar war.
+**Backups:** `pg_dump --format=custom "postgresql://…"`; auf dem Server übernimmt das `deploy/backup.sh` (siehe docs/DEPLOYMENT.md).
 
 ## Entwicklung, Tests und Build
 
@@ -136,7 +138,7 @@ Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright inst
 
 ## Betrieb / Deployment
 
-Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy als HTTPS-Reverse-Proxy mit Basic Auth, SQLite und Bilder auf der Festplatte). Die Schritt-für-Schritt-Anleitung steht in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), die Dateien dazu unter [deploy/](deploy/):
+Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy als HTTPS-Reverse-Proxy mit Basic Auth, PostgreSQL auf demselben Server, Bilder auf der Festplatte). Die Schritt-für-Schritt-Anleitung steht in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), die Dateien dazu unter [deploy/](deploy/):
 
 - `deploy.sh`: Deployment mit Release-Ordnern, Health-Check und automatischem Rollback
 - `backup.sh`: tägliches Backup von Datenbank und Bildern
@@ -208,4 +210,4 @@ tests/
 3. **Konto:** E-Mail ändern, Konto löschen, aktive Sitzungen anzeigen.
 4. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
 5. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.
-6. **PostgreSQL** für Staging/Produktion, Volltextsuche, Backups; gemeinsamer Cache-Handler bei mehreren Instanzen.
+6. **Suche und Skalierung:** PostgreSQL-Volltextsuche bzw. `pg_trgm`, verwaltete Datenbank mit Point-in-Time-Recovery, gemeinsamer Cache-Handler bei mehreren Instanzen.

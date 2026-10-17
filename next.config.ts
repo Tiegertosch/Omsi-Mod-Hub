@@ -14,8 +14,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
-  // Native Module dürfen nicht gebündelt werden.
-  serverExternalPackages: ["better-sqlite3", "sharp"],
+  // Native Module bzw. Treiber mit optionalen nativen Teilen nicht bündeln.
+  serverExternalPackages: ["sharp", "pg"],
   experimental: {
     // Bild-Uploads (max. 5 MB pro Datei) laufen über Server Actions; Standard wäre 1 MB.
     serverActions: { bodySizeLimit: "6mb" },

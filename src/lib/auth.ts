@@ -33,8 +33,7 @@ export const auth = betterAuth({
   appName: siteConfig.name,
   baseURL: process.env.BETTER_AUTH_URL ?? siteConfig.url,
   secret: process.env.BETTER_AUTH_SECRET,
-  // Für PostgreSQL: provider "postgresql" (siehe docs/ARCHITECTURE.md).
-  database: prismaAdapter(db, { provider: "sqlite" }),
+  database: prismaAdapter(db, { provider: "postgresql" }),
   advanced: {
     // IDs vergibt die Datenbank (cuid), wie im übrigen Schema.
     database: { generateId: false },

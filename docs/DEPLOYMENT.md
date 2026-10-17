@@ -9,7 +9,7 @@ Ausgangspunkt: ein frisch angelegter Server mit **Ubuntu 24.04 LTS**. Alle Befeh
 ```
 Internet ─► Caddy :443  (HTTPS über Let's Encrypt, Basic Auth, noindex)
               └─► Next.js 127.0.0.1:3000   (systemd-Dienst „omsi-mod-hub“, Nutzer „omsi“)
-                    ├─ /var/lib/omsi-mod-hub/db/omsi.db     SQLite-Datenbank
+                    ├─ PostgreSQL 18 localhost:5432        Datenbank „omsi_mod_hub“
                     ├─ /var/lib/omsi-mod-hub/uploads/       hochgeladene Bilder
                     └─ /var/lib/omsi-mod-hub/backups/       tägliche Backups
 /opt/omsi-mod-hub/releases/<zeit>/   ein Ordner pro Deployment (Code + Build)
@@ -17,7 +17,7 @@ Internet ─► Caddy :443  (HTTPS über Let's Encrypt, Basic Auth, noindex)
 /etc/omsi-mod-hub/env                Konfiguration und Secrets (nicht im Repo)
 ```
 
-**Warum kein Docker?** `next build` rendert die öffentlichen Seiten mit den echten Daten vor und braucht deshalb Zugriff auf die Produktionsdatenbank. Beim Bauen direkt auf dem Server ist das einfach gegeben. Außerdem werden die nativen Module (`better-sqlite3`, `sharp`) passend für den Server kompiliert.
+**Warum kein Docker?** `next build` rendert die öffentlichen Seiten mit den echten Daten vor und braucht deshalb Zugriff auf die Produktionsdatenbank. Beim Bauen direkt auf dem Server ist das einfach gegeben. Außerdem wird das native Bildmodul (`sharp`) passend für den Server installiert.
 
 ## Was du vorher brauchst
 
@@ -80,8 +80,14 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 ```bash
 # Werkzeuge (Build-Tools nur als Fallback für native Module)
-sudo apt install -y git curl sqlite3 build-essential python3 \
+sudo apt install -y git curl build-essential python3 \
   debian-keyring debian-archive-keyring apt-transport-https gnupg
+
+# PostgreSQL 18 aus dem offiziellen PostgreSQL-Repository (gleiche Version wie lokal)
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+sudo apt install -y postgresql-18
+sudo systemctl enable --now postgresql
 
 # Node.js 24 LTS (NodeSource)
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
@@ -101,7 +107,7 @@ sudo apt update && sudo apt install -y caddy
 ```bash
 sudo adduser --system --group --home /home/omsi --shell /bin/bash omsi
 
-sudo mkdir -p /opt/omsi-mod-hub/releases /var/lib/omsi-mod-hub/{db,uploads,backups} /etc/omsi-mod-hub
+sudo mkdir -p /opt/omsi-mod-hub/releases /var/lib/omsi-mod-hub/{uploads,backups} /etc/omsi-mod-hub
 sudo chown -R omsi:omsi /opt/omsi-mod-hub /var/lib/omsi-mod-hub
 sudo chmod 750 /var/lib/omsi-mod-hub
 sudo chown omsi:omsi /etc/omsi-mod-hub && sudo chmod 700 /etc/omsi-mod-hub
@@ -110,6 +116,18 @@ sudo chown omsi:omsi /etc/omsi-mod-hub && sudo chmod 700 /etc/omsi-mod-hub
 echo 'omsi ALL=(root) NOPASSWD: /usr/bin/systemctl restart omsi-mod-hub' | sudo tee /etc/sudoers.d/omsi-mod-hub
 sudo chmod 440 /etc/sudoers.d/omsi-mod-hub && sudo visudo -c
 ```
+
+**Datenbank anlegen.** PostgreSQL lauscht standardmäßig nur auf `localhost` und ist von außen nicht erreichbar (Port 5432 ist in der Firewall auch nicht freigegeben).
+
+```bash
+DB_PASS="$(openssl rand -hex 24)"
+sudo -u postgres psql -v ON_ERROR_STOP=1 \
+  -c "CREATE ROLE omsi_mod_hub LOGIN PASSWORD '$DB_PASS';" \
+  -c "CREATE DATABASE omsi_mod_hub OWNER omsi_mod_hub;"
+echo "DATABASE_URL=\"postgresql://omsi_mod_hub:$DB_PASS@localhost:5432/omsi_mod_hub\""
+```
+
+Die letzte Zeile gibt die fertige `DATABASE_URL` aus – kopieren, sie kommt in Schritt 5 in die Konfiguration. Das Passwort wird sonst nirgends gespeichert.
 
 ## 4. Zugriff auf das private Repo (Deploy Key)
 
@@ -148,6 +166,7 @@ exit                            # zurück zu ADMIN-NAME
 sudo -u omsi nano /etc/omsi-mod-hub/env
 ```
 
+- `DATABASE_URL`: die Zeile aus Schritt 3 („Datenbank anlegen“)
 - `NEXT_PUBLIC_SITE_URL` und `BETTER_AUTH_URL`: `https://beta.DEINE-DOMAIN.de`
 - `BETTER_AUTH_SECRET`: **neu** erzeugen (nicht das lokale wiederverwenden):
   `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`
@@ -277,6 +296,45 @@ Einmal testweise wiederherstellen, um sicherzugehen, dass die Backups brauchbar 
 
 **Beispieldaten:** Auf dem Server nie `pnpm db:seed` ohne `SEED_SAMPLES=false` ausführen – das legt fiktive Creator und Projekte an.
 
+## Umstieg einer bestehenden SQLite-Beta auf PostgreSQL (einmalig)
+
+Gilt nur für Server, die vor dem Umstieg auf PostgreSQL (Oktober 2026) eingerichtet wurden. Die Beta startet dabei **mit leerer Datenbank neu**: Konten, Projekte und Meldungen aus SQLite werden nicht übernommen, sondern nur archiviert.
+
+**1. Dienst stoppen, PostgreSQL installieren, Datenbank anlegen**
+
+```bash
+sudo systemctl stop omsi-mod-hub
+```
+
+Dann aus Abschnitt 2 den Block „PostgreSQL 18“ und aus Abschnitt 3 „Datenbank anlegen“ ausführen und die ausgegebene `DATABASE_URL` notieren.
+
+**2. Alte Daten archivieren, Konfiguration und Skripte aktualisieren**
+
+```bash
+sudo -iu omsi
+mkdir -p /var/lib/omsi-mod-hub/backups/sqlite-archiv
+mv /var/lib/omsi-mod-hub/db /var/lib/omsi-mod-hub/uploads /var/lib/omsi-mod-hub/backups/sqlite-archiv/
+mkdir /var/lib/omsi-mod-hub/uploads
+nano /etc/omsi-mod-hub/env      # DATABASE_URL durch die neue PostgreSQL-Zeile ersetzen
+git clone --depth 1 git@github.com:Tiegertosch/Omsi-Mod-Hub.git /tmp/omsi-pg
+cp /tmp/omsi-pg/deploy/deploy.sh /tmp/omsi-pg/deploy/backup.sh /opt/omsi-mod-hub/
+exit
+
+sudo cp /tmp/omsi-pg/deploy/omsi-mod-hub.service /tmp/omsi-pg/deploy/omsi-mod-hub-backup.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo rm -rf /tmp/omsi-pg
+```
+
+**3. Neu deployen – mit Stammdaten (Kategorien und Tags), wie beim allerersten Mal**
+
+```bash
+sudo -iu omsi
+INITIAL_SEED=1 /opt/omsi-mod-hub/deploy.sh
+exit
+```
+
+Danach wie in Abschnitt 8 neu registrieren und die Admin-Rolle setzen, dann ein Backup testen: `sudo -iu omsi /opt/omsi-mod-hub/backup.sh` muss eine Datei `omsi-….dump` erzeugen. Wenn alles läuft, können das Archiv `/var/lib/omsi-mod-hub/backups/sqlite-archiv` gelöscht und das Paket `sqlite3` entfernt werden (`sudo apt remove sqlite3`).
+
 ## Vor dem öffentlichen Start
 
 - [ ] Impressum, Datenschutzerklärung und Nutzungsbedingungen vollständig und rechtlich geprüft (die Texte im Repo sind Entwürfe mit Platzhaltern)
@@ -284,4 +342,4 @@ Einmal testweise wiederherstellen, um sicherzugehen, dass die Backups brauchbar 
 - [ ] Content-Security-Policy ergänzen
 - [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen
 - [ ] Backup außerhalb des Servers eingerichtet und Wiederherstellung getestet
-- [ ] Bei Wachstum: PostgreSQL, Objektspeicher für Bilder, gemeinsamer Cache-Handler (siehe ARCHITECTURE.md)
+- [ ] Bei Wachstum: Objektspeicher für Bilder, gemeinsamer Cache-Handler, ggf. verwaltete Datenbank (siehe ARCHITECTURE.md)

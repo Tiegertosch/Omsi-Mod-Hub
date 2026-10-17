@@ -3,10 +3,9 @@
  *
  * Projekttexte werden beim Speichern in eine kleingeschriebene Suchspalte
  * (`ProjectTranslation.searchText`) übertragen. Suchanfragen werden identisch
- * normalisiert und per `contains` abgeglichen. Das funktioniert unverändert auf
- * SQLite und PostgreSQL (inkl. Umlauten, die SQLite-LIKE sonst nicht
- * case-insensitiv vergleicht). Für größere Datenmengen ist der Umstieg auf
- * PostgreSQL-Volltextsuche (tsvector) bzw. pg_trgm vorgesehen.
+ * normalisiert und per `contains` (LIKE) abgeglichen – unabhängig von
+ * Groß-/Kleinschreibung und Umlauten. Für größere Datenmengen ist die
+ * PostgreSQL-Volltextsuche (tsvector) bzw. ein pg_trgm-Index vorgesehen.
  */
 
 export const MAX_QUERY_LENGTH = 100;

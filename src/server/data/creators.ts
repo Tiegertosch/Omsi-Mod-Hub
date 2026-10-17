@@ -62,7 +62,7 @@ export async function getCreators(options: { take?: number; q?: string } = {}): 
     where: {
       ...publicCreatorWhere,
       AND: terms.map((term) => ({
-        OR: [{ username: { contains: term } }, { creatorProfile: { displayName: { contains: term } } }],
+        OR: [{ username: { contains: term } }, { creatorProfile: { displayName: { contains: term, mode: "insensitive" } } }],
       })),
     },
     select: creatorSelect,

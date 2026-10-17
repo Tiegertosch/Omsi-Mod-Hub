@@ -10,15 +10,14 @@
  */
 import "dotenv/config";
 
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-
-import { PrismaClient, type LinkSourceType } from "../src/generated/prisma/client";
+import type { LinkSourceType } from "../src/generated/prisma/client";
+import { createPrismaClient } from "../src/lib/prisma-factory";
 import { parseExternalUrl } from "../src/lib/external-url";
 import { buildSearchText } from "../src/lib/search-text";
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL ist nicht gesetzt.");
-const db = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
+const db = createPrismaClient(url);
 
 type Locale = "de" | "en";
 type L10n = Record<Locale, string>;

@@ -11,7 +11,7 @@ Browser ──► proxy.ts (Sprache erkennen, /xx-Präfix erzwingen)
         app/[locale]/…  Server Components (RSC)
               │   lesen über
               ▼
-        server/data/*   ──► lib/db.ts (Prisma Client + Driver Adapter) ──► SQLite / PostgreSQL
+        server/data/*   ──► lib/db.ts (Prisma Client + Driver Adapter) ──► PostgreSQL
         server/actions/* (Server Actions, Zod-Validierung, Rate-Limit)
 
         app/go/[linkId]  Route Handler: zählt Aufruf, 302 zur gespeicherten externen URL
@@ -25,11 +25,15 @@ Browser ──► proxy.ts (Sprache erkennen, /xx-Präfix erzwingen)
 
 ### ORM: Prisma 7 (statt Drizzle)
 
-Prisma erlaubt den Wechsel SQLite → PostgreSQL durch Änderung des `provider` und des Driver Adapters, ohne das Schema neu zu schreiben (Drizzle hätte getrennte `sqlite-core`/`pg-core`-Schemas). Das Schema verwendet deshalb keine providerspezifischen Typen (`@db.*`). Prisma `latest` zeigte zum Zeitpunkt der Einrichtung auf einen Release Candidate (8.0.0-rc); verwendet wird die stabile **7.10.1**. Die Konfiguration liegt in `prisma7.config.ts` (der von Prisma 7.10 bevorzugte Dateiname).
+Prisma erlaubte den Start mit SQLite und den späteren Wechsel zu PostgreSQL durch Änderung von `provider` und Driver Adapter, ohne das Schema neu zu schreiben (Drizzle hätte getrennte `sqlite-core`/`pg-core`-Schemas). Das Schema verwendet weiterhin keine providerspezifischen Typen (`@db.*`). Prisma `latest` zeigte zum Zeitpunkt der Einrichtung auf einen Release Candidate (8.0.0-rc); verwendet wird die stabile **7.10.1**. Die Konfiguration liegt in `prisma7.config.ts` (der von Prisma 7.10 bevorzugte Dateiname).
 
-### Datenbank: SQLite lokal, PostgreSQL als Ziel
+### Datenbank: PostgreSQL
 
-Auf Wunsch wird zunächst SQLite verwendet. Migrationen sind providerspezifisch – beim Umstieg wird die Initial-Migration neu erzeugt (siehe README). Vorher sollten keine Produktivdaten in SQLite entstehen.
+Gestartet wurde mit SQLite; am 17.10.2026 – noch ohne schützenswerte Daten – erfolgte der Umstieg auf PostgreSQL (lokal und auf dem Beta-Server). Die SQLite-Migrationen wurden dabei durch eine neue Initial-Migration ersetzt; Daten wurden nicht übernommen. Enums sind jetzt native PostgreSQL-Typen.
+
+- Verbindung über `@prisma/adapter-pg` (Treiber `pg`, Verbindungspool pro Prozess). `src/lib/prisma-factory.ts` erzeugt den Client für App und CLI-Skripte.
+- `contains` entspricht in PostgreSQL `LIKE` und unterscheidet Groß-/Kleinschreibung. Die Suchspalte, Benutzernamen und E-Mails sind kleingeschrieben gespeichert; für frei geschriebene Namen (Anzeigename, Name) wird `mode: "insensitive"` verwendet.
+- Die Raw-SQL-Zähler in `/go/[linkId]` verwenden die von Prisma angelegten, quotierten Bezeichner (`"ExternalLink"`, `"clickCount"`).
 
 ### Rendering: Cache Components mit zwischengespeicherten Daten
 
@@ -71,7 +75,7 @@ Kategorien und Projekte teilen sich `/mods/[slug]`. Kategorie-Slugs haben Vorran
 
 ### Suche
 
-Pro Übersetzung wird eine normalisierte, kleingeschriebene Suchspalte `searchText` gespeichert (Titel, Kurzbeschreibung, Beschreibung, Tag-Namen aller Sprachen). Suchbegriffe werden identisch normalisiert, SQL-Wildcards entfernt, auf 6 Begriffe begrenzt und per `contains` (UND-verknüpft) abgefragt. Vorteile: identisches Verhalten auf SQLite und PostgreSQL, korrekte Groß-/Kleinschreibung bei Umlauten, keine Rohabfragen. **Pflicht beim Schreiben:** `searchText` muss bei jeder Änderung von Texten oder Tags über `buildSearchText()` neu berechnet werden.
+Pro Übersetzung wird eine normalisierte, kleingeschriebene Suchspalte `searchText` gespeichert (Titel, Kurzbeschreibung, Beschreibung, Tag-Namen aller Sprachen). Suchbegriffe werden identisch normalisiert, SQL-Wildcards entfernt, auf 6 Begriffe begrenzt und per `contains` (UND-verknüpft) abgefragt. Vorteile: einfache, portable Abfragen, korrekte Groß-/Kleinschreibung bei Umlauten, keine Rohabfragen. **Pflicht beim Schreiben:** `searchText` muss bei jeder Änderung von Texten oder Tags über `buildSearchText()` neu berechnet werden.
 
 Ausbaupfad: PostgreSQL `tsvector` mit GIN-Index für Relevanz oder `pg_trgm` für Teilstrings; die Filterstruktur (`buildCatalogWhere`) ist so angelegt, dass weitere Filter (Fahrzeugtyp, Verkehrsunternehmen, Sprache, Add-ons, Kompatibilität) als zusätzliche `AND`-Bedingungen ergänzt werden können.
 

@@ -117,7 +117,8 @@ export async function getUsers(options: { q: string; filter: UserFilter; page: n
     ...(options.filter === "banned" ? { banned: true } : {}),
     ...(options.filter === "creator" || options.filter === "admin" ? { role: { contains: options.filter } } : {}),
     AND: terms.map((term) => ({
-      OR: [{ username: { contains: term } }, { email: { contains: term } }, { name: { contains: term } }],
+      // Benutzernamen und E-Mails sind kleingeschrieben gespeichert, Namen nicht.
+      OR: [{ username: { contains: term } }, { email: { contains: term } }, { name: { contains: term, mode: "insensitive" } }],
     })),
   };
   const [total, users] = await Promise.all([

@@ -9,9 +9,7 @@
  */
 import "dotenv/config";
 
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-
-import { PrismaClient } from "../src/generated/prisma/client";
+import { createPrismaClient } from "../src/lib/prisma-factory";
 import { isAppRole } from "../src/lib/roles";
 
 const [email, role] = process.argv.slice(2);
@@ -25,7 +23,7 @@ async function main() {
 
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL ist nicht gesetzt.");
-  const db = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
+  const db = createPrismaClient(url);
 
   try {
     const user = await db.user.findUnique({ where: { email: email.toLowerCase() } });

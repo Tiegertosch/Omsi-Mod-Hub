@@ -9,9 +9,7 @@ import "dotenv/config";
 import { readdir, readFile, unlink } from "node:fs/promises";
 import path from "node:path";
 
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-
-import { PrismaClient } from "../src/generated/prisma/client";
+import { createPrismaClient } from "../src/lib/prisma-factory";
 import { mediaKeyFromUrl } from "../src/lib/image-signature";
 
 const E2E_DOMAIN = "e2e.example.com";
@@ -41,7 +39,7 @@ async function removeTestMails(): Promise<number> {
 async function main() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL ist nicht gesetzt.");
-  const db = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url }) });
+  const db = createPrismaClient(url);
   try {
     const users = await db.user.findMany({ where: { email: { endsWith: `@${E2E_DOMAIN}` } }, select: { id: true } });
     const ids = users.map((u) => u.id);

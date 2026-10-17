@@ -3,7 +3,8 @@ allowBuilds:
   unrs-resolver: false
   '@parcel/watcher': false
   '@swc/core': false
-  better-sqlite3: true
+  # nur indirekt über prisma (Studio); die App nutzt PostgreSQL
+  better-sqlite3: false
   esbuild: true
   prisma: true
   '@prisma/engines': true
@@ -18,7 +19,7 @@ minimumReleaseAgeExclude:
   - '@next/swc-linux-x64-musl@16.4.2'
   - '@next/swc-win32-arm64-msvc@16.4.2'
   - '@next/swc-win32-x64-msvc@16.4.2'
-  - '@prisma/adapter-better-sqlite3@7.10.1'
+  - '@prisma/adapter-pg@7.10.1'
   - '@prisma/client-runtime-utils@7.10.1'
   - '@prisma/client@7.10.1'
   - '@prisma/debug@7.10.1'

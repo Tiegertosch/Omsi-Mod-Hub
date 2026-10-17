@@ -1,10 +1,7 @@
-// OMSI Mod Hub – Datenmodell
+// OMSI Mod Hub – Datenmodell (PostgreSQL)
 //
-// Lokal läuft das Schema auf SQLite. Für PostgreSQL in Produktion:
-//   1. provider = "postgresql" setzen,
-//   2. Adapter in src/lib/db.ts auf @prisma/adapter-pg umstellen,
-//   3. Migrationen neu erzeugen (siehe docs/ARCHITECTURE.md).
-// Deshalb werden hier bewusst keine provider-spezifischen Typen (@db.*) verwendet.
+// Bewusst ohne provider-spezifische Typen (@db.*): Texte sind `text`,
+// Zeitpunkte `timestamp(3)`. Verbindung über DATABASE_URL (siehe .env.example).
 
 generator client {
   provider = "prisma-client"
@@ -12,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // ---------------------------------------------------------------------------

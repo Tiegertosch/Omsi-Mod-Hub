@@ -3,6 +3,7 @@
 
 [Unit]
 Description=OMSI Mod Hub Backup (Datenbank und Bilder)
+After=postgresql.service
 
 [Service]
 Type=oneshot
