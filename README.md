@@ -24,7 +24,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Deutsch/Englisch: sprachabhängige Routen, Metadaten, Fallback für Projekttexte | ✅ |
 | SEO: Titel, Beschreibungen, Canonical, hreflang, Open Graph, Sitemap, robots.txt | ✅ |
 | Zwischenspeicherung öffentlicher Daten (`use cache` mit Tags), echte HTTP-404 für unbekannte Projekte, Kategorien, Creator und Seiten | ✅ |
-| Registrierung mit E-Mail-Bestätigung, Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
+| Registrierung mit E-Mail-Bestätigung per 6-stelligem Code (erneut senden möglich), Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
 | Passwort vergessen / zurücksetzen per E-Mail-Link | ✅ |
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
 | Konto: E-Mail-Adresse ändern (Bestätigung über alte und neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto mit allen Projekten löschen | ✅ |
@@ -99,7 +99,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 
 ## Konten und Rollen
 
-- **Registrierung** erfordert eine bestätigte E-Mail-Adresse, bevor eine Anmeldung möglich ist. Lokal liegt der Bestätigungslink in der neuesten Datei unter `.dev-mail/`.
+- **Registrierung** erfordert eine bestätigte E-Mail-Adresse, bevor eine Anmeldung möglich ist. Nach der Registrierung öffnet sich `/confirm-email` für den 6-stelligen Code; wer sich unbestätigt anmeldet, landet dort ebenfalls und bekommt einen neuen Code. Lokal steht der Code im Betreff der neuesten Datei unter `.dev-mail/`.
 - **Rollen:** `user` (Standard), `creator`, `admin`. Rollen lassen sich weder bei der Registrierung noch über die API ändern – nur serverseitig.
 - **Erstes Admin-Konto:** Konto normal registrieren und bestätigen, dann lokal auf dem Server ausführen:
   ```bash
@@ -139,7 +139,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm build` / `pnpm start` | Produktionsbuild / -server |
 | `pnpm test:e2e` | Playwright-Tests gegen den Produktionsbuild (vorher `pnpm build`, DB geseedet) |
 
-Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungs- und Reset-Links aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
+Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungscodes sowie Reset- und Bestätigungslinks aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
 
 ## Betrieb / Deployment
 
@@ -160,7 +160,7 @@ public/samples/        eigene Illustrationen für Beispieldaten
 src/
   app/
     [locale]/          lokalisierte Seiten (Start, mods, creators, search, legal,
-                       login, register, forgot-/reset-password, verify-email, dashboard, admin)
+                       login, register, confirm-email, forgot-/reset-password, verify-email, dashboard, admin)
     api/auth/[...all]/ Better-Auth-Endpunkte
     go/[linkId]/       Weiterleitung zu externen Downloads (zählt Aufrufe)
     sitemap.ts, robots.ts, icon.svg
@@ -179,7 +179,7 @@ src/
     data/              Datenbankabfragen (nur serverseitig)
     actions/           Server Actions (Anmeldung, Konto, Projekte, Moderation, Meldungen, Konten, Kategorien/Tags)
     admin-action.ts    gemeinsame Prüfung für Admin-Actions (Rolle, Rate-Limit)
-    emails.ts          lokalisierte E-Mail-Texte (Bestätigung, Passwort, Moderationsentscheidungen)
+    emails.ts          lokalisierte E-Mail-Texte (Bestätigungscode, Passwort, E-Mail-Änderung, Moderationsentscheidungen)
     mail.ts            E-Mail-Versand (file/console/smtp)
     images.ts, storage.ts  Bildprüfung/-neukodierung (sharp) und Ablage
   app/media/[key]/     Auslieferung hochgeladener Bilder

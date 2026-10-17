@@ -7,7 +7,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - Zweisprachiges (DE/EN) Katalogportal für OMSI-2-Mods. **Es werden keine Mod-Dateien gehostet**, nur externe Links. Zielgruppe ist international, die Standardsprache Englisch.
 - Fertig sind: öffentlicher Katalog, Konten (inklusive E-Mail ändern, Geräteübersicht, Konto löschen), Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
 - **Geschlossene Beta live** unter `https://beta.omsi-modhub.de`, hinter Basic Auth, nicht indexiert. Die Datenbank wurde dort am 17.10.2026 mit PostgreSQL neu gestartet.
-- Tests: 104 Unit-Tests (Vitest) und 36 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
+- Tests: 104 Unit-Tests (Vitest) und 39 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
 
 ## Arbeitsweise mit dem Nutzer
 
@@ -26,7 +26,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 |---|---|
 | Framework | Next.js **16.4.2** (App Router, Turbopack, `cacheComponents` + `partialPrefetching`, `proxy.ts` statt Middleware), React 19.3, TypeScript strict |
 | Datenbank | **PostgreSQL 18** über Prisma **7.10.1** mit `@prisma/adapter-pg`; Client-Erzeugung in `src/lib/prisma-factory.ts`. Konfiguration in `prisma7.config.ts`, Seed `prisma/seed.ts` |
-| Auth | **Better Auth 1.7.10**: Plugins `username` (unveränderlich) und `admin` mit eigener Rolle `creator`, E-Mail-Bestätigung Pflicht, Rate-Limit in der Datenbank |
+| Auth | **Better Auth 1.7.10**: Plugins `username` (unveränderlich), `admin` mit eigener Rolle `creator` und `emailOTP` (nur Bestätigungscode), E-Mail-Bestätigung Pflicht, Rate-Limit in der Datenbank |
 | i18n | next-intl 4.14.9, Routen mit Präfix `/de` und `/en`, `next/root-params` |
 | Sonstiges | Tailwind 4, Zod 4, nodemailer (Transport `file`/`console`/`smtp`), sharp (Bild-Upload mit Neukodierung zu WebP), pnpm 12.11.2 |
 
@@ -38,7 +38,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
   - Meldeformular
   - Download-Links über `/go/[linkId]` mit Klickzähler (Raw SQL, verändert `updatedAt` nicht)
   - Rechtsseiten (nur **Entwürfe**), SEO, Sitemap, Dark Mode
-- **Konten:** Registrierung mit Bestätigung, Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
+- **Konten:** Registrierung mit Bestätigung per 6-stelligem Code (Seite `/confirm-email`, Code erneut senden), Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
   - Titelbild und Screenshots, Versionen mit Links
@@ -63,7 +63,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - **Echter 404:** Der Proxy prüft Projekte, Kategorien, Creator und Rechtsseiten vor dem Rendern (`src/server/route-existence.ts`). `ensureStatic` scheidet aus, weil Session-Header und `searchParams` das verhindern.
 - **`getCurrentUser()`** ruft vor Better Auth `connection()` auf, sonst kommt es beim Runtime-Prefetch zum Fehler „blocking-prerender-current-time“. `cookies()` wird *vor* `connection()` gelesen.
 - **Direkte `auth.api`-Aufrufe** umgehen Rate-Limit und Origin-Prüfung von Better Auth. Deshalb haben die Server Actions eigene Limits (`src/server/rate-limit.ts`, Präfix `app:`).
-- **Über HTTP gesperrt** (`disabledPaths` in `src/lib/auth.ts`): `/change-email`, `/update-user`, `/list-sessions`. Sie laufen nur über Server Actions mit Passwortabfrage und Validierung. Wer eine neue Oberfläche baut, die Better Auth direkt aus dem Browser nutzt, muss das berücksichtigen.
+- **Über HTTP gesperrt** (`disabledPaths` in `src/lib/auth.ts`): `/change-email`, `/update-user`, `/list-sessions`, `/send-verification-email` und alle `emailOTP`-Endpunkte. Sie laufen nur über Server Actions mit Passwortabfrage und Validierung. Wer eine neue Oberfläche baut, die Better Auth direkt aus dem Browser nutzt, muss das berücksichtigen.
 - **PostgreSQL:** `contains` unterscheidet Groß- und Kleinschreibung; für Anzeigename und Name wird `mode: "insensitive"` verwendet. Enums sind native PostgreSQL-Typen. Die SQLite-Migrationen wurden durch eine neue Initial-Migration ersetzt.
 - **pnpm:**
   - `minimumReleaseAge` ist aktiv; frische Pakete brauchen eine Ausnahme in `pnpm-workspace.yaml`.

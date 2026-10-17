@@ -2,7 +2,17 @@ import { execSync } from "node:child_process";
 
 import { expect, test } from "@playwright/test";
 
-import { login, randomIp, register, registerAndVerify, uniqueUser, waitForMailLink } from "./helpers";
+import {
+  enterCode,
+  login,
+  randomIp,
+  register,
+  registerAndVerify,
+  uniqueUser,
+  waitForMail,
+  waitForMailCode,
+  waitForMailLink,
+} from "./helpers";
 
 // Jeder Test erhält eine eigene IP, damit IP-basierte Rate-Limits nicht greifen.
 test.beforeEach(async ({ context }) => {
@@ -14,16 +24,30 @@ test("Registrierung, E-Mail-Bestätigung, Abmeldung und Anmeldung mit Benutzerna
   const since = Date.now() - 1000;
   await register(page, user);
 
-  // Vor der Bestätigung ist keine Anmeldung möglich; es wird ein neuer Link verschickt.
-  await login(page, user.email, user.password);
-  await expect(page.getByRole("alert").filter({ hasText: "Bitte bestätige zuerst deine E-Mail-Adresse" })).toBeVisible();
+  await expect(page.getByText(`an ${user.email} geschickt`)).toBeVisible();
+  const firstCode = await waitForMailCode(user.email, since);
+  // Die Mail enthält nur den Code und einen Link zur Eingabeseite, keinen Bestätigungslink.
+  const mail = await waitForMail(user.email, /Bestätigungscode/, since);
+  expect(mail.text).not.toContain("/api/auth/verify-email");
+  expect(mail.text).toContain("/de/confirm-email");
 
-  const link = await waitForMailLink(user.email, /bestätige/i, since);
-  expect(link).toContain("/api/auth/verify-email");
-  await page.goto(link);
-  await expect(page.getByRole("heading", { name: "E-Mail bestätigt" })).toBeVisible();
+  // Falscher Code
+  await enterCode(page, firstCode === "000000" ? "111111" : "000000");
+  await expect(page.getByRole("alert").filter({ hasText: "Der Code ist falsch" })).toBeVisible();
 
-  await page.goto("/de/dashboard");
+  // Vor der Bestätigung ist keine Anmeldung möglich: Weiterleitung zur Code-Seite mit neuem Code.
+  const beforeLogin = Date.now() - 500;
+  await login(page, user.username, user.password);
+  await expect(page).toHaveURL(/\/de\/confirm-email\?unverified=1$/);
+  await expect(page.getByText("Dein Konto ist noch nicht bestätigt.")).toBeVisible();
+  await expect(page.getByLabel("E-Mail-Adresse")).toHaveValue(user.email);
+  const loginCode = await waitForMailCode(user.email, beforeLogin);
+
+  // Der neue Code ersetzt den alten.
+  await enterCode(page, loginCode === firstCode ? "000000" : firstCode);
+  await expect(page.getByRole("alert").filter({ hasText: "Der Code ist falsch" })).toBeVisible();
+  await enterCode(page, loginCode);
+  await expect(page).toHaveURL(/\/de\/dashboard$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Willkommen, ${user.username}!`);
 
   // Abmelden über das Konto-Menü
@@ -182,4 +206,64 @@ test("Einstellungen: Anzeigename, Sprache und Passwort", async ({ page }) => {
   await passwordSection.getByLabel("Repeat new password").fill("Noch-ein-Passwort-9");
   await passwordSection.getByRole("button", { name: "Change password" }).click();
   await expect(passwordSection.getByRole("status")).toContainText("Your password has been changed");
+});
+
+test("Bestätigungscode erneut senden: neuer Code ersetzt den alten, Wartezeit dazwischen", async ({ page }) => {
+  const user = uniqueUser();
+  const since = Date.now() - 1000;
+  await register(page, user);
+  const firstCode = await waitForMailCode(user.email, since);
+
+  const beforeResend = Date.now() - 500;
+  await page.getByRole("button", { name: "Code erneut senden" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "neuen Code geschickt" })).toBeVisible();
+  const secondCode = await waitForMailCode(user.email, beforeResend);
+
+  // Sofort noch einmal: Wartezeit
+  await page.getByRole("button", { name: "Code erneut senden" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Bitte warte eine Minute" })).toBeVisible();
+
+  if (firstCode !== secondCode) {
+    await enterCode(page, firstCode);
+    await expect(page.getByRole("alert").filter({ hasText: "Der Code ist falsch" })).toBeVisible();
+  }
+  // Leerzeichen in kopierten Codes werden ignoriert.
+  await enterCode(page, `${secondCode.slice(0, 3)} ${secondCode.slice(3)}`);
+  await expect(page).toHaveURL(/\/de\/dashboard$/);
+});
+
+test("Nach zu vielen falschen Eingaben ist ein neuer Code nötig", async ({ page }) => {
+  const user = uniqueUser();
+  const since = Date.now() - 1000;
+  await register(page, user);
+  const code = await waitForMailCode(user.email, since);
+  const wrong = code === "000000" ? "111111" : "000000";
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    await enterCode(page, wrong);
+    // Die Meldung steht schon vom vorigen Versuch da; erst das Zurücksetzen des
+    // Formulars zeigt, dass dieser Versuch verarbeitet wurde.
+    await expect(page.getByLabel("Bestätigungscode")).toHaveValue("");
+    await expect(page.getByRole("alert").filter({ hasText: "Der Code ist falsch" })).toBeVisible();
+  }
+  await enterCode(page, code);
+  await expect(page.getByRole("alert").filter({ hasText: "Zu viele falsche Eingaben" })).toBeVisible();
+
+  const beforeResend = Date.now() - 500;
+  await page.getByRole("button", { name: "Code erneut senden" }).click();
+  await enterCode(page, await waitForMailCode(user.email, beforeResend));
+  await expect(page).toHaveURL(/\/de\/dashboard$/);
+});
+
+test("Registrierung mit vergebener Adresse sieht gleich aus, verschickt aber keinen Code", async ({ page, browser }) => {
+  const user = uniqueUser();
+  await registerAndVerify(page, user);
+
+  const other = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
+  const otherPage = await other.newPage();
+  const since = Date.now() - 500;
+  await register(otherPage, { ...uniqueUser(), email: user.email });
+  await expect(otherPage.getByText(`an ${user.email} geschickt`)).toBeVisible();
+  await expect(waitForMail(user.email, /Bestätigungscode/, since, 3_000)).rejects.toThrow();
+  await other.close();
 });

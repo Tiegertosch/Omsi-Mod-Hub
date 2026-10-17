@@ -19,6 +19,9 @@ const CODE_MAP: Record<string, FormErrorCode> = {
   PASSWORD_TOO_SHORT: "validation",
   PASSWORD_TOO_LONG: "validation",
   INVALID_EMAIL: "validation",
+  INVALID_OTP: "code_invalid",
+  OTP_EXPIRED: "code_expired",
+  TOO_MANY_ATTEMPTS: "code_attempts",
 };
 
 /** Übersetzt Better-Auth-Fehler in eigene Codes, ohne interne Details preiszugeben. */

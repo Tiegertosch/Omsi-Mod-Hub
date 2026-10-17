@@ -199,10 +199,19 @@ test("Geschützte Better-Auth-Endpunkte sind über HTTP gesperrt", async ({ page
   await registerAndVerify(page, user);
   // Mit gültiger Origin, damit nicht schon die Origin-Prüfung von Better Auth greift.
   const origin = new URL(page.url()).origin;
-  for (const path of ["/api/auth/change-email", "/api/auth/update-user", "/api/auth/delete-user"]) {
+  for (const path of [
+    "/api/auth/change-email",
+    "/api/auth/update-user",
+    "/api/auth/delete-user",
+    "/api/auth/send-verification-email",
+    "/api/auth/email-otp/send-verification-otp",
+    "/api/auth/email-otp/verify-email",
+    "/api/auth/sign-in/email-otp",
+    "/api/auth/forget-password/email-otp",
+  ]) {
     const response = await page.request.post(path, {
       headers: { origin },
-      data: { newEmail: `x@${E2E_MAIL_DOMAIN}`, name: "x" },
+      data: { newEmail: `x@${E2E_MAIL_DOMAIN}`, name: "x", email: user.email, otp: "000000", type: "sign-in" },
     });
     expect(response.status(), path).toBe(404);
   }

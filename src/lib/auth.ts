@@ -4,7 +4,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
-import { admin, username } from "better-auth/plugins";
+import { admin, emailOTP, username } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { adminAc, defaultStatements, userAc } from "better-auth/plugins/admin/access";
 
@@ -12,11 +12,20 @@ import {
   changeEmailConfirmationEmail,
   changeEmailVerificationEmail,
   resetPasswordEmail,
-  verificationEmail,
+  verificationCodeEmail,
 } from "@/server/emails";
 import { sendMailInBackground } from "@/server/mail";
 
-import { PASSWORD_MAX, PASSWORD_MIN, USERNAME_MAX, USERNAME_MIN, USERNAME_PATTERN } from "./auth-rules";
+import {
+  PASSWORD_MAX,
+  PASSWORD_MIN,
+  USERNAME_MAX,
+  USERNAME_MIN,
+  USERNAME_PATTERN,
+  VERIFICATION_CODE_ATTEMPTS,
+  VERIFICATION_CODE_LENGTH,
+  VERIFICATION_CODE_MINUTES,
+} from "./auth-rules";
 import { db } from "./db";
 import { siteConfig } from "./site";
 
@@ -64,16 +73,19 @@ export const auth = betterAuth({
       id,
     }),
   },
+  // Registrierung und Anmeldung bestätigen per Code (Plugin emailOTP, siehe unten);
+  // die Server Actions verschicken ihn selbst. Links gibt es nur noch für
+  // Schritt 2 der E-Mail-Änderung.
   emailVerification: {
-    sendOnSignUp: true,
-    sendOnSignIn: true,
+    sendOnSignUp: false,
+    sendOnSignIn: false,
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60 * 24,
     sendVerificationEmail: async ({ user, url }) => {
-      // Bei einer E-Mail-Änderung ist das Konto schon bestätigt und `user.email`
-      // enthält die neue Adresse; Registrierung und Anmeldung betreffen nur
-      // unbestätigte Konten.
-      sendMailInBackground(user.emailVerified ? changeEmailVerificationEmail(user, url) : verificationEmail(user, url));
+      // Nur bei einer E-Mail-Änderung: Das Konto ist bestätigt und `user.email`
+      // enthält schon die neue Adresse.
+      if (!user.emailVerified) return;
+      sendMailInBackground(changeEmailVerificationEmail(user, url));
     },
   },
   user: {
@@ -98,8 +110,24 @@ export const auth = betterAuth({
   },
   // Nur über Server Actions erreichbar (auth.api.* ist davon nicht betroffen):
   // Dort gelten Passwortabfrage, Validierung und eigene Limits. "/list-sessions"
-  // würde die Session-Tokens aller Geräte an den Browser ausliefern.
-  disabledPaths: ["/change-email", "/update-user", "/list-sessions"],
+  // würde die Session-Tokens aller Geräte an den Browser ausliefern. Vom
+  // emailOTP-Plugin wird nur die Bestätigung nach der Registrierung genutzt;
+  // Anmeldung, Passwort-Reset und E-Mail-Änderung per Code bleiben aus.
+  disabledPaths: [
+    "/change-email",
+    "/update-user",
+    "/list-sessions",
+    "/send-verification-email",
+    "/email-otp/send-verification-otp",
+    "/email-otp/check-verification-otp",
+    "/email-otp/verify-email",
+    "/sign-in/email-otp",
+    "/email-otp/request-password-reset",
+    "/forget-password/email-otp",
+    "/email-otp/reset-password",
+    "/email-otp/request-email-change",
+    "/email-otp/change-email",
+  ],
   // Gilt für alle HTTP-Anfragen an /api/auth/*. Server Actions haben eigene Limits.
   rateLimit: {
     enabled: true,
@@ -111,7 +139,6 @@ export const auth = betterAuth({
       "/sign-in/username": RATE_LIMIT_STRICT,
       "/sign-up/email": { window: 60 * 60, max: 5 },
       "/request-password-reset": { window: 60 * 60, max: 3 },
-      "/send-verification-email": { window: 60 * 60, max: 3 },
       "/reset-password": RATE_LIMIT_STRICT,
       "/change-password": RATE_LIMIT_STRICT,
     },
@@ -137,6 +164,24 @@ export const auth = betterAuth({
       immutableUsername: true,
     }),
     admin({ ac, roles, defaultRole: "user", adminRoles: ["admin"] }),
+    emailOTP({
+      otpLength: VERIFICATION_CODE_LENGTH,
+      expiresIn: VERIFICATION_CODE_MINUTES * 60,
+      allowedAttempts: VERIFICATION_CODE_ATTEMPTS,
+      // In der Datenbank nur als Hash; ein erneutes Senden erzeugt einen neuen Code.
+      storeOTP: "hashed",
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        if (type !== "email-verification") return;
+        // Bestätigte Konten bekommen keinen Code: Eine Registrierung mit einer
+        // vergebenen Adresse antwortet gleich, verschickt aber nichts.
+        const user = await db.user.findUnique({
+          where: { email },
+          select: { email: true, name: true, preferredLocale: true, emailVerified: true },
+        });
+        if (!user || user.emailVerified) return;
+        sendMailInBackground(verificationCodeEmail(user, otp, VERIFICATION_CODE_MINUTES));
+      },
+    }),
     // Muss das letzte Plugin sein: setzt Cookies bei Aufrufen aus Server Actions.
     nextCookies(),
   ],

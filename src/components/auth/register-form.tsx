@@ -1,6 +1,5 @@
 "use client";
 
-import { MailCheck } from "lucide-react";
 import { useLocale } from "next-intl";
 import { useActionState } from "react";
 
@@ -17,19 +16,6 @@ export function RegisterForm() {
   const locale = useLocale();
   const [state, formAction] = useActionState(registerAction, idleState);
   const { t, fieldError, formError, value } = useFormMessages(state);
-
-  if (state.status === "success") {
-    return (
-      <div role="status" className="text-center">
-        <MailCheck aria-hidden className="mx-auto mb-4 size-10 text-success" />
-        <h2 className="text-xl font-semibold text-fg">{t("registeredTitle")}</h2>
-        <p className="mt-2 text-sm text-muted">{t("registeredText", { email: state.message ?? "" })}</p>
-        <Link href="/login" className="mt-6 inline-block text-sm font-medium text-accent hover:text-accent-hover">
-          {t("loginLink")}
-        </Link>
-      </div>
-    );
-  }
 
   const termsError = fieldError("acceptTerms");
 

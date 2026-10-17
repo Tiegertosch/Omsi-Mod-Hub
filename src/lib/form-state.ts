@@ -11,6 +11,10 @@ export type FormErrorCode =
   | "token_invalid"
   | "current_password_wrong"
   | "admin_account"
+  | "code_invalid"
+  | "code_expired"
+  | "code_attempts"
+  | "resend_cooldown"
   | "unauthorized"
   | "generic";
 
@@ -25,7 +29,8 @@ export type FieldErrorCode =
   | "name"
   | "locale"
   | "emailSame"
-  | "confirmUsername";
+  | "confirmUsername"
+  | "code";
 
 export type FormState<E extends string = FormErrorCode, F extends string = FieldErrorCode> =
   | { status: "idle" }

@@ -260,8 +260,6 @@
     "registerLink": "Register now",
     "haveAccount": "Already registered?",
     "loginLink": "Go to sign in",
-    "registeredTitle": "Almost done!",
-    "registeredText": "We have sent an email with a confirmation link to {email}. Please confirm your address to sign in. The link is valid for 24 hours.",
     "forgotTitle": "Reset password",
     "forgotDescription": "Enter the email address of your account. We will send you a link to reset your password.",
     "submitForgot": "Request link",
@@ -274,12 +272,12 @@
     "verifyTitle": "Email confirmed",
     "verifyText": "Thank you! Your email address is confirmed and you are signed in.",
     "verifyErrorTitle": "Invalid link",
-    "verifyErrorText": "The confirmation link is invalid or has expired. Sign in and we will automatically send you a new link.",
+    "verifyErrorText": "The confirmation link is invalid or has expired. Sign in and we will email you a confirmation code.",
     "toDashboard": "Go to dashboard",
     "errors": {
       "validation": "Please check the highlighted fields.",
       "invalid_credentials": "Email/username or password is incorrect.",
-      "email_not_verified": "Please confirm your email address first. We have sent you a new confirmation link.",
+      "email_not_verified": "Please confirm your email address first using the code from our email.",
       "banned": "This account has been suspended.",
       "username_taken": "This username is already taken.",
       "rate_limit": "Too many attempts. Please wait a few minutes.",
@@ -287,7 +285,11 @@
       "current_password_wrong": "The current password is incorrect.",
       "unauthorized": "Your session has expired. Please sign in again.",
       "generic": "Something went wrong. Please try again.",
-      "admin_account": "Admin accounts cannot delete themselves."
+      "admin_account": "Admin accounts cannot delete themselves.",
+      "code_invalid": "The code is incorrect or no longer valid.",
+      "code_expired": "The code has expired. Please request a new one.",
+      "code_attempts": "Too many incorrect attempts. Please request a new code.",
+      "resend_cooldown": "Please wait a minute before requesting a new code."
     },
     "fieldErrors": {
       "username": "This username is not valid.",
@@ -299,8 +301,20 @@
       "name": "Please enter a display name of at most {max} characters.",
       "locale": "Please choose a language.",
       "emailSame": "This is already your current address.",
-      "confirmUsername": "The username does not match."
-    }
+      "confirmUsername": "The username does not match.",
+      "code": "Please enter the 6-digit code from the email."
+    },
+    "confirmTitle": "Confirm your email address",
+    "codeSentTo": "We sent a {length}-digit code to {email}. Enter it here to activate your account.",
+    "codeSentGeneric": "Enter the {length}-digit code from our email to activate your account.",
+    "unverifiedNotice": "Your account has not been confirmed yet. We just sent you a code by email.",
+    "code": "Confirmation code",
+    "codeHint": "The code is valid for {minutes} minutes. Please also check your spam folder.",
+    "submitCode": "Confirm",
+    "noCode": "Didn't get an email?",
+    "resendCode": "Send code again",
+    "codeResent": "If an unconfirmed account belongs to {email}, we sent a new code. Older codes are no longer valid.",
+    "codeExistingAccount": "Already confirmed your account? Then <login>sign in</login> or <reset>reset your password</reset>."
   },
   "Account": {
     "menuLabel": "Account",
@@ -727,8 +741,6 @@
     "openReports": "{count, plural, one {# open report} other {# open reports}}"
   },
   "Email": {
-    "verifySubject": "Please confirm your email address – OMSI Mod Hub",
-    "verifyBody": "Hello {name},\n\nplease confirm your email address for OMSI Mod Hub by opening this link:\n\n{url}\n\nThe link is valid for 24 hours. If you did not register, you can ignore this email.",
     "resetSubject": "Reset your password – OMSI Mod Hub",
     "resetBody": "Hello {name},\n\nyou can set a new password for OMSI Mod Hub using this link:\n\n{url}\n\nThe link is valid for one hour. If you did not request this, you can ignore this email – your password stays unchanged.",
     "decision": {
@@ -754,7 +766,9 @@
     "changeEmailVerifySubject": "Confirm your new email address – OMSI Mod Hub",
     "changeEmailVerifyBody": "Hi {name},\n\nplease confirm this address as the new email address of your OMSI Mod Hub account:\n\n{url}\n\nThe address is only changed after that. The link is valid for 24 hours. If you didn't request this, you can ignore this email.",
     "accountDeletedSubject": "Your account has been deleted – OMSI Mod Hub",
-    "accountDeletedBody": "Hi {name},\n\nyour OMSI Mod Hub account has been deleted, together with your creator profile and your projects.\n\nIf you didn't do this yourself, please contact us using the details on the website."
+    "accountDeletedBody": "Hi {name},\n\nyour OMSI Mod Hub account has been deleted, together with your creator profile and your projects.\n\nIf you didn't do this yourself, please contact us using the details on the website.",
+    "verifyCodeSubject": "{code} is your confirmation code – OMSI Mod Hub",
+    "verifyCodeBody": "Hi {name},\n\nyour code to confirm your email address at OMSI Mod Hub is:\n\n{code}\n\nEnter it on the page that opened after you registered, or here:\n\n{url}\n\nThe code is valid for {minutes} minutes. If you didn't register, you can ignore this email."
   },
   "Errors": {
     "notFoundTitle": "Page not found",

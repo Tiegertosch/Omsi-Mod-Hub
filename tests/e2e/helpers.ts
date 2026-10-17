@@ -24,8 +24,8 @@ export function randomIp() {
 type SentMail = { to: string; subject: string; text: string };
 
 /** Wartet auf die neueste Mail an `to` (MAIL_TRANSPORT=file), deren Betreff passt. */
-export async function waitForMail(to: string, subjectPattern: RegExp, since: number): Promise<SentMail> {
-  const deadline = Date.now() + 15_000;
+export async function waitForMail(to: string, subjectPattern: RegExp, since: number, timeoutMs = 15_000): Promise<SentMail> {
+  const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
       // Dateinamen beginnen mit dem Zeitstempel (src/server/mail.ts): neueste zuerst,
@@ -61,16 +61,30 @@ export async function register(page: Page, user: ReturnType<typeof uniqueUser>) 
   await page.getByLabel("Passwort wiederholen").fill(user.password);
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Konto erstellen" }).click();
-  await expect(page.getByRole("heading", { name: "Fast geschafft!" })).toBeVisible();
+  await expect(page).toHaveURL(/\/de\/confirm-email$/);
+  await expect(page.getByRole("heading", { name: "E-Mail-Adresse bestätigen" })).toBeVisible();
 }
 
-/** Registriert, bestätigt die E-Mail über den Link und ist danach angemeldet. */
+/** Wartet auf die neueste Mail mit Bestätigungscode an `to` und liefert den Code. */
+export async function waitForMailCode(to: string, since: number): Promise<string> {
+  const mail = await waitForMail(to, /Bestätigungscode/, since);
+  const code = /^(\d{6}) /.exec(mail.subject)?.[1];
+  if (!code || !mail.text.includes(code)) throw new Error(`Mail an ${to} enthält keinen Code.`);
+  return code;
+}
+
+/** Gibt auf der Code-Seite einen Code ein (die Adresse ist vorausgefüllt). */
+export async function enterCode(page: Page, code: string) {
+  await page.getByLabel("Bestätigungscode").fill(code);
+  await page.getByRole("button", { name: "Bestätigen", exact: true }).click();
+}
+
+/** Registriert, bestätigt die E-Mail mit dem Code und ist danach angemeldet. */
 export async function registerAndVerify(page: Page, user: ReturnType<typeof uniqueUser>) {
   const since = Date.now() - 1000;
   await register(page, user);
-  const link = await waitForMailLink(user.email, /bestätige/i, since);
-  await page.goto(link);
-  await expect(page.getByRole("heading", { name: "E-Mail bestätigt" })).toBeVisible();
+  await enterCode(page, await waitForMailCode(user.email, since));
+  await expect(page).toHaveURL(/\/de\/dashboard$/);
 }
 
 export async function login(page: Page, identifier: string, password: string) {

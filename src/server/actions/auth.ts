@@ -6,10 +6,19 @@ import { z } from "zod";
 
 import { routing } from "@/i18n/routing";
 import { auth } from "@/lib/auth";
-import { PASSWORD_MAX, PASSWORD_MIN, USERNAME_MAX, USERNAME_MIN, USERNAME_PATTERN } from "@/lib/auth-rules";
+import {
+  PASSWORD_MAX,
+  PASSWORD_MIN,
+  USERNAME_MAX,
+  USERNAME_MIN,
+  USERNAME_PATTERN,
+  VERIFICATION_CODE_LENGTH,
+} from "@/lib/auth-rules";
+import { db } from "@/lib/db";
 import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 import { mapAuthError } from "@/server/auth-errors";
+import { clearPendingEmail, rememberPendingEmail } from "@/server/pending-verification";
 import { clientKey, consumeRateLimits, hashKey } from "@/server/rate-limit";
 
 const MINUTE = 60 * 1000;
@@ -54,7 +63,7 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   const values = { username: text(formData, "username"), email: text(formData, "email") };
 
   // Honeypot: Bots erhalten eine scheinbare Erfolgsmeldung.
-  if (text(formData, "website")) return { status: "success", message: values.email };
+  if (text(formData, "website")) redirect(`/${locale}/confirm-email`);
 
   const parsed = registerSchema.safeParse({
     username: values.username,
@@ -79,7 +88,6 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
         email: parsed.data.email,
         password: parsed.data.password,
         preferredLocale: locale,
-        callbackURL: `/${locale}/verify-email`,
       },
       headers: await headers(),
     });
@@ -93,7 +101,86 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
     };
   }
 
-  // Auch bei bereits registrierter E-Mail gleiche Antwort (Schutz vor Ausspähen).
+  // Auch bei bereits registrierter E-Mail gleicher Ablauf (Schutz vor Ausspähen);
+  // der Code geht nur an unbestätigte Konten (siehe src/lib/auth.ts).
+  await sendVerificationCode(parsed.data.email);
+  await rememberPendingEmail(parsed.data.email);
+  redirect(`/${locale}/confirm-email`);
+}
+
+// ---------------------------------------------------------------------------
+// E-Mail-Bestätigung per Code
+// ---------------------------------------------------------------------------
+
+async function sendVerificationCode(email: string): Promise<void> {
+  try {
+    await auth.api.sendVerificationOTP({ body: { email, type: "email-verification" }, headers: await headers() });
+  } catch (error) {
+    // Fehler nicht offenlegen – die Antwort ist immer gleich.
+    mapAuthError(error);
+  }
+}
+
+/** Höchstens ein neuer Code pro Minute und Adresse (auch über die Anmeldung). */
+async function resendAllowed(email: string): Promise<boolean> {
+  return consumeRateLimits([{ key: `verify-resend:id:${hashKey(email)}`, limit: 1, windowMs: MINUTE }]);
+}
+
+const codeSchema = z.object({
+  email: emailSchema,
+  code: z
+    .string()
+    .trim()
+    .regex(new RegExp(`^\\d{${VERIFICATION_CODE_LENGTH}}$`), { message: "code" }),
+});
+
+export async function verifyEmailCodeAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const locale = localeSchema.parse(text(formData, "locale"));
+  const values = { email: text(formData, "email") };
+  // Leerzeichen aus kopierten Codes („123 456“) ignorieren.
+  const parsed = codeSchema.safeParse({ email: values.email, code: text(formData, "code").replace(/\s+/g, "") });
+  if (!parsed.success) {
+    return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom(parsed.error), values };
+  }
+
+  const allowed = await consumeRateLimits([
+    { key: await clientKey("verify-code"), limit: 30, windowMs: 10 * MINUTE },
+    { key: `verify-code:id:${hashKey(parsed.data.email)}`, limit: 10, windowMs: 15 * MINUTE },
+  ]);
+  if (!allowed) return { status: "error", code: "rate_limit", values };
+
+  let preferredLocale: string | null | undefined;
+  try {
+    const result = await auth.api.verifyEmailOTP({
+      body: { email: parsed.data.email, otp: parsed.data.code },
+      headers: await headers(),
+    });
+    preferredLocale = (result.user as { preferredLocale?: string | null }).preferredLocale;
+  } catch (error) {
+    return { status: "error", code: mapAuthError(error), values };
+  }
+
+  await clearPendingEmail();
+  const homeLocale = preferredLocale && (routing.locales as readonly string[]).includes(preferredLocale) ? preferredLocale : locale;
+  redirect(safeRedirectPath(text(formData, "next"), `/${homeLocale}/dashboard`));
+}
+
+export async function resendVerificationCodeAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const values = { email: text(formData, "email") };
+  const parsed = z.object({ email: emailSchema }).safeParse(values);
+  if (!parsed.success) {
+    return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom(parsed.error), values };
+  }
+
+  const allowed = await consumeRateLimits([
+    { key: await clientKey("verify-resend"), limit: 10, windowMs: HOUR },
+    { key: `verify-resend:hour:${hashKey(parsed.data.email)}`, limit: 5, windowMs: HOUR },
+  ]);
+  if (!allowed) return { status: "error", code: "rate_limit", values };
+  if (!(await resendAllowed(parsed.data.email))) return { status: "error", code: "resend_cooldown", values };
+
+  await sendVerificationCode(parsed.data.email);
+  await rememberPendingEmail(parsed.data.email);
   return { status: "success", message: parsed.data.email };
 }
 
@@ -127,7 +214,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     const requestHeaders = await headers();
     const result = identifier.includes("@")
       ? await auth.api.signInEmail({
-          body: { email: identifier, password: parsed.data.password, callbackURL: `/${locale}/verify-email` },
+          body: { email: identifier, password: parsed.data.password },
           headers: requestHeaders,
         })
       : await auth.api.signInUsername({
@@ -136,7 +223,18 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
         });
     preferredLocale = (result.user as { preferredLocale?: string | null }).preferredLocale;
   } catch (error) {
-    return { status: "error", code: mapAuthError(error), values };
+    const code = mapAuthError(error);
+    if (code !== "email_not_verified") return { status: "error", code, values };
+    // Better Auth meldet das erst nach korrektem Passwort: Die Adresse darf
+    // also angezeigt werden. Höchstens ein neuer Code pro Minute.
+    const email = identifier.includes("@")
+      ? identifier
+      : (await db.user.findUnique({ where: { username: identifier }, select: { email: true } }))?.email;
+    if (!email) return { status: "error", code: "generic", values };
+    if (await resendAllowed(email)) await sendVerificationCode(email);
+    await rememberPendingEmail(email);
+    const next = safeRedirectPath(text(formData, "next"), "");
+    redirect(`/${locale}/confirm-email?unverified=1${next ? `&next=${encodeURIComponent(next)}` : ""}`);
   }
 
   const homeLocale = preferredLocale && (routing.locales as readonly string[]).includes(preferredLocale) ? preferredLocale : locale;

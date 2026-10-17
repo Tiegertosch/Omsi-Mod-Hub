@@ -260,8 +260,6 @@
     "registerLink": "Jetzt registrieren",
     "haveAccount": "Bereits registriert?",
     "loginLink": "Zur Anmeldung",
-    "registeredTitle": "Fast geschafft!",
-    "registeredText": "Wir haben eine E-Mail mit einem Bestätigungslink an {email} geschickt. Bitte bestätige deine Adresse, um dich anzumelden. Der Link ist 24 Stunden gültig.",
     "forgotTitle": "Passwort zurücksetzen",
     "forgotDescription": "Gib die E-Mail-Adresse deines Kontos ein. Wir schicken dir einen Link zum Zurücksetzen.",
     "submitForgot": "Link anfordern",
@@ -274,12 +272,12 @@
     "verifyTitle": "E-Mail bestätigt",
     "verifyText": "Danke! Deine E-Mail-Adresse ist bestätigt und du bist angemeldet.",
     "verifyErrorTitle": "Link ungültig",
-    "verifyErrorText": "Der Bestätigungslink ist ungültig oder abgelaufen. Melde dich an – wir schicken dir dann automatisch einen neuen Link.",
+    "verifyErrorText": "Der Bestätigungslink ist ungültig oder abgelaufen. Melde dich an – du bekommst dann einen Bestätigungscode per E-Mail.",
     "toDashboard": "Zum Dashboard",
     "errors": {
       "validation": "Bitte prüfe die markierten Felder.",
       "invalid_credentials": "E-Mail/Benutzername oder Passwort ist falsch.",
-      "email_not_verified": "Bitte bestätige zuerst deine E-Mail-Adresse. Wir haben dir einen neuen Bestätigungslink geschickt.",
+      "email_not_verified": "Bitte bestätige zuerst deine E-Mail-Adresse mit dem Code aus unserer E-Mail.",
       "banned": "Dieses Konto ist gesperrt.",
       "username_taken": "Dieser Benutzername ist bereits vergeben.",
       "rate_limit": "Zu viele Versuche. Bitte warte einige Minuten.",
@@ -287,7 +285,11 @@
       "current_password_wrong": "Das aktuelle Passwort ist falsch.",
       "unauthorized": "Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.",
       "generic": "Das hat nicht geklappt. Bitte versuche es erneut.",
-      "admin_account": "Admin-Konten können nicht selbst gelöscht werden."
+      "admin_account": "Admin-Konten können nicht selbst gelöscht werden.",
+      "code_invalid": "Der Code ist falsch oder nicht mehr gültig.",
+      "code_expired": "Der Code ist abgelaufen. Fordere bitte einen neuen an.",
+      "code_attempts": "Zu viele falsche Eingaben. Fordere bitte einen neuen Code an.",
+      "resend_cooldown": "Bitte warte eine Minute, bevor du einen neuen Code anforderst."
     },
     "fieldErrors": {
       "username": "Dieser Benutzername ist ungültig.",
@@ -299,8 +301,20 @@
       "name": "Bitte gib einen Anzeigenamen mit höchstens {max} Zeichen ein.",
       "locale": "Bitte wähle eine Sprache.",
       "emailSame": "Das ist bereits deine aktuelle Adresse.",
-      "confirmUsername": "Der Benutzername stimmt nicht überein."
-    }
+      "confirmUsername": "Der Benutzername stimmt nicht überein.",
+      "code": "Bitte gib den 6-stelligen Code aus der E-Mail ein."
+    },
+    "confirmTitle": "E-Mail-Adresse bestätigen",
+    "codeSentTo": "Wir haben einen {length}-stelligen Code an {email} geschickt. Gib ihn hier ein, um dein Konto zu aktivieren.",
+    "codeSentGeneric": "Gib den {length}-stelligen Code aus unserer E-Mail ein, um dein Konto zu aktivieren.",
+    "unverifiedNotice": "Dein Konto ist noch nicht bestätigt. Wir haben dir gerade einen Code per E-Mail geschickt.",
+    "code": "Bestätigungscode",
+    "codeHint": "Der Code ist {minutes} Minuten gültig. Schau auch im Spam-Ordner nach.",
+    "submitCode": "Bestätigen",
+    "noCode": "Keine E-Mail bekommen?",
+    "resendCode": "Code erneut senden",
+    "codeResent": "Wenn zu {email} ein unbestätigtes Konto gehört, haben wir einen neuen Code geschickt. Ältere Codes gelten damit nicht mehr.",
+    "codeExistingAccount": "Dein Konto ist schon bestätigt? Dann <login>melde dich an</login> oder <reset>setze dein Passwort zurück</reset>."
   },
   "Account": {
     "menuLabel": "Konto",
@@ -727,8 +741,6 @@
     "openReports": "{count, plural, one {# offene Meldung} other {# offene Meldungen}}"
   },
   "Email": {
-    "verifySubject": "Bitte bestätige deine E-Mail-Adresse – OMSI Mod Hub",
-    "verifyBody": "Hallo {name},\n\nbitte bestätige deine E-Mail-Adresse für OMSI Mod Hub, indem du diesen Link öffnest:\n\n{url}\n\nDer Link ist 24 Stunden gültig. Wenn du dich nicht registriert hast, kannst du diese E-Mail ignorieren.",
     "resetSubject": "Passwort zurücksetzen – OMSI Mod Hub",
     "resetBody": "Hallo {name},\n\nüber diesen Link kannst du ein neues Passwort für OMSI Mod Hub festlegen:\n\n{url}\n\nDer Link ist eine Stunde gültig. Wenn du das nicht angefordert hast, kannst du diese E-Mail ignorieren – dein Passwort bleibt unverändert.",
     "decision": {
@@ -754,7 +766,9 @@
     "changeEmailVerifySubject": "Neue E-Mail-Adresse bestätigen – OMSI Mod Hub",
     "changeEmailVerifyBody": "Hallo {name},\n\nbitte bestätige diese Adresse als neue E-Mail-Adresse deines Kontos bei OMSI Mod Hub:\n\n{url}\n\nErst danach wird die Adresse übernommen. Der Link ist 24 Stunden gültig. Wenn du das nicht angefragt hast, kannst du diese E-Mail ignorieren.",
     "accountDeletedSubject": "Dein Konto wurde gelöscht – OMSI Mod Hub",
-    "accountDeletedBody": "Hallo {name},\n\ndein Konto bei OMSI Mod Hub wurde gelöscht, zusammen mit deinem Creator-Profil und deinen Projekten.\n\nWenn du das nicht selbst veranlasst hast, wende dich bitte über die Kontaktangaben auf der Website an uns."
+    "accountDeletedBody": "Hallo {name},\n\ndein Konto bei OMSI Mod Hub wurde gelöscht, zusammen mit deinem Creator-Profil und deinen Projekten.\n\nWenn du das nicht selbst veranlasst hast, wende dich bitte über die Kontaktangaben auf der Website an uns.",
+    "verifyCodeSubject": "{code} ist dein Bestätigungscode – OMSI Mod Hub",
+    "verifyCodeBody": "Hallo {name},\n\ndein Code zur Bestätigung deiner E-Mail-Adresse bei OMSI Mod Hub lautet:\n\n{code}\n\nGib ihn auf der Seite ein, die sich nach der Registrierung geöffnet hat, oder hier:\n\n{url}\n\nDer Code ist {minutes} Minuten gültig. Wenn du dich nicht registriert hast, kannst du diese E-Mail ignorieren."
   },
   "Errors": {
     "notFoundTitle": "Seite nicht gefunden",

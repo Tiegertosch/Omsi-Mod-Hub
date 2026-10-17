@@ -27,9 +27,15 @@ function absoluteUrl(path: string): string {
   return `${(process.env.BETTER_AUTH_URL ?? siteConfig.url).replace(/\/+$/, "")}${path}`;
 }
 
-export function verificationEmail(user: MailUser, url: string): MailMessage {
-  const t = translator(mailLocale(user));
-  return { to: user.email, subject: t("verifySubject"), text: t("verifyBody", { name: user.name, url }) };
+/** 6-stelliger Code zur Bestätigung der Adresse nach der Registrierung. */
+export function verificationCodeEmail(user: MailUser, code: string, minutes: number): MailMessage {
+  const locale = mailLocale(user);
+  const t = translator(locale);
+  return {
+    to: user.email,
+    subject: t("verifyCodeSubject", { code }),
+    text: t("verifyCodeBody", { name: user.name, code, minutes, url: absoluteUrl(`/${locale}/confirm-email`) }),
+  };
 }
 
 /** Schritt 1 der E-Mail-Änderung: Bestätigung über die bisherige Adresse. */
