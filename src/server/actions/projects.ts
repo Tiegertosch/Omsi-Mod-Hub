@@ -27,6 +27,7 @@ import { rebuildSearchText } from "@/server/project-search";
 import { consumeRateLimit } from "@/server/rate-limit";
 import { getCurrentUser, type CurrentUser } from "@/server/session";
 import { deleteMedia, storeMedia } from "@/server/storage";
+import { projectsChanged } from "@/server/public-cache";
 
 type EditorState = FormState<EditorErrorCode, EditorFieldCode>;
 
@@ -183,6 +184,7 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
     await audit(user.id, "project.create", id);
     redirect(`/${locale}/dashboard/projects/${id}/edit`);
   }
+  projectsChanged([slug]);
   refresh();
   return { status: "success" };
 }
@@ -219,6 +221,7 @@ export async function uploadCoverAction(_prev: EditorState, formData: FormData):
     data: { coverImageUrl: mediaUrlFromKey(key), coverImageAlt: alt.data || null },
   });
   await deleteMedia(mediaKeyFromUrl(ctx.project.coverImageUrl));
+  projectsChanged([ctx.project.slug]);
   refresh();
   return { status: "success" };
 }
@@ -228,6 +231,7 @@ export async function removeCoverAction(_prev: EditorState, formData: FormData):
   if (!ctx.ok) return ctx.error;
   await db.project.update({ where: { id: ctx.project.id }, data: { coverImageUrl: null, coverImageAlt: null } });
   await deleteMedia(mediaKeyFromUrl(ctx.project.coverImageUrl));
+  projectsChanged([ctx.project.slug]);
   refresh();
   return { status: "success" };
 }
@@ -249,6 +253,7 @@ export async function uploadScreenshotAction(_prev: EditorState, formData: FormD
   await db.screenshot.create({
     data: { projectId: ctx.project.id, imageUrl: mediaUrlFromKey(key), altText: alt.data, sortOrder: count },
   });
+  projectsChanged([ctx.project.slug]);
   refresh();
   return { status: "success" };
 }
@@ -262,6 +267,7 @@ export async function deleteScreenshotAction(_prev: EditorState, formData: FormD
   if (!screenshot) return fail("not_found");
   await db.screenshot.delete({ where: { id: screenshot.id } });
   await deleteMedia(mediaKeyFromUrl(screenshot.imageUrl));
+  projectsChanged([ctx.project.slug]);
   refresh();
   return { status: "success" };
 }
@@ -354,6 +360,7 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
     await tx.externalLink.deleteMany({ where: { versionId: existing.id, id: { notIn: [...keep] } } });
   });
 
+  projectsChanged([project.slug]);
   refresh();
   return { status: "success" };
 }
@@ -383,6 +390,7 @@ export async function deleteVersionAction(_prev: EditorState, formData: FormData
     });
     await tx.project.update({ where: { id: project.id }, data: { lastReleaseAt: latest?.releasedAt ?? null } });
   });
+  projectsChanged([project.slug]);
   refresh();
   return { status: "success" };
 }
@@ -423,6 +431,7 @@ export async function changeProjectStatusAction(_prev: EditorState, formData: Fo
     },
   });
   await audit(user.id, `project.${action.data}`, project.id, { from: project.status, to: next });
+  projectsChanged([project.slug]);
   refresh();
   return { status: "success" };
 }

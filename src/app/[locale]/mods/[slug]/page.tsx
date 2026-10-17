@@ -76,10 +76,10 @@ async function CategoryCatalog({
 }
 
 /**
- * Hinweis zum Status-Code: Unbekannte Slugs rendern die 404-Seite mit
- * `noindex`, aber HTTP 200, weil die App-Hülle bereits gestreamt wurde
- * (Next.js ≥ 16.3). Echte 404-Status sind über gecachte Detailseiten mit
- * `ensureStatic = "navigation"` geplant (siehe docs/ARCHITECTURE.md).
+ * Hinweis zum Status-Code: Unbekannte Slugs beantwortet bereits der Proxy mit
+ * einem echten 404 (src/server/route-existence.ts). Das notFound() hier greift
+ * nur, wenn sich der Zustand zwischen Proxy und Rendern ändert; dann bleibt es
+ * bei der gestreamten 404-Seite mit `noindex` und Status 200.
  */
 async function SlugContent({ params, searchParams }: Pick<Props, "params" | "searchParams">) {
   const [{ slug }, locale] = await Promise.all([params, getLocale()]);

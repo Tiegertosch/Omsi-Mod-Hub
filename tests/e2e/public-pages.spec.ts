@@ -88,3 +88,22 @@ test("Unbekannte Seiten zeigen die lokalisierte 404-Seite", async ({ page }) => 
   await page.goto("/en/mods/does-not-exist");
   await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
 });
+
+test("Unbekannte Adressen liefern einen echten HTTP-404", async ({ page }) => {
+  const notFound = [
+    "/de/mods/gibt-es-nicht",
+    "/de/mods/unveroeffentlichter-entwurf", // Entwurf ist nicht öffentlich
+    "/en/creators/niemand-hier",
+    "/de/legal/unbekannt",
+    "/de/irgendwas/tief/verschachtelt",
+  ];
+  for (const path of notFound) {
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(404);
+    await expect(page.getByRole("heading", { name: /^(Seite nicht gefunden|Page not found)$/ })).toBeVisible();
+  }
+  for (const path of ["/de/mods/busse", "/de/mods/gelenkbus-gl18", "/de/creators/elbtal-busworks", "/de/legal/imprint"]) {
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(200);
+  }
+});

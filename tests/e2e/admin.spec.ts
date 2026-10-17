@@ -49,8 +49,9 @@ test("Ausblenden mit Begründung, Benachrichtigung und Wiedereinblenden", async 
   await published.getByRole("button", { name: "Ausblenden" }).click();
   await expect(published).toHaveCount(0);
 
-  // Nicht mehr öffentlich
-  await page.goto(`/de/mods/${project.slug}`);
+  // Nicht mehr öffentlich (echter 404)
+  const hiddenResponse = await page.goto(`/de/mods/${project.slug}`);
+  expect(hiddenResponse?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "Seite nicht gefunden" })).toBeVisible();
 
   // Creator erhält eine Mail mit Link ins Dashboard und sieht dort die Begründung
@@ -191,17 +192,23 @@ test("Kategorien und Tags anlegen, umbenennen und löschen", async ({ browser })
   const category = page.locator("li", { hasText: `/mods/${slug}` });
   await expect(category).toBeVisible();
 
-  // Öffentlich erreichbar, solange sie existiert
+  // Öffentlich erreichbar, solange sie existiert; Umbenennen wirkt sofort
   const visitor = await browser.newPage();
   await visitor.goto(`/de/mods/${slug}`);
   await expect(visitor.getByRole("heading", { level: 1 })).toHaveText("E2E Haltestellen");
-
   await category.locator("summary").first().click();
+  await category.getByLabel("Name (Deutsch)").fill("E2E Wartehallen");
+  await category.getByRole("button", { name: "Speichern" }).click();
+  await expect(category.getByText("Gespeichert.")).toBeVisible();
+  await visitor.goto(`/de/mods/${slug}`);
+  await expect(visitor.getByRole("heading", { level: 1 })).toHaveText("E2E Wartehallen");
+
   await category.locator("summary", { hasText: "Löschen" }).click();
   await category.getByRole("button", { name: "Endgültig löschen" }).click();
   await expect(category).toHaveCount(0);
 
-  await visitor.goto(`/de/mods/${slug}`);
+  const gone = await visitor.goto(`/de/mods/${slug}`);
+  expect(gone?.status()).toBe(404);
   await expect(visitor.getByRole("heading", { name: "Seite nicht gefunden" })).toBeVisible();
   await visitor.close();
 });

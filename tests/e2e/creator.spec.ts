@@ -56,6 +56,14 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
 
   await page.goto("/de/dashboard/projects");
   await expect(page.locator("li", { hasText: title }).getByText("Veröffentlicht")).toBeVisible();
+
+  // Änderungen an veröffentlichten Projekten sind trotz Zwischenspeicherung sofort öffentlich.
+  await page.goto(`/de/dashboard/projects/${project.id}/edit`);
+  await page.getByRole("tabpanel").getByLabel("Kurzbeschreibung").fill("Neue Kurzbeschreibung nach der Freigabe.");
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  await expect(page.getByText("Änderungen gespeichert.").first()).toBeVisible();
+  await page.goto(`/de/mods/${project.slug}`);
+  await expect(page.getByText("Neue Kurzbeschreibung nach der Freigabe.").first()).toBeVisible();
 });
 
 test("Zurückweisen mit Begründung und erneutes Einreichen", async ({ page, browser }) => {

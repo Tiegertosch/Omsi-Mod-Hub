@@ -7,8 +7,8 @@ import { Suspense } from "react";
 import { Container } from "@/components/ui/container";
 import { Notice, Skeleton } from "@/components/ui/state";
 import { localizedAlternates } from "@/lib/metadata";
+import { LEGAL_PAGES } from "@/server/route-existence";
 
-const LEGAL_PAGES = ["imprint", "privacy", "terms"] as const;
 type LegalPage = (typeof LEGAL_PAGES)[number];
 
 type Props = PageProps<"/[locale]/legal/[page]">;

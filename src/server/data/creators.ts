@@ -1,14 +1,14 @@
 import "server-only";
 
-import { connection } from "next/server";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
 import { tokenizeQuery } from "@/lib/search-text";
+import { CACHE_TAGS } from "@/server/public-cache";
 
 /** Öffentlich sichtbar sind nur nicht gesperrte Konten mit Creator-Profil und mindestens einem veröffentlichten Projekt. */
-const publicCreatorWhere = {
+export const publicCreatorWhere = {
   banned: false,
   creatorProfile: { isNot: null },
   projects: { some: { status: "PUBLISHED" } },
@@ -54,7 +54,9 @@ function toSummary(row: Prisma.UserGetPayload<{ select: typeof creatorSelect }>)
 }
 
 export async function getCreators(options: { take?: number; q?: string } = {}): Promise<CreatorSummary[]> {
-  await connection();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists);
   const terms = tokenizeQuery(options.q ?? "");
   const rows = await db.user.findMany({
     where: {
@@ -70,17 +72,22 @@ export async function getCreators(options: { take?: number; q?: string } = {}): 
   return rows.map(toSummary);
 }
 
-export const getCreatorByUsername = cache(async (username: string): Promise<CreatorSummary | null> => {
-  await connection();
+export async function getCreatorByUsername(username: string): Promise<CreatorSummary | null> {
+  "use cache";
+  cacheLife("minutes");
+  // Profil sofort aktuell (creator-Tag), Projektanzahl über die Listen.
+  cacheTag(CACHE_TAGS.creator(username.toLowerCase()), CACHE_TAGS.lists);
   const row = await db.user.findFirst({
     where: { ...publicCreatorWhere, username: username.toLowerCase() },
     select: creatorSelect,
   });
   return row ? toSummary(row) : null;
-});
+}
 
 export async function getCreatorSitemapEntries() {
-  await connection();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists);
   return db.user.findMany({
     where: publicCreatorWhere,
     select: { username: true, updatedAt: true },

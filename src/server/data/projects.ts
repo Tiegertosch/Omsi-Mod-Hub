@@ -1,13 +1,13 @@
 import "server-only";
 
-import { connection } from "next/server";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
 import type { Prisma } from "@/generated/prisma/client";
 import { CATALOG_PAGE_SIZE, type CatalogParams } from "@/lib/catalog-params";
 import { db } from "@/lib/db";
 import { tokenizeQuery } from "@/lib/search-text";
 import { pickTranslation } from "@/lib/translation";
+import { CACHE_TAGS } from "@/server/public-cache";
 
 import { tagSelect, toTagView, type TagView } from "./tags";
 
@@ -109,7 +109,9 @@ export async function searchProjects(
   locale: string,
   options: { categoryId?: string } = {},
 ): Promise<CatalogResult> {
-  await connection();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists);
   const where = buildCatalogWhere({ q: params.q, tags: params.tags, categoryId: options.categoryId });
 
   const total = await db.project.count({ where });
@@ -132,7 +134,9 @@ export async function getProjectList(
   locale: string,
   take = 6,
 ): Promise<ProjectCard[]> {
-  await connection();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists);
   const rows = await db.project.findMany({
     where: { status: PUBLISHED, ...(kind === "popular" ? { outboundClickCount: { gt: 0 } } : {}) },
     include: cardInclude,
@@ -147,7 +151,9 @@ export async function getCreatorProjects(
   locale: string,
   options: { excludeId?: string; take?: number } = {},
 ): Promise<ProjectCard[]> {
-  await connection();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists);
   const rows = await db.project.findMany({
     where: {
       status: PUBLISHED,
@@ -185,14 +191,21 @@ export const detailInclude = {
 
 export type ProjectDetail = Prisma.ProjectGetPayload<{ include: typeof detailInclude }>;
 
-/** Nur veröffentlichte Projekte sind öffentlich abrufbar. Pro Request dedupliziert (Seite + Metadaten). */
-export const getPublishedProject = cache(async (slug: string): Promise<ProjectDetail | null> => {
-  await connection();
-  return db.project.findFirst({ where: { slug, status: PUBLISHED }, include: detailInclude });
-});
+/** Nur veröffentlichte Projekte sind öffentlich abrufbar. Zwischengespeichert, daher auch für Seite und Metadaten nur einmal abgefragt. */
+export async function getPublishedProject(slug: string): Promise<ProjectDetail | null> {
+  "use cache";
+  cacheLife("minutes");
+  // Kategorie-, Tag- und Creator-Namen stehen auf der Detailseite.
+  cacheTag(CACHE_TAGS.project(slug), CACHE_TAGS.taxonomy);
+  const project = await db.project.findFirst({ where: { slug, status: PUBLISHED }, include: detailInclude });
+  if (project) cacheTag(CACHE_TAGS.creator(project.creator.username));
+  return project;
+}
 
 export async function getPublishedProjectSitemapEntries() {
-  await connection();
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists);
   return db.project.findMany({
     where: { status: PUBLISHED },
     select: { slug: true, updatedAt: true },

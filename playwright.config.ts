@@ -16,6 +16,10 @@ export default defineConfig({
   // Ein lokaler Server bedient alle Worker; Passwort-Hashing (scrypt) ist absichtlich
   // rechenintensiv. Mehr Worker führen zu Wartezeiten statt zu schnelleren Läufen.
   workers: process.env.CI ? 2 : 4,
+  // Ablauf-Tests mit mehreren Konten (Registrierung, Projekt, Freigabe, Moderation)
+  // brauchen unter paralleler Last 15–25 s; direkt nach einem Build erneuert der
+  // Server zusätzlich alle vorgerenderten Seiten im Hintergrund.
+  timeout: 60_000,
   expect: { timeout: 10_000 },
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

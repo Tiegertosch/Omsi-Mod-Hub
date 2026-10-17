@@ -9,6 +9,7 @@ import { fieldErrorsFrom } from "@/lib/form-state";
 import { routing } from "@/i18n/routing";
 import { adminActor, adminFail, adminIdSchema, type AdminState } from "@/server/admin-action";
 import { rebuildSearchText } from "@/server/project-search";
+import { taxonomyChanged } from "@/server/public-cache";
 
 function isUniqueViolation(error: unknown): boolean {
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
@@ -59,7 +60,8 @@ export async function saveCategoryAction(_prev: AdminState, formData: FormData):
       if (isUniqueViolation(error)) return adminFail("validation", { slug: "slugTaken" });
       throw error;
     }
-    refresh();
+    taxonomyChanged();
+  refresh();
     return { status: "success" };
   }
 
@@ -79,6 +81,7 @@ export async function saveCategoryAction(_prev: AdminState, formData: FormData):
     }
     await tx.auditLog.create(audit(actor.admin.id, "category.update", "Category", existing.id));
   });
+  taxonomyChanged();
   refresh();
   return { status: "success" };
 }
@@ -107,6 +110,7 @@ export async function deleteCategoryAction(_prev: AdminState, formData: FormData
     if (error instanceof Prisma.PrismaClientKnownRequestError) return adminFail("in_use");
     throw error;
   }
+  taxonomyChanged();
   refresh();
   return { status: "success" };
 }
@@ -142,7 +146,8 @@ export async function saveTagAction(_prev: AdminState, formData: FormData): Prom
       if (isUniqueViolation(error)) return adminFail("validation", { slug: "slugTaken" });
       throw error;
     }
-    refresh();
+    taxonomyChanged();
+  refresh();
     return { status: "success" };
   }
 
@@ -165,6 +170,7 @@ export async function saveTagAction(_prev: AdminState, formData: FormData): Prom
     await rebuildProjectsWithTag(tx, tag.projects.map((p) => p.projectId));
     await tx.auditLog.create(audit(actor.admin.id, "tag.update", "Tag", tag.id));
   });
+  taxonomyChanged();
   refresh();
   return { status: "success" };
 }
@@ -190,6 +196,7 @@ export async function deleteTagAction(_prev: AdminState, formData: FormData): Pr
       audit(actor.admin.id, "tag.delete", "Tag", tag.id, { slug: tag.slug, removedFromProjects: projectIds.length }),
     );
   });
+  taxonomyChanged();
   refresh();
   return { status: "success" };
 }

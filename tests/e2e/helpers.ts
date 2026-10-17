@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { readdir, readFile, stat } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { expect, type Browser, type Page } from "@playwright/test";
@@ -26,10 +26,12 @@ export async function waitForMailLink(to: string, subjectPattern: RegExp, since:
   const deadline = Date.now() + 15_000;
   while (Date.now() < deadline) {
     try {
+      // Dateinamen beginnen mit dem Zeitstempel (src/server/mail.ts): neueste zuerst,
+      // ältere als `since` werden gar nicht erst gelesen.
       const files = (await readdir(MAIL_DIR)).filter((f) => f.endsWith(".json")).sort().reverse();
       for (const file of files) {
+        if (Number.parseInt(file, 10) < since) break;
         const full = path.join(MAIL_DIR, file);
-        if ((await stat(full)).mtimeMs < since) continue;
         const mail = JSON.parse(await readFile(full, "utf8")) as { to: string; subject: string; text: string };
         if (mail.to === to && subjectPattern.test(mail.subject)) {
           const link = /https?:\/\/\S+/.exec(mail.text)?.[0];

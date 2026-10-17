@@ -19,6 +19,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Creator-Verzeichnis und -Profile | ✅ |
 | Deutsch/Englisch: sprachabhängige Routen, Metadaten, Fallback für Projekttexte | ✅ |
 | SEO: Titel, Beschreibungen, Canonical, hreflang, Open Graph, Sitemap, robots.txt | ✅ |
+| Zwischenspeicherung öffentlicher Daten (`use cache` mit Tags), echte HTTP-404 für unbekannte Projekte, Kategorien, Creator und Seiten | ✅ |
 | Registrierung mit E-Mail-Bestätigung, Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
 | Passwort vergessen / zurücksetzen per E-Mail-Link | ✅ |
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
@@ -130,7 +131,7 @@ Mit PostgreSQL wurde der Code bisher **nicht getestet**, da lokal kein Server ve
 | `pnpm build` / `pnpm start` | Produktionsbuild / -server |
 | `pnpm test:e2e` | Playwright-Tests gegen den Produktionsbuild (vorher `pnpm build`, DB geseedet) |
 
-Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungs- und Reset-Links aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen und Protokolleinträgen sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
+Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungs- und Reset-Links aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
 
 ## Projektstruktur
 
@@ -180,7 +181,8 @@ tests/
 - **SMTP-Versand nicht getestet:** Getestet ist der Ablauf mit `MAIL_TRANSPORT=file`. Der SMTP-Transport ist implementiert, mangels Zugangsdaten aber nicht gegen einen echten Server geprüft.
 - **IP-basierte Rate-Limits** lesen `X-Forwarded-For`. Das ist nur hinter einem Reverse Proxy belastbar, der diesen Header setzt bzw. überschreibt; direkt im Internet ließe sich das IP-Limit umgehen. Limits pro Konto/E-Mail bleiben wirksam.
 - **Benutzernamen** sind nach der Registrierung unveränderlich (Teil der Profil-URL). Konto löschen und E-Mail ändern sind noch nicht umgesetzt.
-- **Status-Code bei unbekannten Projekten/Creatorn:** Die 404-Seite wird mit `noindex` ausgeliefert, der HTTP-Status ist aber 200, weil Next.js ≥ 16.3 zuerst die vorgerenderte Seitenhülle streamt. Unbekannte statische Pfade liefern einen echten 404. Lösungsweg: siehe ARCHITECTURE.md.
+- **Zwischenspeicherung:** Öffentliche Daten sind gecacht (Details in ARCHITECTURE.md). Listen und Katalog zeigen nach einer Änderung für eine Anfrage noch den alten Stand; Aufrufzähler sind bis zu einige Minuten alt. Änderungen direkt in der Datenbank (Seed, Prisma Studio, CLI) erscheinen erst nach Ablauf der Cache-Dauer oder nach einem Neustart. Der Cache liegt im Arbeitsspeicher – für mehrere Server-Instanzen ist ein gemeinsamer Cache-Handler nötig. `pnpm build` braucht Zugriff auf die Datenbank.
+- **404-Prüfung im Proxy:** Für Projekt-, Kategorie-, Creator- und Rechtsseiten fragt der Proxy pro Aufruf (auch für Prefetches) die Datenbank über eindeutige Indizes ab. Bei sehr viel Verkehr wäre ein kurzer Zwischenspeicher dafür sinnvoll.
 - **Suche:** Teilstring-Suche über eine normalisierte Suchspalte – ausreichend für das MVP, aber ohne Relevanz-Ranking und bei vielen Tausend Projekten langsam. Geplant: PostgreSQL-Volltextsuche bzw. `pg_trgm`.
 - **Linkaufrufe** werden ohne Bot-Erkennung über die User-Agent-Heuristik hinaus gezählt und sind daher eine Näherung.
 - **Nur Dark Mode**; ein helles Theme ist nicht geplant, solange es keinen Bedarf gibt.
@@ -192,7 +194,6 @@ tests/
 1. **Moderation ausbauen:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern/paginieren, Linkstatus (`BROKEN`/`BLOCKED`) aus Meldungen heraus setzen.
 2. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption für Benachrichtigungen.
 3. **Konto:** E-Mail ändern, Konto löschen, aktive Sitzungen anzeigen.
-4. **Caching der öffentlichen Seiten** mit `'use cache'` + `cacheTag`/`revalidateTag` und echten 404-Status (siehe ARCHITECTURE.md).
-5. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
-6. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.
-7. **PostgreSQL** für Staging/Produktion, Volltextsuche, Backups.
+4. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
+5. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.
+6. **PostgreSQL** für Staging/Produktion, Volltextsuche, Backups; gemeinsamer Cache-Handler bei mehreren Instanzen.

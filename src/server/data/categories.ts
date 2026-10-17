@@ -1,10 +1,10 @@
 import "server-only";
 
-import { connection } from "next/server";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
 import { db } from "@/lib/db";
 import { pickTranslation } from "@/lib/translation";
+import { CACHE_TAGS } from "@/server/public-cache";
 
 export type CategorySummary = {
   id: string;
@@ -15,9 +15,12 @@ export type CategorySummary = {
   projectCount: number;
 };
 
-/** Pro Request dedupliziert, da Kategorien in Seite und Metadaten benötigt werden. */
-export const getCategories = cache(async (locale: string): Promise<CategorySummary[]> => {
-  await connection();
+/** Kategorien mit Anzahl veröffentlichter Projekte; zwischengespeichert, da in Seite und Metadaten benötigt. */
+export async function getCategories(locale: string): Promise<CategorySummary[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists, CACHE_TAGS.taxonomy);
+
   const [categories, counts] = await Promise.all([
     db.category.findMany({
       where: { parentId: null },
@@ -40,4 +43,4 @@ export const getCategories = cache(async (locale: string): Promise<CategorySumma
       projectCount: countById.get(category.id) ?? 0,
     };
   });
-});
+}

@@ -31,11 +31,30 @@ Prisma erlaubt den Wechsel SQLite → PostgreSQL durch Änderung des `provider` 
 
 Auf Wunsch wird zunächst SQLite verwendet. Migrationen sind providerspezifisch – beim Umstieg wird die Initial-Migration neu erzeugt (siehe README). Vorher sollten keine Produktivdaten in SQLite entstehen.
 
-### Rendering: Cache Components, Daten pro Request
+### Rendering: Cache Components mit zwischengespeicherten Daten
 
-`cacheComponents` ist aktiv (Standard von create-next-app 16.4). Synchrone SQLite-Abfragen würden sonst beim Build statisch eingebrannt. Daher ruft jede öffentliche Datenfunktion `await connection()` auf und wird in `<Suspense>` gerendert: Header, Footer und Seitengerüst werden vorgerendert, Daten streamen pro Request.
+`cacheComponents` und `partialPrefetching` sind aktiv. Öffentliche Lesefunktionen (`src/server/data/projects.ts`, `creators.ts`, `categories.ts`, `tags.ts`) sind mit `'use cache'` zwischengespeichert, mit `cacheLife` und Tags aus `src/server/public-cache.ts`:
 
-**Geplante Optimierung:** Öffentliche Lesefunktionen auf `'use cache'` + `cacheLife` + `cacheTag` umstellen und bei Änderungen (Dashboard/Admin) per `revalidateTag`/`updateTag` invalidieren. Für Detailseiten zusätzlich `ensureStatic = "navigation"`, damit der erste Request auf das fertige Ergebnis wartet und unbekannte Slugs einen **echten 404-Status** liefern (derzeit: 404-Seite mit `noindex`, aber HTTP 200 – dokumentiertes Verhalten von Next.js ≥ 16.3, weil zuerst die App-Hülle gestreamt wird). `instant = false` allein löst das nicht.
+| Tag | Daten | Invalidierung |
+| --- | --- | --- |
+| `public:lists` | Katalog, Suche, Startseiten-Listen, Creator-Verzeichnis, Sitemap, Zähler | `revalidateTag(…, "max")`: stale-while-revalidate, Besucher warten nicht |
+| `public:project:<slug>` | Detailseite eines Projekts | `updateTag`: sofort, damit Creator/Admins ihre Änderung direkt sehen |
+| `public:creator:<username>` | Creator-Profil und dessen Projekt-Detailseiten | `updateTag` |
+| `public:taxonomy` | Kategorien, Tags und alle Detailseiten (Namen) | `updateTag` |
+
+Lebensdauer: `minutes` für alles mit Aufrufzahlen (Klicks über `/go` invalidieren bewusst nicht), `hours` für Kategorien und Tags. Die Invalidierung erfolgt in den Server Actions (`projectsChanged`, `creatorChanged`, `taxonomyChanged`).
+
+**Warum nicht ein einziger Tag mit `updateTag`?** Gemessen: Jede Änderung ließ dann alle Seiten und die App-Shell-Prefetches (pro Seitenaufruf rund zehn Links) blockierend neu rendern. Unter paralleler Last wurden Abläufe dadurch deutlich langsamer. Mit stale-while-revalidate für Listen erneuert der Server sie einmal im Hintergrund.
+
+**Folgen:** Listen zeigen nach einer Änderung für eine Anfrage noch den alten Stand (z. B. ein gerade ausgeblendetes Projekt im Katalog; die Detailseite liefert dann schon 404). Änderungen direkt in der Datenbank (Seed, Prisma Studio, CLI) werden erst nach Ablauf der Lebensdauer oder nach einem Neustart sichtbar. Der Cache liegt im Arbeitsspeicher des Prozesses; bei mehreren Instanzen ist ein gemeinsamer [`cacheHandler`](https://nextjs.org/docs/app/api-reference/config/next-config-js/cacheHandlers) nötig. `next build` rendert Seitenhüllen und die Sitemap mit Daten vor und braucht deshalb Zugriff auf die Datenbank. Direkt nach einem Deployment erneuert der Server die beim Build vorgerenderten Seiten im Hintergrund (einmalig höhere Last).
+
+Session-abhängige Teile (Kontomenü, Dashboard, Admin) bleiben ungecacht hinter `<Suspense>`; `getCurrentUser()` ruft `connection()` auf, weil Better Auth die Session gegen die aktuelle Uhrzeit prüft.
+
+### Echte 404-Statuscodes
+
+Sobald eine Seite streamt, ist der Status 200 festgelegt; ein späteres `notFound()` zeigt nur noch die 404-Seite mit `noindex`. Der ursprünglich geplante Weg über `ensureStatic = "navigation"` scheidet aus: Er verlangt, dass die ganze Route statisch ist – auch der Header mit der Session und die Katalogfilter in den `searchParams`.
+
+Stattdessen prüft der Proxy (`src/proxy.ts` → `src/server/route-existence.ts`) für `/[locale]/mods/[slug]`, `/[locale]/creators/[username]` und `/[locale]/legal/[page]` vor dem Rendern, ob der Eintrag öffentlich existiert (eindeutige Indizes, ungecacht). Fehlt er, schreibt der Proxy auf die Catch-all-Route um und setzt Status 404. Das gilt auch für Client-Navigationen: Die RSC-Anfrage erhält 404, Next lädt die Seite vollständig nach. Unbekannte Pfade ohne eigene Route trifft die Catch-all-Route ohnehin mit echtem 404. Die Seiten prüfen weiterhin selbst (`notFound()`), falls sich der Zustand zwischen Proxy und Rendern ändert.
 
 ### Internationalisierung: next-intl mit `next/root-params`
 
@@ -48,7 +67,7 @@ Auf Wunsch wird zunächst SQLite verwendet. Migrationen sind providerspezifisch 
 
 ### Routing von `/mods/[slug]`
 
-Kategorien und Projekte teilen sich `/mods/[slug]`. Kategorie-Slugs haben Vorrang. Beim Anlegen von Projekten muss geprüft werden, dass der Slug keinem Kategorie-Slug entspricht (der Seed prüft das bereits).
+Kategorien und Projekte teilen sich `/mods/[slug]`. Kategorie-Slugs haben Vorrang. Beim Anlegen von Projekten wird geprüft, dass der Slug keinem Kategorie-Slug entspricht, und beim Anlegen von Kategorien, dass er keinem Projekt-Slug entspricht.
 
 ### Suche
 

@@ -11,6 +11,7 @@ import { creatorProfileSchema, readCreatorProfileForm, type EditorErrorCode, typ
 import { hasRole } from "@/lib/roles";
 import { consumeRateLimit } from "@/server/rate-limit";
 import { getCurrentUser } from "@/server/session";
+import { creatorChanged } from "@/server/public-cache";
 
 type EditorState = FormState<EditorErrorCode, EditorFieldCode>;
 
@@ -71,6 +72,7 @@ export async function updateCreatorProfileAction(_prev: EditorState, formData: F
     return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom<EditorFieldCode>(parsed.error) };
   }
   await db.creatorProfile.update({ where: { userId: user.id }, data: parsed.data });
+  creatorChanged(user.username);
   refresh();
   return { status: "success" };
 }

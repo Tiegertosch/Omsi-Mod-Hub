@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { fieldErrorsFrom } from "@/lib/form-state";
 import { banExpiresAt, canBanUser, type BanDuration } from "@/lib/moderation";
 import { adminActor, adminFail, adminIdSchema, type AdminState } from "@/server/admin-action";
+import { creatorChanged, projectsChanged } from "@/server/public-cache";
 
 /**
  * Sperrt ein Konto: beendet alle Sitzungen, eine Anmeldung ist bis zum Ablauf
@@ -25,24 +26,22 @@ export async function banUserAction(_prev: AdminState, formData: FormData): Prom
   const { reason, hideProjects } = parsed.data;
   const duration = parsed.data.duration as BanDuration;
 
-  const target = await db.user.findUnique({ where: { id: id.data }, select: { id: true, role: true } });
+  const target = await db.user.findUnique({ where: { id: id.data }, select: { id: true, role: true, username: true } });
   if (!target) return adminFail("not_found");
   if (!canBanUser(actor.admin, target)) return adminFail("forbidden_target");
 
   const expires = banExpiresAt(duration);
-  await db.$transaction(async (tx) => {
+  const hiddenSlugs = await db.$transaction(async (tx) => {
     await tx.user.update({
       where: { id: target.id },
       data: { banned: true, banReason: reason, banExpires: expires },
     });
     await tx.session.deleteMany({ where: { userId: target.id } });
-    let hidden: string[] = [];
-    if (hideProjects) {
-      const projects = await tx.project.findMany({
-        where: { creatorId: target.id, status: "PUBLISHED" },
-        select: { id: true },
-      });
-      hidden = projects.map((p) => p.id);
+    const projects = hideProjects
+      ? await tx.project.findMany({ where: { creatorId: target.id, status: "PUBLISHED" }, select: { id: true, slug: true } })
+      : [];
+    const hidden = projects.map((p) => p.id);
+    if (hidden.length > 0) {
       await tx.project.updateMany({
         where: { id: { in: hidden } },
         data: { status: "HIDDEN", moderationNote: reason },
@@ -57,8 +56,12 @@ export async function banUserAction(_prev: AdminState, formData: FormData): Prom
         metadata: JSON.stringify({ reason, duration, expires: expires?.toISOString() ?? null, hiddenProjects: hidden }),
       },
     });
+    return projects.map((p) => p.slug);
   });
 
+  // Gesperrte Creator verschwinden aus Verzeichnis und Profil.
+  creatorChanged(target.username);
+  projectsChanged(hiddenSlugs);
   refresh();
   return { status: "success" };
 }
@@ -70,7 +73,7 @@ export async function unbanUserAction(_prev: AdminState, formData: FormData): Pr
 
   const id = adminIdSchema.safeParse(formData.get("userId"));
   if (!id.success) return adminFail("not_found");
-  const target = await db.user.findUnique({ where: { id: id.data }, select: { id: true, banned: true } });
+  const target = await db.user.findUnique({ where: { id: id.data }, select: { id: true, banned: true, username: true } });
   if (!target) return adminFail("not_found");
   if (!target.banned) return adminFail("invalid_transition");
 
@@ -81,6 +84,7 @@ export async function unbanUserAction(_prev: AdminState, formData: FormData): Pr
     }),
   ]);
 
+  creatorChanged(target.username);
   refresh();
   return { status: "success" };
 }

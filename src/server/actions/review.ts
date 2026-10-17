@@ -13,6 +13,7 @@ import { pickTranslation } from "@/lib/translation";
 import { projectDecisionEmail } from "@/server/emails";
 import { sendMailInBackground } from "@/server/mail";
 import { getCurrentUser } from "@/server/session";
+import { projectsChanged } from "@/server/public-cache";
 
 type ReviewState = FormState<EditorErrorCode, EditorFieldCode>;
 
@@ -91,6 +92,7 @@ async function moderateProject(action: AdminProjectAction, formData: FormData): 
     sendMailInBackground(projectDecisionEmail(project.creator, { id: project.id, slug: project.slug, title }, action, note));
   }
 
+  projectsChanged([project.slug]);
   refresh();
   return { status: "success" };
 }
