@@ -11,6 +11,7 @@ import nodemailer, { type Transporter } from "nodemailer";
  * MAIL_TRANSPORT:
  *  - "smtp":    Versand über SMTP_URL (z. B. smtps://user:pass@mail.example.com:465)
  *  - "file":    nur Entwicklung – Mails werden als JSON in ./.dev-mail abgelegt
+ *               (anderer Ordner über DEV_MAIL_DIR, z. B. ./.e2e-mail für die E2E-Tests)
  *  - "console": nur Entwicklung – Mails werden im Server-Log ausgegeben
  * Ohne Angabe gilt in der Entwicklung "file"; in Produktion muss ein
  * Transport konfiguriert sein, sonst schlägt der Versand fehl.
@@ -19,7 +20,10 @@ export type MailMessage = { to: string; subject: string; text: string };
 
 type Transport = "smtp" | "file" | "console";
 
-export const DEV_MAIL_DIR = path.join(process.cwd(), ".dev-mail");
+// Laufzeit-Verzeichnis: vom Build-Tracing ausnehmen (turbopackIgnore), wie in src/server/storage.ts.
+export const DEV_MAIL_DIR = path.resolve(
+  /*turbopackIgnore: true*/ process.env.DEV_MAIL_DIR ?? path.join(/*turbopackIgnore: true*/ process.cwd(), ".dev-mail"),
+);
 
 function resolveTransport(): Transport | null {
   const configured = process.env.MAIL_TRANSPORT;

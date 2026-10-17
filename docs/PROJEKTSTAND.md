@@ -71,7 +71,8 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - **Bekannter Next-Bug im Dev-Modus** (16.4.2): Gelegentlich erscheint „Received an underlying cookies object that does not match …“. In Produktion tritt er nicht auf. E2E-Tests deshalb nur gegen `pnpm build && pnpm start`.
 - **E2E:**
   - Timeout 60 s, weil Abläufe mit mehreren Konten unter Last 15–25 s brauchen.
-  - Mails werden im Ordner `.dev-mail` über den Zeitstempel im Dateinamen gesucht.
+  - Der Testserver schreibt Mails nach `.e2e-mail` (`DEV_MAIL_DIR`), nicht in `.dev-mail`; gesucht wird über den Zeitstempel im Dateinamen.
+  - Kein `reuseExistingServer`: Ist Port 3000 belegt (z. B. `pnpm dev` oder ein hängengebliebener Testserver), bricht der Lauf ab. Unter Windows bleibt nach einem abgebrochenen Lauf gelegentlich ein `next start` übrig; dann den Prozess auf Port 3000 beenden.
   - Das Aufräumskript `scripts/cleanup-e2e.ts` entfernt Konten unter `@e2e.example.com`, Test-Kategorien und -Tags mit Präfix `e2e-` sowie die Test-Mails.
 - **Windows-Werkzeuge:** Python schreibt im Textmodus CRLF und interpretiert Backslashes. Für Dateiänderungen besser Edit/Write oder Raw-Strings in einem Skript im Scratchpad nutzen; Git normalisiert beim Commit (`.gitattributes`, `deploy/**` immer mit LF).
 

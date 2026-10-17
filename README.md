@@ -139,7 +139,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm build` / `pnpm start` | Produktionsbuild / -server |
 | `pnpm test:e2e` | Playwright-Tests gegen den Produktionsbuild (vorher `pnpm build`, DB geseedet) |
 
-Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests laufen auf Port 3000 (muss zu `BETTER_AUTH_URL` passen) und lesen Bestätigungscodes sowie Reset- und Bestätigungslinks aus `.dev-mail/`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
+Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests starten einen eigenen Server auf Port 3000 (muss zu `BETTER_AUTH_URL` passen; ein schon laufender Server, z. B. `pnpm dev`, wird nicht mitbenutzt – der Lauf bricht dann ab). Der Testserver schreibt Mails in einen eigenen Ordner `.e2e-mail/`, `.dev-mail/` bleibt unberührt. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
 
 ## Betrieb / Deployment
 

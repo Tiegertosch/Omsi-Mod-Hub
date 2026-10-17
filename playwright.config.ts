@@ -1,12 +1,16 @@
+import path from "node:path";
+
 import { defineConfig, devices } from "@playwright/test";
 
 // Muss zu BETTER_AUTH_URL passen, damit Links aus E-Mails auf den Testserver zeigen.
 const PORT = Number(process.env.E2E_PORT ?? 3000);
+// Eigener Mail-Ordner für die Tests: ./.dev-mail der lokalen Entwicklung bleibt unberührt.
+const E2E_MAIL_DIR = path.join(process.cwd(), ".e2e-mail");
 
 /**
  * End-to-End-Tests gegen den Produktionsbuild.
  * Voraussetzungen: `pnpm build`, migrierte und geseedete Datenbank,
- * MAIL_TRANSPORT="file" (Mails werden aus ./.dev-mail gelesen).
+ * MAIL_TRANSPORT="file" (Mails landen in ./.e2e-mail und werden von dort gelesen).
  * Testkonten (@e2e.example.com) werden nach dem Lauf entfernt; der
  * Meldungs-Test legt einen Report in der Entwicklungsdatenbank an.
  */
@@ -34,8 +38,10 @@ export default defineConfig({
   webServer: {
     command: `pnpm start --port ${PORT}`,
     url: `http://localhost:${PORT}/de`,
-    reuseExistingServer: !process.env.CI,
+    // Nie einen schon laufenden Server mitbenutzen (z. B. `pnpm dev` oder einen
+    // hängengebliebenen Testserver): Ist der Port belegt, bricht der Lauf ab.
+    reuseExistingServer: false,
     timeout: 60_000,
-    env: { MAIL_TRANSPORT: "file" },
+    env: { MAIL_TRANSPORT: "file", DEV_MAIL_DIR: E2E_MAIL_DIR },
   },
 });

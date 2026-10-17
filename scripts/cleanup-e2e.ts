@@ -15,14 +15,26 @@ import { mediaKeyFromUrl } from "../src/lib/image-signature";
 const E2E_DOMAIN = "e2e.example.com";
 const E2E_SLUG_PREFIX = "e2e-";
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR ?? path.join(process.cwd(), "storage", "uploads"));
-const MAIL_DIR = path.join(process.cwd(), ".dev-mail");
+// Mail-Ordner der Tests (siehe playwright.config.ts) und der lokalen Entwicklung.
+const E2E_MAIL_DIR = path.join(process.cwd(), ".e2e-mail");
+const DEV_MAIL_DIR = path.join(process.cwd(), ".dev-mail");
 
-/** Entfernt Entwicklungs-Mails an Testkonten; andere lokale Mails bleiben liegen. */
+/**
+ * Entfernt Mails an Testkonten. Der Testserver schreibt nach ./.e2e-mail; in
+ * ./.dev-mail können Test-Mails aus älteren Läufen oder von Hand gestarteten
+ * Servern liegen. Andere lokale Mails bleiben in beiden Ordnern liegen.
+ */
 async function removeTestMails(): Promise<number> {
   let removed = 0;
-  const files = await readdir(MAIL_DIR).catch(() => [] as string[]);
+  for (const dir of [E2E_MAIL_DIR, DEV_MAIL_DIR]) removed += await removeTestMailsIn(dir);
+  return removed;
+}
+
+async function removeTestMailsIn(dir: string): Promise<number> {
+  let removed = 0;
+  const files = await readdir(dir).catch(() => [] as string[]);
   for (const file of files.filter((f) => f.endsWith(".json"))) {
-    const full = path.join(MAIL_DIR, file);
+    const full = path.join(dir, file);
     try {
       const mail = JSON.parse(await readFile(full, "utf8")) as { to?: string };
       if (mail.to?.endsWith(`@${E2E_DOMAIN}`)) {

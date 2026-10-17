@@ -27,7 +27,7 @@ async function RegisterContent({ searchParams }: Pick<Props, "searchParams">) {
 export default async function RegisterPage({ searchParams }: Props) {
   const t = await getTranslations("Auth");
   return (
-    <AuthShell title={t("registerTitle")} description={t("registerDescription")} header={<RegisterSteps current={1} />}>
+    <AuthShell title={t("registerTitle")} header={<RegisterSteps current={1} />} wide>
       <Suspense fallback={<FormSkeleton fields={4} />}>
         <RegisterContent searchParams={searchParams} />
       </Suspense>

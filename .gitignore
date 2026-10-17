@@ -41,6 +41,7 @@ yarn-error.log*
 
 # lokal abgelegte Entwicklungs-E-Mails
 /.dev-mail/
+/.e2e-mail/
 
 # hochgeladene Medien (UPLOAD_DIR)
 /storage/

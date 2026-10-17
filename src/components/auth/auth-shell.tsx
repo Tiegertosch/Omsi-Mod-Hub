@@ -1,26 +1,37 @@
 import type { ReactNode } from "react";
 
 import { Skeleton } from "@/components/ui/state";
+import { cn } from "@/lib/utils";
 
-/** Zentrierter Rahmen für Anmelde- und Kontoseiten; `header` steht über dem Titel (z. B. Fortschritt). */
+/**
+ * Zentrierter Rahmen für Anmelde- und Kontoseiten; `header` steht über dem
+ * Titel (z. B. Fortschritt). `wide` für Formulare mit zwei Spalten.
+ */
 export function AuthShell({
   title,
   description,
   header,
+  wide = false,
   children,
 }: {
   title: string;
   description?: string;
   header?: ReactNode;
+  wide?: boolean;
   children: ReactNode;
 }) {
   return (
-    <div className="flex justify-center px-4 py-14 sm:py-20">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-8">
+    <div className="flex justify-center px-4 py-8 sm:py-12">
+      <div
+        className={cn(
+          "w-full rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-8",
+          wide ? "max-w-2xl" : "max-w-md",
+        )}
+      >
         {header}
         <h1 className="text-2xl font-bold tracking-tight text-fg">{title}</h1>
         {description ? <p className="mt-2 text-sm text-muted">{description}</p> : null}
-        <div className="mt-7">{children}</div>
+        <div className="mt-6">{children}</div>
       </div>
     </div>
   );

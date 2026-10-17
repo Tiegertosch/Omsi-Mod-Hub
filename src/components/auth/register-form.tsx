@@ -30,51 +30,54 @@ export function RegisterForm({ initial }: { initial?: { username: string; email:
       {formError ? <FormAlert tone="error">{formError}</FormAlert> : null}
       {initial && !formError ? <p className="text-sm text-muted">{t("editEmailNotice")}</p> : null}
 
-      <TextField
-        id="register-username"
-        name="username"
-        label={t("username")}
-        autoComplete="username"
-        required
-        maxLength={USERNAME_MAX}
-        spellCheck={false}
-        defaultValue={value("username") ?? initial?.username}
-        hint={t("usernameHint")}
-        error={fieldError("username")}
-      />
-      <TextField
-        id="register-email"
-        name="email"
-        type="email"
-        label={t("email")}
-        autoComplete="email"
-        required
-        maxLength={254}
-        defaultValue={value("email") ?? initial?.email}
-        error={fieldError("email")}
-      />
-      <TextField
-        id="register-password"
-        name="password"
-        type="password"
-        label={t("password")}
-        autoComplete="new-password"
-        required
-        minLength={PASSWORD_MIN}
-        maxLength={PASSWORD_MAX}
-        hint={t("passwordHint", { min: PASSWORD_MIN })}
-        error={fieldError("password")}
-      />
-      <TextField
-        id="register-password-confirm"
-        name="passwordConfirm"
-        type="password"
-        label={t("passwordConfirm")}
-        autoComplete="new-password"
-        required
-        maxLength={PASSWORD_MAX}
-        error={fieldError("passwordConfirm")}
-      />
+      {/* Ab sm zwei Spalten: Name neben Adresse, Passwort neben Wiederholung */}
+      <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
+        <TextField
+          id="register-username"
+          name="username"
+          label={t("username")}
+          autoComplete="username"
+          required
+          maxLength={USERNAME_MAX}
+          spellCheck={false}
+          defaultValue={value("username") ?? initial?.username}
+          hint={t("usernameHint")}
+          error={fieldError("username")}
+        />
+        <TextField
+          id="register-email"
+          name="email"
+          type="email"
+          label={t("email")}
+          autoComplete="email"
+          required
+          maxLength={254}
+          defaultValue={value("email") ?? initial?.email}
+          error={fieldError("email")}
+        />
+        <TextField
+          id="register-password"
+          name="password"
+          type="password"
+          label={t("password")}
+          autoComplete="new-password"
+          required
+          minLength={PASSWORD_MIN}
+          maxLength={PASSWORD_MAX}
+          hint={t("passwordHint", { min: PASSWORD_MIN })}
+          error={fieldError("password")}
+        />
+        <TextField
+          id="register-password-confirm"
+          name="passwordConfirm"
+          type="password"
+          label={t("passwordConfirm")}
+          autoComplete="new-password"
+          required
+          maxLength={PASSWORD_MAX}
+          error={fieldError("passwordConfirm")}
+        />
+      </div>
 
       <div>
         <label className="flex items-start gap-2.5 text-sm text-muted">

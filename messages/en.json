@@ -243,7 +243,6 @@
     "loginTitle": "Sign in",
     "loginDescription": "Sign in with your email address or username.",
     "registerTitle": "Create account",
-    "registerDescription": "With an account you will be able to publish and manage your own projects.",
     "identifier": "Email or username",
     "email": "Email address",
     "username": "Username",

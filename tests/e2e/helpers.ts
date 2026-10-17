@@ -8,7 +8,8 @@ import sharp from "sharp";
 import { slugify } from "../../src/lib/slug";
 
 export const E2E_MAIL_DOMAIN = "e2e.example.com";
-const MAIL_DIR = path.join(process.cwd(), ".dev-mail");
+// Wie E2E_MAIL_DIR in playwright.config.ts (dorthin schreibt der Testserver).
+const MAIL_DIR = path.join(process.cwd(), ".e2e-mail");
 
 export function uniqueUser(prefix = "e2e") {
   const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
