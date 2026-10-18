@@ -16,6 +16,7 @@ import { MediaCarousel, type CarouselSlide } from "./media-carousel";
 import { ProjectCover } from "./project-cover";
 import { ProjectGrid } from "./project-grid";
 import { ReportForm } from "./report-form";
+import { RequirementList } from "./requirement-list";
 
 /** Gibt Nutzertext sicher als Absätze aus (kein HTML, React escaped den Inhalt). */
 function TextBlock({ text, lang }: { text: string; lang: string }) {
@@ -194,9 +195,9 @@ export async function ProjectDetailView({
               </Section>
             ) : null}
 
-            {text?.requirements ? (
+            {project.requirements.length > 0 ? (
               <Section id="requirements" title={t("requirements")}>
-                <TextBlock text={text.requirements} lang={contentLang} />
+                <RequirementList requirements={project.requirements} />
               </Section>
             ) : null}
 

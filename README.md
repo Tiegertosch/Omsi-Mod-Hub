@@ -18,6 +18,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Mod-Katalog `/mods` und Kategorien `/mods/busse`, `/mods/karten`, … | ✅ |
 | Serverseitige Suche, Tag-Filter (UND), Sortierung, Pagination, teilbare URLs | ✅ |
 | Projekt-Detailseite mit Versionen, Changelog, Installation, Voraussetzungen, Lizenz, Mitwirkenden | ✅ |
+| Voraussetzungen & benötigte Add-ons als Liste: Name, optionaler Link, Freeware („Download“) oder Payware („Jetzt kaufen“) | ✅ |
 | Externe Downloadlinks mit Kennzeichnung, Zählung der Aufrufe über `/go/[id]` | ✅ |
 | Meldefunktion (Server Action, Rate-Limit, Honeypot) | ✅ Bearbeitung unter `/admin/reports` |
 | Creator-Verzeichnis und -Profile | ✅ |

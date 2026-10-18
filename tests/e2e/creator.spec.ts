@@ -60,10 +60,38 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
   // Änderungen an veröffentlichten Projekten sind trotz Zwischenspeicherung sofort öffentlich.
   await page.goto(`/de/dashboard/projects/${project.id}/edit`);
   await page.getByRole("tabpanel").getByLabel("Kurzbeschreibung").fill("Neue Kurzbeschreibung nach der Freigabe.");
+
+  // Voraussetzungen: Freeware mit Link, Payware mit Link, eine ohne Link
+  const editorRequirements = page.getByRole("region", { name: "Voraussetzungen & benötigte Add-ons" });
+  for (let row = 0; row < 3; row++) {
+    await editorRequirements.getByRole("button", { name: "Voraussetzung hinzufügen" }).click();
+  }
+  const rows = editorRequirements.getByRole("listitem");
+  await rows.nth(0).getByLabel("Name").fill("Haltestellen-Baukasten");
+  await rows.nth(0).getByLabel(/^Link/).fill("https://example.com/baukasten");
+  await rows.nth(1).getByLabel("Name").fill("Sound-Paket");
+  await rows.nth(1).getByLabel(/^Link/).fill("https://shop.example.com/sound");
+  await rows.nth(1).getByLabel("Art").selectOption("PAYWARE");
+  await rows.nth(2).getByLabel("Name").fill("Alter Patch");
+
   await page.getByRole("button", { name: "Speichern", exact: true }).click();
   await expect(page.getByText("Änderungen gespeichert.").first()).toBeVisible();
   await page.goto(`/de/mods/${project.slug}`);
   await expect(page.getByText("Neue Kurzbeschreibung nach der Freigabe.").first()).toBeVisible();
+
+  const requirements = page.getByRole("region", { name: "Voraussetzungen & benötigte Add-ons" });
+  const download = requirements.getByRole("link", { name: /^Download.*Haltestellen-Baukasten/ });
+  await expect(download).toHaveAttribute("href", "https://example.com/baukasten");
+  await expect(download).toHaveAttribute("target", "_blank");
+  await expect(download).toHaveAttribute("rel", /noopener.*nofollow/);
+  await expect(requirements.getByRole("link", { name: /^Jetzt kaufen.*Sound-Paket/ })).toHaveAttribute(
+    "href",
+    "https://shop.example.com/sound",
+  );
+  await expect(requirements.getByText("Alter Patch")).toBeVisible();
+  await expect(requirements.getByRole("link")).toHaveCount(2);
+  await expect(requirements.getByText("Payware")).toHaveCount(1);
+  await expect(requirements.getByText("Freeware")).toHaveCount(2);
 });
 
 test("Zurückweisen mit Begründung und erneutes Einreichen", async ({ page, browser }) => {

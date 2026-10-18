@@ -67,11 +67,10 @@ async function EditorContent({ params }: Pick<Props, "params">) {
           summary: tr?.summary ?? "",
           description: tr?.description ?? "",
           installation: tr?.installation ?? "",
-          requirements: tr?.requirements ?? "",
         },
       ];
     }),
-  ) as Record<(typeof routing.locales)[number], { title: string; summary: string; description: string; installation: string; requirements: string }>;
+  ) as Record<(typeof routing.locales)[number], { title: string; summary: string; description: string; installation: string }>;
 
   return (
     <>
@@ -115,6 +114,7 @@ async function EditorContent({ params }: Pick<Props, "params">) {
                   translations,
                   tags: project.tags.map(({ tag }) => tag.slug),
                   contributors: project.contributors.map((c) => ({ name: c.name, role: c.role ?? "" })),
+                  requirements: project.requirements.map((r) => ({ name: r.name, url: r.url ?? "", pricing: r.pricing })),
                 }}
               />
               <Panel id="section-media" title={t("sections.media")}>

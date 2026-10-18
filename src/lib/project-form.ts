@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { LinkSourceType } from "@/generated/prisma/enums";
+import { LinkSourceType, RequirementPricing } from "@/generated/prisma/enums";
 import { routing, type AppLocale } from "@/i18n/routing";
 
 import { MAX_EXTERNAL_URL_LENGTH, parseExternalUrl } from "./external-url";
@@ -79,7 +79,6 @@ const translationSchema = z.object({
   summary: text(PROJECT_LIMITS.summary),
   description: text(PROJECT_LIMITS.description),
   installation: optionalText(PROJECT_LIMITS.installation),
-  requirements: optionalText(PROJECT_LIMITS.requirements),
 });
 
 const REQUIRED_TRANSLATION_FIELDS = ["title", "summary", "description"] as const;
@@ -107,11 +106,21 @@ export const projectFormSchema = z
         }),
       )
       .max(PROJECT_LIMITS.contributors, { message: "tooMany" }),
+    // Voraussetzungen: Name Pflicht, Link optional (geprüft wie Downloadlinks).
+    requirements: z
+      .array(
+        z.object({
+          name: text(PROJECT_LIMITS.requirementName),
+          url: z.string().trim().max(MAX_EXTERNAL_URL_LENGTH, { message: "url" }),
+          pricing: z.enum(RequirementPricing).catch("FREEWARE"),
+        }),
+      )
+      .max(PROJECT_LIMITS.requirements, { message: "tooMany" }),
   })
   .superRefine((data, ctx) => {
     for (const locale of routing.locales) {
       const t = data.translations[locale];
-      const filled = Boolean(t.title || t.summary || t.description || t.installation || t.requirements);
+      const filled = Boolean(t.title || t.summary || t.description || t.installation);
       // Originalsprache ist Pflicht; weitere Sprachen nur, wenn begonnen.
       if (locale !== data.defaultLocale && !filled) continue;
       for (const field of REQUIRED_TRANSLATION_FIELDS) {
@@ -123,7 +132,25 @@ export const projectFormSchema = z
         ctx.addIssue({ code: "custom", path: ["contributors", index, "name"], message: "required" });
       }
     });
+    data.requirements.forEach((row, index) => {
+      if (!row.name && row.url) {
+        ctx.addIssue({ code: "custom", path: ["requirements", index, "name"], message: "required" });
+      }
+      if (row.url && !parseExternalUrl(row.url).ok) {
+        ctx.addIssue({ code: "custom", path: ["requirements", index, "url"], message: "url" });
+      }
+    });
   });
+
+/** Ausgefüllte Voraussetzungen mit normalisiertem Link (leere Zeilen fallen weg). */
+export function filledRequirements(rows: ProjectFormData["requirements"]) {
+  return rows
+    .filter((row) => row.name)
+    .map((row) => {
+      const parsed = row.url ? parseExternalUrl(row.url) : null;
+      return { name: row.name, url: parsed?.ok ? parsed.url : null, pricing: row.pricing };
+    });
+}
 
 export type ProjectFormData = z.infer<typeof projectFormSchema>;
 
@@ -143,12 +170,12 @@ export function readProjectForm(formData: FormData) {
           summary: str(formData, `translations.${l}.summary`),
           description: str(formData, `translations.${l}.description`),
           installation: str(formData, `translations.${l}.installation`),
-          requirements: str(formData, `translations.${l}.requirements`),
         },
       ]),
     ),
     tags: [...new Set(formData.getAll("tags").filter((v): v is string => typeof v === "string"))],
     contributors: readRows(formData, "contributors", ["name", "role"] as const),
+    requirements: readRows(formData, "requirements", ["name", "url", "pricing"] as const),
   };
 }
 

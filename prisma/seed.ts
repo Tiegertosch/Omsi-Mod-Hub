@@ -10,7 +10,7 @@
  */
 import "dotenv/config";
 
-import type { LinkSourceType } from "../src/generated/prisma/client";
+import type { LinkSourceType, RequirementPricing } from "../src/generated/prisma/client";
 import { createPrismaClient } from "../src/lib/prisma-factory";
 import { parseExternalUrl } from "../src/lib/external-url";
 import { buildSearchText } from "../src/lib/search-text";
@@ -147,7 +147,6 @@ type SampleText = {
   summary: string;
   description: string;
   installation?: string;
-  requirements?: string;
 };
 
 type SampleProject = {
@@ -163,6 +162,8 @@ type SampleProject = {
   screenshots?: { file: string; alt: string }[];
   tags: string[];
   contributors?: { name: string; role: string }[];
+  /** Voraussetzungen; Links nur auf example.com (Pfad), ohne Pfad kein Link */
+  requirements?: { name: string; path?: string; pricing: RequirementPricing }[];
   publishedDaysAgo: number;
   texts: Partial<Record<Locale, SampleText>>;
   versions: SampleVersion[];
@@ -187,6 +188,7 @@ const PROJECTS: SampleProject[] = [
       { name: "Mara K. (fiktiv)", role: "Splines & Kreuzungen" },
       { name: "Jonas P. (fiktiv)", role: "Fahrpläne" },
     ],
+    requirements: [{ name: "Haltestellen-Baukasten (fiktiv)", path: "/addons/haltestellen-baukasten", pricing: "FREEWARE" }],
     publishedDaysAgo: 120,
     texts: {
       de: {
@@ -196,7 +198,6 @@ const PROJECTS: SampleProject[] = [
           "Neustadt am Kanal ist eine fiktive Kleinstadt mit Altstadt, Industriegebiet am Kanal und einer Neubausiedlung am Stadtrand.\n\nDas Netz umfasst vier Tageslinien und zwei Nachtlinien mit vollständigen Fahrplänen für Werktage, Samstage und Sonntage.\n\nHinweis: Dies ist ein Entwicklungsbeispiel und beschreibt keine echte Karte.",
         installation:
           "1. Archiv entpacken.\n2. Den Inhalt des Ordners „OMSI 2“ in das Hauptverzeichnis von OMSI 2 kopieren.\n3. Vorhandene Dateien nur überschreiben, wenn du dazu aufgefordert wirst.\n4. OMSI starten und die Karte „Neustadt am Kanal“ auswählen.",
-        requirements: "OMSI 2 in Version 2.3.004.\nKeine kostenpflichtigen Add-ons erforderlich.\nEmpfohlen: Objektpaket „Haltestellen-Baukasten“.",
       },
       en: {
         title: "Neustadt am Kanal",
@@ -205,7 +206,6 @@ const PROJECTS: SampleProject[] = [
           "Neustadt am Kanal is a fictional small town with an old town, an industrial area along the canal and a new housing estate on the outskirts.\n\nThe network covers four daytime routes and two night routes with full timetables for weekdays, Saturdays and Sundays.\n\nNote: This is a development sample and does not describe a real map.",
         installation:
           "1. Extract the archive.\n2. Copy the contents of the “OMSI 2” folder into your OMSI 2 main directory.\n3. Only overwrite existing files when prompted.\n4. Start OMSI and select the map “Neustadt am Kanal”.",
-        requirements: "OMSI 2 version 2.3.004.\nNo paid add-ons required.\nRecommended: object pack “Bus stop construction kit”.",
       },
     },
     versions: [
@@ -240,7 +240,6 @@ const PROJECTS: SampleProject[] = [
         description:
           "Eine 28 Kilometer lange Überlandlinie verbindet drei Dörfer mit der Kreisstadt. Die Strecke führt über Serpentinen und schmale Ortsdurchfahrten.\n\nDiese Karte liegt nur auf Deutsch vor – ein Beispiel für den Sprach-Fallback.",
         installation: "Archiv entpacken und den Ordner „maps\\Grenzland“ in das OMSI-2-Verzeichnis kopieren.",
-        requirements: "OMSI 2 ab Version 2.3.004.",
       },
     },
     versions: [
@@ -263,6 +262,7 @@ const PROJECTS: SampleProject[] = [
     coverAlt: "Weißer Stadtbus mit gelbem Zierstreifen vor einer Häuserkulisse",
     screenshots: [{ file: "/samples/shot-cockpit.svg", alt: "Fahrerplatz mit Tachometer und Drehzahlmesser" }],
     tags: ["stadtverkehr", "solobus", "diesel", "fiktiv"],
+    requirements: [{ name: "Dieselmotor-Sounds für SL12 (fiktiv)", path: "/addons/dieselsound-sl12", pricing: "PAYWARE" }],
     publishedDaysAgo: 200,
     texts: {
       de: {
@@ -271,7 +271,6 @@ const PROJECTS: SampleProject[] = [
         description:
           "Der SL12 ist ein frei erfundener Stadtbus. Das Modell bringt ein detailliertes Cockpit, eine programmierbare Matrix-Anzeige und zwei Getriebevarianten mit.\n\nRepaints sind ausdrücklich erwünscht – eine Vorlage liegt dem Download bei.",
         installation: "Archiv entpacken und den Ordner „Vehicles\\SL12“ in das OMSI-2-Verzeichnis kopieren.",
-        requirements: "OMSI 2.3.004.\nOptional: Soundpaket „Dieselmotor-Sounds für SL12“.",
       },
       en: {
         title: "Rigid bus SL12 (fictional model)",
@@ -279,7 +278,6 @@ const PROJECTS: SampleProject[] = [
         description:
           "The SL12 is an entirely fictional city bus. The model comes with a detailed cockpit, a programmable matrix display and two gearbox variants.\n\nRepaints are explicitly welcome – a template is included in the download.",
         installation: "Extract the archive and copy the “Vehicles\\SL12” folder into your OMSI 2 directory.",
-        requirements: "OMSI 2.3.004.\nOptional: sound pack “Diesel engine sounds for SL12”.",
       },
     },
     versions: [
@@ -309,13 +307,11 @@ const PROJECTS: SampleProject[] = [
         title: "Gelenkbus GL18 (fiktives Modell)",
         summary: "Achtzehn-Meter-Gelenkbus mit Innenbeleuchtung für den Nachtverkehr.",
         description: "Der GL18 ergänzt den SL12 um eine Gelenkvariante mit vier Türen und dimmbarer Innenbeleuchtung.",
-        requirements: "OMSI 2.3.004.",
       },
       en: {
         title: "Articulated bus GL18 (fictional model)",
         summary: "Eighteen-metre articulated bus with interior lighting for night service.",
         description: "The GL18 complements the SL12 with an articulated variant featuring four doors and dimmable interior lighting.",
-        requirements: "OMSI 2.3.004.",
       },
     },
     versions: [
@@ -365,20 +361,19 @@ const PROJECTS: SampleProject[] = [
     cover: "/samples/repaint.svg",
     coverAlt: "Bus mit rot-gelber Lackierung und Farbmustern",
     tags: ["solobus", "texturen", "fiktiv"],
+    requirements: [{ name: "Solobus SL12 (fiktives Modell) ab Version 2.0", path: "/addons/solobus-sl12", pricing: "FREEWARE" }],
     publishedDaysAgo: 15,
     texts: {
       de: {
         title: "Repaint-Paket: Verkehrsbetrieb Neustadt (fiktiv)",
         summary: "Drei Lackierungen eines fiktiven Verkehrsbetriebs für den Solobus SL12.",
         description: "Das Paket enthält die Hausfarben, eine Werbelackierung und eine Variante für den Schulverkehr.",
-        requirements: "Benötigt das Fahrzeug „Solobus SL12 (fiktives Modell)“ ab Version 2.0.",
         installation: "Den Ordner „Texture“ in „Vehicles\\SL12“ kopieren.",
       },
       en: {
         title: "Repaint pack: Neustadt transport company (fictional)",
         summary: "Three liveries of a fictional operator for the SL12 rigid bus.",
         description: "The pack includes the house colours, an advertising livery and a school-service variant.",
-        requirements: "Requires the vehicle “Rigid bus SL12 (fictional model)” version 2.0 or later.",
         installation: "Copy the “Texture” folder into “Vehicles\\SL12”.",
       },
     },
@@ -434,19 +429,18 @@ const PROJECTS: SampleProject[] = [
     cover: "/samples/sound.svg",
     coverAlt: "Farbige Wellenform eines Motorgeräuschs",
     tags: ["diesel", "solobus"],
+    requirements: [{ name: "Solobus SL12 (fiktives Modell)", pricing: "FREEWARE" }],
     publishedDaysAgo: 18,
     texts: {
       de: {
         title: "Dieselmotor-Sounds für SL12",
         summary: "Neu aufbereitetes Motorgeräusch mit Leerlauf, Kickdown und Retarder.",
         description: "Das Soundpaket ersetzt die Standardsounds des SL12 durch eine detailliertere Variante.",
-        requirements: "Benötigt „Solobus SL12 (fiktives Modell)“.",
       },
       en: {
         title: "Diesel engine sounds for SL12",
         summary: "Reworked engine sound with idle, kickdown and retarder.",
         description: "This sound pack replaces the default SL12 sounds with a more detailed variant.",
-        requirements: "Requires “Rigid bus SL12 (fictional model)”.",
       },
     },
     versions: [
@@ -659,6 +653,14 @@ async function seedSamples() {
         },
         contributors: {
           create: (project.contributors ?? []).map((c, index) => ({ name: c.name, role: c.role, sortOrder: index })),
+        },
+        requirements: {
+          create: (project.requirements ?? []).map((r, index) => ({
+            name: r.name,
+            url: r.path ? `https://example.com${r.path}` : null,
+            pricing: r.pricing,
+            sortOrder: index,
+          })),
         },
         versions: {
           create: project.versions.map((version) => ({

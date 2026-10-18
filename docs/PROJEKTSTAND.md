@@ -7,7 +7,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - Zweisprachiges (DE/EN) Katalogportal für OMSI-2-Mods. **Es werden keine Mod-Dateien gehostet**, nur externe Links. Zielgruppe ist international, die Standardsprache Englisch.
 - Fertig sind: öffentlicher Katalog, Konten (inklusive E-Mail ändern, Geräteübersicht, Konto löschen), Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
 - **Geschlossene Beta live** unter `https://beta.omsi-modhub.de`, hinter Basic Auth, nicht indexiert. Die Datenbank wurde dort am 17.10.2026 mit PostgreSQL neu gestartet.
-- Tests: 104 Unit-Tests (Vitest) und 43 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
+- Tests: 106 Unit-Tests (Vitest) und 43 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
 
 ## Arbeitsweise mit dem Nutzer
 
@@ -43,6 +43,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
   - Titelbild und Screenshots, Versionen mit Links
+  - Voraussetzungen & benötigte Add-ons als Liste (`ProjectRequirement`: Name, optionaler Link, `FREEWARE`/`PAYWARE`); das frühere Freitextfeld ist mit der Migration `project_requirements` entfallen. Namen fließen in die Suchspalte ein.
   - Statusablauf DRAFT → PENDING_REVIEW → PUBLISHED/REJECTED, dazu ARCHIVED; HIDDEN setzt nur die Moderation
 - **Admin (`/admin/*`):**
   - Freigeben, Zurückweisen und Ausblenden mit Begründung

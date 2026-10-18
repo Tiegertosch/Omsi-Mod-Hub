@@ -12,6 +12,7 @@ import { MAX_EXTERNAL_URL_LENGTH } from "@/lib/external-url";
 import { PROJECT_LIMITS } from "@/lib/project-rules";
 import { SLUG_MAX } from "@/lib/slug";
 import { cn } from "@/lib/utils";
+import type { RequirementPricing } from "@/generated/prisma/enums";
 import { saveProjectAction } from "@/server/actions/projects";
 
 import { useEditorForm } from "./use-editor-form";
@@ -27,10 +28,11 @@ export type ProjectFormValues = {
   gameCompatibility: string;
   translations: Record<
     AppLocale,
-    { title: string; summary: string; description: string; installation: string; requirements: string }
+    { title: string; summary: string; description: string; installation: string }
   >;
   tags: string[];
   contributors: { name: string; role: string }[];
+  requirements: { name: string; url: string; pricing: RequirementPricing }[];
 };
 
 export type ProjectFormOptions = {
@@ -60,7 +62,10 @@ export function ProjectForm({ values, options }: { values: ProjectFormValues; op
   const [contributors, setContributors] = useState(() =>
     values.contributors.map((c, index) => ({ key: `${uid}-c${index}`, ...c })),
   );
-  const [nextKey, setNextKey] = useState(values.contributors.length);
+  const [requirements, setRequirements] = useState(() =>
+    values.requirements.map((r, index) => ({ key: `${uid}-r${index}`, ...r })),
+  );
+  const [nextKey, setNextKey] = useState(0);
 
   const required = <span className="ml-1 text-xs font-normal text-subtle">({t("required")})</span>;
 
@@ -218,15 +223,6 @@ export function ProjectForm({ values, options }: { values: ProjectFormValues; op
                 maxLength={PROJECT_LIMITS.installation}
                 error={f("installation")}
               />
-              <TextAreaField
-                id={`t-${l}-requirements`}
-                name={`translations.${l}.requirements`}
-                label={<>{t("requirements")} <span className="text-xs font-normal text-subtle">({t("optional")})</span></>}
-                defaultValue={v.requirements}
-                rows={4}
-                maxLength={PROJECT_LIMITS.requirements}
-                error={f("requirements")}
-              />
             </div>
           );
         })}
@@ -254,6 +250,70 @@ export function ProjectForm({ values, options }: { values: ProjectFormValues; op
           </div>
           {fieldError("tags") ? <p className="mt-2 text-xs text-danger">{fieldError("tags")}</p> : null}
         </fieldset>
+      </Section>
+
+      <Section id="section-requirements" title={t("sections.requirements")}>
+        <p className="text-sm text-subtle">{t("requirementsHint")}</p>
+        {requirements.length > 0 ? (
+          <ul className="space-y-4">
+            {requirements.map((row, index) => (
+              <li
+                key={row.key}
+                className="grid items-start gap-3 border-b border-border pb-4 last:border-b-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)_9rem_auto]"
+              >
+                <TextField
+                  id={`${row.key}-name`}
+                  name={`requirements.${index}.name`}
+                  label={t("requirementName")}
+                  defaultValue={row.name}
+                  maxLength={PROJECT_LIMITS.requirementName}
+                  error={fieldError(`requirements.${index}.name`)}
+                />
+                <TextField
+                  id={`${row.key}-url`}
+                  name={`requirements.${index}.url`}
+                  type="url"
+                  inputMode="url"
+                  label={<>{t("requirementUrl")} <span className="text-xs font-normal text-subtle">({t("optional")})</span></>}
+                  placeholder="https://"
+                  defaultValue={row.url}
+                  maxLength={MAX_EXTERNAL_URL_LENGTH}
+                  error={fieldError(`requirements.${index}.url`)}
+                />
+                <SelectField
+                  id={`${row.key}-pricing`}
+                  name={`requirements.${index}.pricing`}
+                  label={t("requirementPricing")}
+                  defaultValue={row.pricing}
+                >
+                  <option value="FREEWARE">{t("pricing.FREEWARE")}</option>
+                  <option value="PAYWARE">{t("pricing.PAYWARE")}</option>
+                </SelectField>
+                <button
+                  type="button"
+                  onClick={() => setRequirements((rows) => rows.filter((r) => r.key !== row.key))}
+                  className={buttonStyles({ variant: "ghost", size: "icon", className: "sm:mt-7" })}
+                >
+                  <X aria-hidden className="size-4" />
+                  <span className="sr-only">{t("remove")}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {requirements.length < PROJECT_LIMITS.requirements ? (
+          <button
+            type="button"
+            onClick={() => {
+              setRequirements((rows) => [...rows, { key: `${uid}-nr${nextKey}`, name: "", url: "", pricing: "FREEWARE" }]);
+              setNextKey((k) => k + 1);
+            }}
+            className={buttonStyles({ variant: "outline", size: "sm" })}
+          >
+            <Plus aria-hidden className="size-4" />
+            {t("addRequirement")}
+          </button>
+        ) : null}
       </Section>
 
       <Section id="section-contributors" title={t("sections.contributors")}>
@@ -290,7 +350,7 @@ export function ProjectForm({ values, options }: { values: ProjectFormValues; op
           <button
             type="button"
             onClick={() => {
-              setContributors((rows) => [...rows, { key: `${uid}-n${nextKey}`, name: "", role: "" }]);
+              setContributors((rows) => [...rows, { key: `${uid}-nc${nextKey}`, name: "", role: "" }]);
               setNextKey((k) => k + 1);
             }}
             className={buttonStyles({ variant: "outline", size: "sm" })}

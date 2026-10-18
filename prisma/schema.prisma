@@ -45,6 +45,12 @@ enum LinkStatus {
   BLOCKED
 }
 
+/// Bezugsart einer Voraussetzung: bestimmt den Knopf auf der Projektseite
+enum RequirementPricing {
+  FREEWARE // kostenlos → „Download“
+  PAYWARE // kostenpflichtig → „Jetzt kaufen“
+}
+
 enum ReportReason {
   BROKEN_LINK
   MALWARE
@@ -281,6 +287,7 @@ model Project {
   screenshots  Screenshot[]
   tags         ProjectTag[]
   contributors ProjectContributor[]
+  requirements ProjectRequirement[]
   reports      Report[]
 
   @@index([status, publishedAt])
@@ -299,8 +306,6 @@ model ProjectTranslation {
   summary      String
   description  String
   installation String?
-  /// Voraussetzungen und benötigte Add-ons
-  requirements String?
   /// normalisierter Suchtext (kleingeschrieben: Titel, Kurzbeschreibung, Beschreibung, Tags)
   searchText   String
 
@@ -324,6 +329,21 @@ model ProjectContributor {
 
   @@index([projectId])
   @@index([userId])
+}
+
+/// Voraussetzung bzw. benötigtes Add-on (sprachunabhängig, Name wie vom Anbieter)
+model ProjectRequirement {
+  id        String             @id @default(cuid())
+  projectId String
+  name      String
+  /// optionale Bezugsquelle; serverseitig wie Downloadlinks geprüft (nur http/https)
+  url       String?
+  pricing   RequirementPricing @default(FREEWARE)
+  sortOrder Int                @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
 
 model ProjectVersion {

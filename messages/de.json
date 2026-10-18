@@ -130,7 +130,13 @@
     "previousImage": "Vorheriges Bild",
     "nextImage": "Nächstes Bild",
     "thumbnails": "Alle Bilder",
-    "showImage": "Bild {index} von {total} anzeigen"
+    "showImage": "Bild {index} von {total} anzeigen",
+    "pricing": {
+      "FREEWARE": "Freeware",
+      "PAYWARE": "Payware"
+    },
+    "requirementDownload": "Download",
+    "requirementBuy": "Jetzt kaufen"
   },
   "ExternalLink": {
     "open": "Externe Downloadseite öffnen",
@@ -604,7 +610,8 @@
       "contributors": "Mitwirkende",
       "media": "Titelbild & Screenshots",
       "versions": "Versionen & Downloads",
-      "status": "Status & Veröffentlichung"
+      "status": "Status & Veröffentlichung",
+      "requirements": "Voraussetzungen & benötigte Add-ons"
     },
     "category": "Kategorie",
     "chooseCategory": "Kategorie wählen …",
@@ -630,7 +637,6 @@
     "summaryHint": "Ein bis zwei Sätze für Karten und Suchergebnisse.",
     "description": "Beschreibung",
     "installation": "Installationsanleitung",
-    "requirements": "Voraussetzungen & benötigte Add-ons",
     "textHint": "Reiner Text; Leerzeilen trennen Absätze.",
     "tagsHint": "Bis zu {max} Tags.",
     "contributorName": "Name",
@@ -730,7 +736,16 @@
       "imageType": "Nur JPEG-, PNG- oder WebP-Bilder sind erlaubt.",
       "imageSize": "Das Bild ist größer als 5 MB.",
       "imageDimensions": "Das Bild ist zu klein (mindestens 320 px an der kürzeren Seite)."
-    }
+    },
+    "requirementsHint": "Was wird zusätzlich gebraucht, z. B. Fahrzeuge, Objektpakete oder Patches? Gib den Namen an, optional einen Link zur Bezugsquelle, und ob es kostenlos oder kostenpflichtig ist.",
+    "requirementName": "Name",
+    "requirementUrl": "Link",
+    "requirementPricing": "Art",
+    "pricing": {
+      "FREEWARE": "Freeware",
+      "PAYWARE": "Payware"
+    },
+    "addRequirement": "Voraussetzung hinzufügen"
   },
   "Review": {
     "title": "Projekte & Freigaben",

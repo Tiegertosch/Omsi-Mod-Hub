@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { detectImageKind, mediaKeyFromUrl } from "@/lib/image-signature";
-import { projectFormSchema, readProjectForm, readVersionForm, versionFormSchema } from "@/lib/project-form";
+import {
+  filledRequirements,
+  projectFormSchema,
+  readProjectForm,
+  readVersionForm,
+  versionFormSchema,
+} from "@/lib/project-form";
 import { availableCreatorActions, isEditableByCreator, nextStatusForCreator, publishChecklist } from "@/lib/project-status";
 import { isValidSlug, slugify } from "@/lib/slug";
 
@@ -153,6 +159,51 @@ describe("Projektformular", () => {
     const parsed = projectFormSchema.safeParse(readProjectForm(formData([...base, ["sourceUrl", "javascript:alert(1)"]])));
     expect(parsed.success).toBe(false);
     expect(parsed.error?.issues[0]?.path.join(".")).toBe("sourceUrl");
+  });
+
+  it("liest Voraussetzungen mit optionalem Link und Bezugsart", () => {
+    const parsed = projectFormSchema.safeParse(
+      readProjectForm(
+        formData([
+          ...base,
+          ["requirements.0.name", "Haltestellen-Baukasten"],
+          ["requirements.0.url", "https://example.com/baukasten"],
+          ["requirements.0.pricing", "FREEWARE"],
+          ["requirements.1.name", "Sound-Paket"],
+          ["requirements.1.url", ""],
+          ["requirements.1.pricing", "PAYWARE"],
+          // leere Zeile wird verworfen, unbekannte Bezugsart fällt auf Freeware zurück
+          ["requirements.2.name", ""],
+          ["requirements.2.url", ""],
+          ["requirements.3.name", "Patch"],
+          ["requirements.3.pricing", "GRATIS"],
+        ]),
+      ),
+    );
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    expect(filledRequirements(parsed.data.requirements)).toEqual([
+      { name: "Haltestellen-Baukasten", url: "https://example.com/baukasten", pricing: "FREEWARE" },
+      { name: "Sound-Paket", url: null, pricing: "PAYWARE" },
+      { name: "Patch", url: null, pricing: "FREEWARE" },
+    ]);
+  });
+
+  it("verlangt bei Voraussetzungen einen Namen und einen sicheren Link", () => {
+    const parsed = projectFormSchema.safeParse(
+      readProjectForm(
+        formData([
+          ...base,
+          ["requirements.0.name", ""],
+          ["requirements.0.url", "https://example.com/ohne-name"],
+          ["requirements.1.name", "Böser Link"],
+          ["requirements.1.url", "javascript:alert(1)"],
+        ]),
+      ),
+    );
+    expect(parsed.success).toBe(false);
+    const paths = parsed.error?.issues.map((i) => i.path.join(".")) ?? [];
+    expect(paths).toEqual(["requirements.0.name", "requirements.1.url"]);
   });
 });
 

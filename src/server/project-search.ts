@@ -5,7 +5,7 @@ import { buildSearchText } from "@/lib/search-text";
 
 /**
  * Berechnet die Suchspalte aller Übersetzungen eines Projekts neu
- * (Titel, Texte und Tag-Namen in allen Sprachen). Muss nach jeder Änderung
+ * (Titel, Texte, Tag-Namen in allen Sprachen und Namen der Voraussetzungen). Muss nach jeder Änderung
  * von Texten oder Tags aufgerufen werden – innerhalb derselben Transaktion.
  */
 export async function rebuildSearchText(tx: Prisma.TransactionClient, projectId: string) {
@@ -14,6 +14,7 @@ export async function rebuildSearchText(tx: Prisma.TransactionClient, projectId:
     select: {
       translations: true,
       tags: { select: { tag: { select: { translations: { select: { name: true } } } } } },
+      requirements: { select: { name: true } },
     },
   });
   if (!project) return;
@@ -27,6 +28,7 @@ export async function rebuildSearchText(tx: Prisma.TransactionClient, projectId:
           summary: translation.summary,
           description: translation.description,
           tags: tagNames,
+          extra: project.requirements.map((r) => r.name),
         }),
       },
     });

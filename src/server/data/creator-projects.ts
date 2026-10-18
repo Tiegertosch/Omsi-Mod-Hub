@@ -48,6 +48,7 @@ const editorInclude = {
   translations: true,
   tags: { select: { tag: { select: { slug: true } } } },
   contributors: { orderBy: { sortOrder: "asc" }, select: { name: true, role: true } },
+  requirements: { orderBy: { sortOrder: "asc" }, select: { name: true, url: true, pricing: true } },
   screenshots: { orderBy: { sortOrder: "asc" } },
   versions: {
     orderBy: { releasedAt: "desc" },

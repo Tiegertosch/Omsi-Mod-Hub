@@ -187,6 +187,7 @@ export const detailInclude = {
     orderBy: { sortOrder: "asc" },
     select: { id: true, name: true, role: true, user: { select: { username: true } } },
   },
+  requirements: { orderBy: { sortOrder: "asc" }, select: { id: true, name: true, url: true, pricing: true } },
 } satisfies Prisma.ProjectInclude;
 
 export type ProjectDetail = Prisma.ProjectGetPayload<{ include: typeof detailInclude }>;

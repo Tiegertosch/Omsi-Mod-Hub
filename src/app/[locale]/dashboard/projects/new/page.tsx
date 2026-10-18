@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("newTitle"), robots: { index: false, follow: false } };
 }
 
-const emptyTranslation = { title: "", summary: "", description: "", installation: "", requirements: "" };
+const emptyTranslation = { title: "", summary: "", description: "", installation: "" };
 
 async function NewProjectContent() {
   const locale = await rootLocale();
@@ -42,6 +42,7 @@ async function NewProjectContent() {
         >,
         tags: [],
         contributors: [],
+        requirements: [],
       }}
     />
   );

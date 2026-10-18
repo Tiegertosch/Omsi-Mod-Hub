@@ -11,6 +11,7 @@ import { parseExternalUrl } from "@/lib/external-url";
 import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { mediaKeyFromUrl, mediaUrlFromKey } from "@/lib/image-signature";
 import {
+  filledRequirements,
   projectFormSchema,
   readProjectForm,
   readVersionForm,
@@ -130,6 +131,7 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
     .map((l) => ({ locale: l, ...data.translations[l] }))
     .filter((t) => t.locale === data.defaultLocale || t.title);
   const contributors = data.contributors.filter((c) => c.name);
+  const requirements = filledRequirements(data.requirements);
 
   const core = {
     slug,
@@ -155,7 +157,6 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
         summary: t.summary,
         description: t.description,
         installation: t.installation,
-        requirements: t.requirements,
       };
       await tx.projectTranslation.upsert({
         where: { projectId_locale: { projectId: project.id, locale: t.locale } },
@@ -173,6 +174,13 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
     if (contributors.length > 0) {
       await tx.projectContributor.createMany({
         data: contributors.map((c, index) => ({ projectId: project.id, name: c.name, role: c.role, sortOrder: index })),
+      });
+    }
+
+    await tx.projectRequirement.deleteMany({ where: { projectId: project.id } });
+    if (requirements.length > 0) {
+      await tx.projectRequirement.createMany({
+        data: requirements.map((r, index) => ({ projectId: project.id, ...r, sortOrder: index })),
       });
     }
 

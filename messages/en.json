@@ -130,7 +130,13 @@
     "previousImage": "Previous image",
     "nextImage": "Next image",
     "thumbnails": "All images",
-    "showImage": "Show image {index} of {total}"
+    "showImage": "Show image {index} of {total}",
+    "pricing": {
+      "FREEWARE": "Freeware",
+      "PAYWARE": "Payware"
+    },
+    "requirementDownload": "Download",
+    "requirementBuy": "Buy now"
   },
   "ExternalLink": {
     "open": "Open external download page",
@@ -604,7 +610,8 @@
       "contributors": "Contributors",
       "media": "Cover image & screenshots",
       "versions": "Versions & downloads",
-      "status": "Status & publication"
+      "status": "Status & publication",
+      "requirements": "Requirements & required add-ons"
     },
     "category": "Category",
     "chooseCategory": "Choose a category …",
@@ -630,7 +637,6 @@
     "summaryHint": "One or two sentences for cards and search results.",
     "description": "Description",
     "installation": "Installation guide",
-    "requirements": "Requirements & required add-ons",
     "textHint": "Plain text; blank lines separate paragraphs.",
     "tagsHint": "Up to {max} tags.",
     "contributorName": "Name",
@@ -730,7 +736,16 @@
       "imageType": "Only JPEG, PNG or WebP images are allowed.",
       "imageSize": "The image is larger than 5 MB.",
       "imageDimensions": "The image is too small (at least 320 px on the shorter side)."
-    }
+    },
+    "requirementsHint": "What else is needed, e.g. vehicles, object packs or patches? Enter the name, optionally a link to where to get it, and whether it is free or paid.",
+    "requirementName": "Name",
+    "requirementUrl": "Link",
+    "requirementPricing": "Type",
+    "pricing": {
+      "FREEWARE": "Freeware",
+      "PAYWARE": "Payware"
+    },
+    "addRequirement": "Add requirement"
   },
   "Review": {
     "title": "Projects & reviews",
