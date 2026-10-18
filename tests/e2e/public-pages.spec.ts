@@ -60,6 +60,32 @@ test("Detailseite kennzeichnet externe Downloads", async ({ page }) => {
   await expect(page.getByText("Beispieldaten").first()).toBeVisible();
 });
 
+test("Titelbild und Screenshots stehen in einem Karussell", async ({ page }) => {
+  await page.goto("/de/mods/neustadt-am-kanal");
+  const carousel = page.getByRole("region", { name: "Titelbild und Screenshots" });
+  // Titelbild plus zwei Screenshots, keine eigene Screenshot-Rubrik mehr
+  await expect(carousel.getByRole("group", { name: /^Bild \d von 3$/ })).toHaveCount(3);
+  await expect(page.getByRole("heading", { name: "Screenshots" })).toHaveCount(0);
+  await expect(carousel.getByRole("img", { name: "Schematischer Linienplan einer fiktiven Stadt" })).toBeVisible();
+  await expect(carousel.getByText("1 / 3")).toBeVisible();
+
+  await carousel.getByRole("button", { name: "Nächstes Bild" }).click();
+  await expect(carousel.getByText("2 / 3")).toBeVisible();
+  await expect(carousel.getByRole("button", { name: "Bild 2 von 3 anzeigen" })).toHaveAttribute("aria-current", "true");
+  await expect(carousel.getByRole("img", { name: "Landstraße mit Haltestelle in der Abenddämmerung" })).toBeInViewport();
+
+  await carousel.getByRole("button", { name: "Bild 3 von 3 anzeigen" }).click();
+  await expect(carousel.getByText("3 / 3")).toBeVisible();
+  await expect(carousel.getByRole("img", { name: "Busdepot mit drei abgestellten Fahrzeugen" })).toBeInViewport();
+
+  // Nach dem letzten Bild geht es von vorn los; Pfeiltasten funktionieren auch.
+  await carousel.getByRole("button", { name: "Nächstes Bild" }).click();
+  await expect(carousel.getByText("1 / 3")).toBeVisible();
+  await carousel.getByRole("group", { name: "Bild 1 von 3" }).locator("..").focus();
+  await page.keyboard.press("ArrowLeft");
+  await expect(carousel.getByText("3 / 3")).toBeVisible();
+});
+
 test("Fallback-Hinweis bei fehlender Übersetzung", async ({ page }) => {
   await page.goto("/de/mods/midibus-citylink");
   await expect(page.getByText("keine deutsche Beschreibung")).toBeVisible();

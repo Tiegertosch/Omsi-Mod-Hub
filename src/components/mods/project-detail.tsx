@@ -1,6 +1,5 @@
 import { BadgeCheck, ChevronRight, Info, MousePointerClick } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
-import Image from "next/image";
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +12,7 @@ import type { ProjectCard, ProjectDetail } from "@/server/data/projects";
 import { toTagView } from "@/server/data/tags";
 
 import { ExternalLinkList } from "./external-links";
+import { MediaCarousel, type CarouselSlide } from "./media-carousel";
 import { ProjectCover } from "./project-cover";
 import { ProjectGrid } from "./project-grid";
 import { ReportForm } from "./report-form";
@@ -90,6 +90,15 @@ export async function ProjectDetailView({
   const currentVersion = project.versions[0] ?? null;
   const sourceHost = project.sourceUrl ? externalHost(project.sourceUrl) : null;
   const formatDate = (date: Date) => format.dateTime(date, { dateStyle: "long" });
+  // Titelbild zuerst, dann die Screenshots; Vorschaukarten zeigen weiterhin nur das Titelbild.
+  const slides: CarouselSlide[] = [
+    ...(isSafeImageSrc(project.coverImageUrl)
+      ? [{ key: "cover", src: project.coverImageUrl, alt: project.coverImageAlt ?? title }]
+      : []),
+    ...project.screenshots
+      .filter((shot) => isSafeImageSrc(shot.imageUrl))
+      .map((shot) => ({ key: shot.id, src: shot.imageUrl, alt: shot.altText })),
+  ];
 
   return (
     <article>
@@ -155,34 +164,29 @@ export async function ProjectDetailView({
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="min-w-0 space-y-8">
-            <ProjectCover
-              src={project.coverImageUrl}
-              alt={project.coverImageAlt ?? title}
-              sizes="(min-width: 1024px) 860px, 100vw"
-              priority
-              className="rounded-[var(--radius-card)] border border-border"
-            />
-
-            {project.screenshots.length > 0 ? (
-              <Section id="screenshots" title={t("screenshots")}>
-                <ul className="grid gap-3 sm:grid-cols-2">
-                  {project.screenshots
-                    .filter((shot) => isSafeImageSrc(shot.imageUrl))
-                    .map((shot) => (
-                      <li key={shot.id} className="relative aspect-video overflow-hidden rounded-lg border border-border bg-surface-3">
-                        <Image
-                          src={shot.imageUrl}
-                          alt={shot.altText}
-                          fill
-                          sizes="(min-width: 640px) 430px, 100vw"
-                          unoptimized={shot.imageUrl.startsWith("/media/")}
-                          className="object-cover"
-                        />
-                      </li>
-                    ))}
-                </ul>
-              </Section>
-            ) : null}
+            {slides.length > 0 ? (
+              <MediaCarousel
+                slides={slides}
+                sizes="(min-width: 1024px) 860px, 100vw"
+                labels={{
+                  carousel: t("carousel"),
+                  media: t("media"),
+                  slide: t("slide"),
+                  previous: t("previousImage"),
+                  next: t("nextImage"),
+                  thumbnails: t("thumbnails"),
+                  slideOf: slides.map((_, index) => t("slideOf", { index: index + 1, total: slides.length })),
+                  show: slides.map((_, index) => t("showImage", { index: index + 1, total: slides.length })),
+                }}
+              />
+            ) : (
+              <ProjectCover
+                src={null}
+                alt={title}
+                sizes="(min-width: 1024px) 860px, 100vw"
+                className="rounded-[var(--radius-card)] border border-border"
+              />
+            )}
 
             {text?.description ? (
               <Section id="description" title={t("description")}>

@@ -105,7 +105,6 @@
     "requirements": "Requirements & required add-ons",
     "changelog": "Changelog",
     "versions": "Versions",
-    "screenshots": "Screenshots",
     "details": "Details",
     "category": "Category",
     "currentVersion": "Current version",
@@ -123,7 +122,15 @@
     "outboundClicks": "{count, plural, =0 {No download page visits yet} one {# download page visit} other {# download page visits}}",
     "outboundClicksHint": "Counts clicks on external links, not completed downloads.",
     "notFoundTitle": "Project not found",
-    "notFoundText": "This project does not exist or is no longer public."
+    "notFoundText": "This project does not exist or is no longer public.",
+    "carousel": "carousel",
+    "media": "Cover image and screenshots",
+    "slide": "image",
+    "slideOf": "Image {index} of {total}",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "thumbnails": "All images",
+    "showImage": "Show image {index} of {total}"
   },
   "ExternalLink": {
     "open": "Open external download page",

@@ -105,7 +105,6 @@
     "requirements": "Voraussetzungen & benötigte Add-ons",
     "changelog": "Changelog",
     "versions": "Versionen",
-    "screenshots": "Screenshots",
     "details": "Details",
     "category": "Kategorie",
     "currentVersion": "Aktuelle Version",
@@ -123,7 +122,15 @@
     "outboundClicks": "{count, plural, =0 {Noch keine Aufrufe der Downloadseiten} one {# Aufruf der Downloadseiten} other {# Aufrufe der Downloadseiten}}",
     "outboundClicksHint": "Gezählt werden Klicks auf externe Links, keine abgeschlossenen Downloads.",
     "notFoundTitle": "Projekt nicht gefunden",
-    "notFoundText": "Dieses Projekt existiert nicht oder ist nicht mehr öffentlich."
+    "notFoundText": "Dieses Projekt existiert nicht oder ist nicht mehr öffentlich.",
+    "carousel": "Karussell",
+    "media": "Titelbild und Screenshots",
+    "slide": "Bild",
+    "slideOf": "Bild {index} von {total}",
+    "previousImage": "Vorheriges Bild",
+    "nextImage": "Nächstes Bild",
+    "thumbnails": "Alle Bilder",
+    "showImage": "Bild {index} von {total} anzeigen"
   },
   "ExternalLink": {
     "open": "Externe Downloadseite öffnen",
