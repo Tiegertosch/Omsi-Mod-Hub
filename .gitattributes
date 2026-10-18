@@ -3,3 +3,5 @@
 # Dateien, die auf dem Linux-Server ausgeführt bzw. gelesen werden, immer mit LF auschecken
 *.sh text eol=lf
 deploy/** text eol=lf
+# Migrationen: Prisma prüft Prüfsummen – überall mit denselben Zeilenenden
+prisma/migrations/** text eol=lf
