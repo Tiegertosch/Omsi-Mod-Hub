@@ -8,7 +8,9 @@ Internationales Katalog- und Downloadportal für Mods des Omnibus-Simulators **O
 
 Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und gelangen zur Originalquelle des Erstellers. Das Portal **hostet selbst keine Mod-Archive** – Downloads verweisen immer auf externe Seiten, die klar als solche gekennzeichnet sind.
 
-> **Status:** Öffentlicher Bereich, Benutzerkonten, Creator-Dashboard und Adminbereich (Freigaben, Ausblenden, Meldungen, Sperren, Kategorien/Tags, Protokoll) sind umgesetzt – siehe [Nächste Schritte](#nächste-schritte).
+> **Status:** Geschlossene Beta. Öffentlicher Bereich, Benutzerkonten, Creator-Dashboard und Adminbereich (Freigaben, Ausblenden, Meldungen, Sperren, Kategorien/Tags, Protokoll) sind umgesetzt. Was noch fehlt, steht in [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md#offene-punkte).
+>
+> OMSI ist eine Marke der jeweiligen Rechteinhaber. OMSI Mod Hub ist ein Community-Projekt und kein offizielles Angebot der Entwickler oder Publisher.
 
 ## Funktionsumfang (aktueller Stand)
 
@@ -39,7 +41,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Admin: Konten suchen und befristet/unbefristet sperren (beendet Sitzungen, optional Projekte ausblenden) `/admin/users` | ✅ |
 | Admin: Kategorien und Tags anlegen, bearbeiten, löschen `/admin/categories`, `/admin/tags`; Protokoll `/admin/audit` | ✅ |
 | E-Mail an Creator bei Freigabe, Zurückweisung, Ausblenden und Wiedereinblenden | ✅ |
-| Rechtliche Seiten | ⚠️ nur als gekennzeichnete, ungeprüfte Vorlagen |
+| Rechtliche Seiten: Impressum, Datenschutzerklärung, versionierte Nutzungsbedingungen mit Zustimmung bei neuen Fassungen | ✅ Nutzungsbedingungen noch als Entwurf gekennzeichnet |
 
 ## Technologie
 
@@ -87,7 +89,7 @@ pnpm 12 führt Build-Skripte von Abhängigkeiten nur nach Freigabe aus. Die ben�
 
 | Variable | Pflicht | Beschreibung |
 | --- | --- | --- |
-| `DATABASE_URL` | ja | Lokal `file:./prisma/dev.db` (relativ zum Projektverzeichnis). |
+| `DATABASE_URL` | ja | PostgreSQL-Verbindung, z. B. `postgresql://omsi_mod_hub:PASSWORT@localhost:5432/omsi_mod_hub`. |
 | `NEXT_PUBLIC_SITE_URL` | empfohlen | Öffentliche Basis-URL ohne abschließenden Slash; wird für Canonical-URLs, Sitemap und Open Graph verwendet. Standard: `http://localhost:3000`. |
 | `BETTER_AUTH_SECRET` | ja | Zufälliges Secret (≥ 32 Zeichen) zum Signieren von Sessions und Tokens. Erzeugen: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
 | `BETTER_AUTH_URL` | ja | Öffentliche URL der App. Links in E-Mails zeigen dorthin; muss zur aufgerufenen Adresse passen. |
@@ -216,3 +218,17 @@ tests/
 3. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
 4. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.
 5. **Suche und Skalierung:** PostgreSQL-Volltextsuche bzw. `pg_trgm`, verwaltete Datenbank mit Point-in-Time-Recovery, gemeinsamer Cache-Handler bei mehreren Instanzen.
+
+## Mitmachen
+
+Feedback, Fehlerberichte und Vorschläge sind willkommen – am besten als Issue. Für größere Änderungen bitte vorher ein Issue eröffnen, damit wir die Richtung abstimmen können. Vor einem Pull Request `pnpm check` und `pnpm build && pnpm test:e2e` ausführen.
+
+Sicherheitslücken bitte **nicht** als öffentliches Issue melden, sondern wie in [SECURITY.md](SECURITY.md) beschrieben.
+
+## Lizenz
+
+Copyright © 2026 Tiegertosch
+
+Dieses Projekt steht unter der **GNU Affero General Public License v3.0** ([LICENSE](LICENSE)). Wer den Code verändert und als Website betreibt, muss den Nutzern den geänderten Quellcode ebenfalls unter dieser Lizenz zugänglich machen.
+
+Nicht von der Lizenz erfasst sind die Rechtstexte unter `content/legal/` (u. a. mit einem Generator erstellt) und die Impressumsangaben in `messages/*.json`: Sie beziehen sich auf den Betrieb von omsi-modhub.de und dürfen nicht für eigene Seiten übernommen werden.

@@ -91,6 +91,11 @@ test("Impressum zeigt die Betreiberangaben, Entwürfe bleiben gekennzeichnet", a
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Impressum");
   await expect(page.getByText("omsi-modhub – Tobias Schmidt")).toBeVisible();
   await expect(page.getByRole("link", { name: "Telefon: 04743/9501413" })).toHaveAttribute("href", "tel:+4947439501413");
+  // AGPL-3.0 § 13: Quellcode ist von jeder Seite aus erreichbar
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Quellcode (AGPL-3.0)" })).toHaveAttribute(
+    "href",
+    "https://github.com/Tiegertosch/Omsi-Mod-Hub",
+  );
   await expect(page.getByRole("link", { name: "kontakt@omsi-modhub.de" })).toHaveAttribute(
     "href",
     "mailto:kontakt@omsi-modhub.de",

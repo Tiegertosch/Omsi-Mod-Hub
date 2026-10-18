@@ -56,3 +56,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Editor-Einstellungen
+/.vscode/
+
+# interne Notizen (Serverdetails, lokale Einrichtung) – bleiben lokal
+/docs/intern/

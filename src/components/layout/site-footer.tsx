@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 
 import { Container } from "@/components/ui/container";
 import { Link } from "@/i18n/navigation";
+import { siteConfig } from "@/lib/site";
 
 import { Logo } from "./logo";
 import { LanguageSwitch } from "./site-header";
@@ -56,7 +57,12 @@ export function SiteFooter() {
         </div>
       </Container>
       <div className="border-t border-border">
-        <Container className="py-5 text-xs text-subtle">{t("trademark")}</Container>
+        <Container className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-5 text-xs text-subtle">
+          <p>{t("trademark")}</p>
+          <a href={siteConfig.sourceUrl} rel="noopener" className="transition-colors hover:text-fg">
+            {t("sourceCode")}
+          </a>
+        </Container>
       </div>
     </footer>
   );
