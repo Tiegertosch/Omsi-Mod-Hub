@@ -7,7 +7,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - Zweisprachiges (DE/EN) Katalogportal für OMSI-2-Mods. **Es werden keine Mod-Dateien gehostet**, nur externe Links. Zielgruppe ist international, die Standardsprache Englisch.
 - Fertig sind: öffentlicher Katalog, Konten (inklusive E-Mail ändern, Geräteübersicht, Konto löschen), Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
 - **Geschlossene Beta live** unter `https://beta.omsi-modhub.de`, hinter Basic Auth, nicht indexiert. Die Datenbank wurde dort am 17.10.2026 mit PostgreSQL neu gestartet.
-- Tests: 106 Unit-Tests (Vitest) und 43 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
+- Tests: 109 Unit-Tests (Vitest) und 45 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
 
 ## Arbeitsweise mit dem Nutzer
 
@@ -38,7 +38,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
   - Meldeformular
   - Download-Links über `/go/[linkId]` mit Klickzähler (Raw SQL, verändert `updatedAt` nicht)
   - Projektseite: Titelbild und Screenshots in einem Karussell (`src/components/mods/media-carousel.tsx`, CSS-Scroll-Snapping, ohne Bibliothek); Karten zeigen nur das Titelbild
-  - Rechtsseiten: Impressum mit den echten Angaben (Adresse über online-impressum.de, `kontakt@omsi-modhub.de`); Datenschutz und Nutzungsbedingungen noch **Entwürfe**. SEO, Sitemap, Dark Mode
+  - Rechtsseiten: Impressum mit den echten Angaben (Adresse über online-impressum.de, `kontakt@omsi-modhub.de`); Datenschutzerklärung aus dem WBS-Generator als Datei `content/legal/privacy.de.md` (eigener kleiner Markdown-Parser `src/lib/legal-markdown.ts`, englische Seite mit Hinweis „nur Deutsch“); Nutzungsbedingungen noch **Entwurf**. SEO, Sitemap, Dark Mode
 - **Konten:** Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code (Seite `/confirm-email`, eine Box pro Ziffer, Code erneut senden, Adresse über Schritt 1 korrigieren), Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
@@ -112,7 +112,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 
 1. **DKIM** bei dogado aktivieren bzw. den DNS-Schlüssel prüfen. Danach SPF von `?all` auf `~all` umstellen.
 2. **Vor einem öffentlichen Start:**
-   - Datenschutzerklärung und Nutzungsbedingungen fertigstellen und prüfen lassen; Impressum prüfen
+   - Nutzungsbedingungen fertigstellen und prüfen lassen; Datenschutzerklärung ergänzen (E-Mail-Versand über dogado, Cookies, Sitzungsdaten) und prüfen lassen
    - Basic Auth und noindex entfernen
    - Content-Security-Policy ergänzen
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen

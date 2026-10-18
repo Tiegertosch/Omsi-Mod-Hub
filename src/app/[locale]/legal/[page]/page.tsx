@@ -6,17 +6,19 @@ import { Suspense } from "react";
 
 import { Container } from "@/components/ui/container";
 import { Notice, Skeleton } from "@/components/ui/state";
+import { type LegalBlock, type LegalInline } from "@/lib/legal-markdown";
 import { localizedAlternates } from "@/lib/metadata";
+import { getLegalDocument } from "@/server/legal-documents";
 import { LEGAL_PAGES } from "@/server/route-existence";
 
 type LegalPage = (typeof LEGAL_PAGES)[number];
 
 /**
  * Seiten mit ungeprüften Vorlagentexten: mit Hinweis „Entwurf“ und nicht
- * indexiert. Das Impressum enthält die echten Angaben des Betreibers
- * (übernommen von online-impressum.de).
+ * indexiert. Impressum (Angaben von online-impressum.de) und Datenschutz-
+ * erklärung (Generator von WBS Legal, content/legal/privacy.de.md) sind echt.
  */
-const DRAFT_PAGES: ReadonlySet<LegalPage> = new Set(["privacy", "terms"]);
+const DRAFT_PAGES: ReadonlySet<LegalPage> = new Set(["terms"]);
 
 type Props = PageProps<"/[locale]/legal/[page]">;
 
@@ -46,12 +48,60 @@ type LegalSection = { heading: string; body: string; links?: LegalLink[] };
 /** Links stammen aus den eigenen Übersetzungsdateien; trotzdem nur tel:, mailto: und https: zulassen. */
 const isAllowedHref = (href: string) => /^(tel:|mailto:|https:\/\/)/.test(href);
 
+function Inline({ content }: { content: LegalInline[] }) {
+  return content.map((part, index) =>
+    part.type === "link" ? (
+      <a key={index} href={part.href} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent-hover">
+        {part.text}
+      </a>
+    ) : part.type === "strong" ? (
+      <strong key={index} className="font-semibold text-fg">
+        {part.text}
+      </strong>
+    ) : (
+      part.text
+    ),
+  );
+}
+
+/** Rechtstext aus content/legal/*.md (siehe src/server/legal-documents.ts). */
+function LegalDocumentView({ blocks, lang }: { blocks: LegalBlock[]; lang: string }) {
+  return (
+    <div lang={lang} className="mt-10 space-y-4 leading-relaxed text-fg/85">
+      {blocks.map((block, index) =>
+        block.type === "heading" ? (
+          block.level === 2 ? (
+            <h2 key={index} className="pt-6 text-xl font-semibold text-fg">
+              {block.text}
+            </h2>
+          ) : (
+            <h3 key={index} className="pt-2 font-semibold text-fg">
+              {block.text}
+            </h3>
+          )
+        ) : block.type === "list" ? (
+          <ul key={index} className="list-disc space-y-2 pl-6">
+            {block.items.map((item, itemIndex) => (
+              <li key={itemIndex}>
+                <Inline content={item} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p key={index}>
+            <Inline content={block.content} />
+          </p>
+        ),
+      )}
+    </div>
+  );
+}
+
 /** Liest `params` hinter <Suspense>, damit die Navigation sofort die Seitenhülle zeigt. */
 async function LegalContent({ params }: Pick<Props, "params">) {
-  const { page } = await params;
+  const [{ page }, locale] = await Promise.all([params, rootLocale()]);
   if (!isLegalPage(page)) notFound();
-  const t = await getTranslations("Legal");
-  const sections = t.raw(`${page}.sections`) as LegalSection[];
+  const [t, document] = await Promise.all([getTranslations("Legal"), getLegalDocument(page, locale)]);
 
   return (
     <>
@@ -61,32 +111,51 @@ async function LegalContent({ params }: Pick<Props, "params">) {
           {t("draftText")}
         </Notice>
       ) : null}
-      <div className="mt-10 space-y-8">
-        {sections.map((section) => (
-          <section key={section.heading}>
-            <h2 className="text-xl font-semibold text-fg">{section.heading}</h2>
-            <p className="mt-2 whitespace-pre-line text-fg/85">{section.body}</p>
-            {section.links?.length ? (
-              <ul className="mt-2 space-y-1">
-                {section.links
-                  .filter((link) => isAllowedHref(link.href))
-                  .map((link) => (
-                    <li key={link.href}>
-                      <a
-                        href={link.href}
-                        {...(link.href.startsWith("https://") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                        className="font-medium text-accent hover:text-accent-hover"
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
-              </ul>
-            ) : null}
-          </section>
-        ))}
-      </div>
+      {document && document.locale !== locale ? (
+        <Notice tone="info" className="mt-6">
+          {t("languageFallback")}
+        </Notice>
+      ) : null}
+      {document ? (
+        <LegalDocumentView blocks={document.blocks} lang={document.locale} />
+      ) : page !== "privacy" ? (
+        <LegalSections sections={t.raw(`${page}.sections`) as LegalSection[]} />
+      ) : (
+        // Die Datenschutzerklärung gibt es nur als Datei; fehlt sie, ist das ein Deploy-Fehler.
+        notFound()
+      )}
     </>
+  );
+}
+
+/** Abschnitte aus messages/*.json (Seiten ohne Datei unter content/legal). */
+function LegalSections({ sections }: { sections: LegalSection[] }) {
+  return (
+    <div className="mt-10 space-y-8">
+      {sections.map((section) => (
+        <section key={section.heading}>
+          <h2 className="text-xl font-semibold text-fg">{section.heading}</h2>
+          <p className="mt-2 whitespace-pre-line text-fg/85">{section.body}</p>
+          {section.links?.length ? (
+            <ul className="mt-2 space-y-1">
+              {section.links
+                .filter((link) => isAllowedHref(link.href))
+                .map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      {...(link.href.startsWith("https://") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="font-medium text-accent hover:text-accent-hover"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+            </ul>
+          ) : null}
+        </section>
+      ))}
+    </div>
   );
 }
 

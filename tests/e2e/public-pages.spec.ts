@@ -101,8 +101,27 @@ test("Impressum zeigt die Betreiberangaben, Entwürfe bleiben gekennzeichnet", a
   );
   await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
 
-  await page.goto("/de/legal/privacy");
+  await page.goto("/de/legal/terms");
   await expect(page.getByText("Entwurf", { exact: false }).first()).toBeVisible();
+});
+
+test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) => {
+  await page.goto("/de/legal/privacy");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Datenschutzerklärung");
+  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(16);
+  await expect(page.getByRole("heading", { name: "2. Name und Anschrift des Verantwortlichen" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "b) Recht auf Auskunft" })).toBeVisible();
+  await expect(page.getByText("omsi-modhub – Tobias Schmidt")).toBeVisible();
+  await expect(page.getByText("c/o Online-Impressum 11973")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Fachanwälten für Internetrecht" })).toHaveAttribute("href", "https://www.wbs.legal/");
+  await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("**")).toHaveCount(0);
+
+  // Englische Seite: gleicher deutscher Text mit Hinweis
+  await page.goto("/en/legal/privacy");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
+  await expect(page.getByText("This text is currently only available in German.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "1. Definitionen" })).toBeVisible();
 });
 
 test("Fallback-Hinweis bei fehlender Übersetzung", async ({ page }) => {

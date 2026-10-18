@@ -232,29 +232,7 @@
       ]
     },
     "privacy": {
-      "title": "Datenschutz",
-      "sections": [
-        {
-          "heading": "Verantwortlicher",
-          "body": "[Name und Kontaktdaten des Verantwortlichen]"
-        },
-        {
-          "heading": "Technisch notwendige Daten (zu prüfen)",
-          "body": "Beim Aufruf der Seite verarbeitet der Server technisch notwendige Verbindungsdaten. Zur Sprachwahl wird ein Cookie (NEXT_LOCALE) gesetzt. Bei Meldungen wird die IP-Adresse kurzzeitig im Arbeitsspeicher als Hash zur Missbrauchsbegrenzung verwendet und nicht gespeichert."
-        },
-        {
-          "heading": "Benutzerkonten (zu prüfen)",
-          "body": "Für ein Konto werden E-Mail-Adresse, Benutzername, Anzeigename, bevorzugte Sprache und ein gehashtes Passwort gespeichert. Zu jeder Anmeldesitzung werden IP-Adresse und Browserkennung gespeichert, um Missbrauch zu erkennen; sie werden mit der Sitzung gelöscht. Zur Anmeldung wird ein technisch notwendiges Sitzungs-Cookie gesetzt. Für Bestätigungs- und Passwort-E-Mails sowie Benachrichtigungen über Moderationsentscheidungen zu eigenen Projekten wird die E-Mail-Adresse an den E-Mail-Dienstleister übermittelt [Anbieter ergänzen]."
-        },
-        {
-          "heading": "Externe Links",
-          "body": "Klicks auf externe Downloadlinks werden ohne Personenbezug gezählt. Nach der Weiterleitung gelten die Datenschutzbestimmungen des jeweiligen Anbieters."
-        },
-        {
-          "heading": "Weitere Angaben",
-          "body": "[Rechtsgrundlagen, Speicherdauer, Hosting-Anbieter, Betroffenenrechte und Beschwerderecht müssen ergänzt werden.]"
-        }
-      ]
+      "title": "Datenschutzerklärung"
     },
     "terms": {
       "title": "Nutzungsbedingungen",
@@ -272,7 +250,8 @@
           "body": "[Regeln für eingestellte Projekte, Rechte an Inhalten und Moderation müssen ergänzt werden.]"
         }
       ]
-    }
+    },
+    "languageFallback": "Dieser Text liegt derzeit nur auf Deutsch vor."
   },
   "Auth": {
     "loginTitle": "Anmelden",

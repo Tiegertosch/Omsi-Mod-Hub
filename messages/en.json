@@ -232,29 +232,7 @@
       ]
     },
     "privacy": {
-      "title": "Privacy",
-      "sections": [
-        {
-          "heading": "Controller",
-          "body": "[Name and contact details of the controller]"
-        },
-        {
-          "heading": "Technically necessary data (to be reviewed)",
-          "body": "When the site is accessed, the server processes technically necessary connection data. A cookie (NEXT_LOCALE) is set to remember the language. For reports, the IP address is briefly used in memory as a hash to limit abuse and is not stored."
-        },
-        {
-          "heading": "User accounts (to be reviewed)",
-          "body": "For an account we store the email address, username, display name, preferred language and a hashed password. For each sign-in session, the IP address and browser identifier are stored to detect abuse; they are deleted together with the session. A technically necessary session cookie is set for signing in. For confirmation and password emails as well as notifications about moderation decisions on your own projects, the email address is transmitted to the email service provider [add provider]."
-        },
-        {
-          "heading": "External links",
-          "body": "Clicks on external download links are counted without personal reference. After the redirect, the privacy policy of the respective provider applies."
-        },
-        {
-          "heading": "Further information",
-          "body": "[Legal bases, retention periods, hosting provider, data subject rights and the right to lodge a complaint must be added.]"
-        }
-      ]
+      "title": "Privacy policy"
     },
     "terms": {
       "title": "Terms of use",
@@ -272,7 +250,8 @@
           "body": "[Rules for submitted projects, rights to content and moderation must be added.]"
         }
       ]
-    }
+    },
+    "languageFallback": "This text is currently only available in German."
   },
   "Auth": {
     "loginTitle": "Sign in",
