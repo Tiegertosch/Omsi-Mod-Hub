@@ -96,7 +96,7 @@ test("Impressum zeigt die Betreiberangaben, Entwürfe bleiben gekennzeichnet", a
   );
   await expect(page.getByRole("link", { name: "Kontaktformular bei Online-Impressum.de" })).toHaveAttribute(
     "href",
-    "https://mein.online-impressum.de/omsi-modhub/",
+    "https://mein.online-impressum.de/omsi-modhub/#zweiterkontaktweg",
   );
   await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
 
