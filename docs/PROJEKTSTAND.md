@@ -38,7 +38,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
   - Meldeformular
   - Download-Links über `/go/[linkId]` mit Klickzähler (Raw SQL, verändert `updatedAt` nicht)
   - Projektseite: Titelbild und Screenshots in einem Karussell (`src/components/mods/media-carousel.tsx`, CSS-Scroll-Snapping, ohne Bibliothek); Karten zeigen nur das Titelbild
-  - Rechtsseiten (nur **Entwürfe**), SEO, Sitemap, Dark Mode
+  - Rechtsseiten: Impressum mit den echten Angaben (Adresse über online-impressum.de, `kontakt@omsi-modhub.de`); Datenschutz und Nutzungsbedingungen noch **Entwürfe**. SEO, Sitemap, Dark Mode
 - **Konten:** Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code (Seite `/confirm-email`, eine Box pro Ziffer, Code erneut senden, Adresse über Schritt 1 korrigieren), Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
@@ -112,7 +112,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 
 1. **DKIM** bei dogado aktivieren bzw. den DNS-Schlüssel prüfen. Danach SPF von `?all` auf `~all` umstellen.
 2. **Vor einem öffentlichen Start:**
-   - Rechtstexte fertigstellen und prüfen lassen
+   - Datenschutzerklärung und Nutzungsbedingungen fertigstellen und prüfen lassen; Impressum prüfen
    - Basic Auth und noindex entfernen
    - Content-Security-Policy ergänzen
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen

@@ -86,6 +86,24 @@ test("Titelbild und Screenshots stehen in einem Karussell", async ({ page }) => 
   await expect(carousel.getByText("3 / 3")).toBeVisible();
 });
 
+test("Impressum zeigt die Betreiberangaben, Entwürfe bleiben gekennzeichnet", async ({ page }) => {
+  await page.goto("/de/legal/imprint");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Impressum");
+  await expect(page.getByText("omsi-modhub – Tobias Schmidt")).toBeVisible();
+  await expect(page.getByRole("link", { name: "kontakt@omsi-modhub.de" })).toHaveAttribute(
+    "href",
+    "mailto:kontakt@omsi-modhub.de",
+  );
+  await expect(page.getByRole("link", { name: "Kontaktformular bei Online-Impressum.de" })).toHaveAttribute(
+    "href",
+    "https://mein.online-impressum.de/omsi-modhub/",
+  );
+  await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
+
+  await page.goto("/de/legal/privacy");
+  await expect(page.getByText("Entwurf", { exact: false }).first()).toBeVisible();
+});
+
 test("Fallback-Hinweis bei fehlender Übersetzung", async ({ page }) => {
   await page.goto("/de/mods/midibus-citylink");
   await expect(page.getByText("keine deutsche Beschreibung")).toBeVisible();

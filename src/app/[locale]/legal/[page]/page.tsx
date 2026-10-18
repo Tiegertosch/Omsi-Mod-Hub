@@ -11,6 +11,13 @@ import { LEGAL_PAGES } from "@/server/route-existence";
 
 type LegalPage = (typeof LEGAL_PAGES)[number];
 
+/**
+ * Seiten mit ungeprüften Vorlagentexten: mit Hinweis „Entwurf“ und nicht
+ * indexiert. Das Impressum enthält die echten Angaben des Betreibers
+ * (übernommen von online-impressum.de).
+ */
+const DRAFT_PAGES: ReadonlySet<LegalPage> = new Set(["privacy", "terms"]);
+
 type Props = PageProps<"/[locale]/legal/[page]">;
 
 function isLegalPage(value: string): value is LegalPage {
@@ -29,11 +36,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: t(`${page}.title`),
     alternates: localizedAlternates(locale, `/legal/${page}`),
     // Entwürfe nicht indexieren, bis die Inhalte geprüft sind.
-    robots: { index: false, follow: true },
+    robots: DRAFT_PAGES.has(page) ? { index: false, follow: true } : undefined,
   };
 }
 
-type LegalSection = { heading: string; body: string };
+type LegalLink = { label: string; href: string };
+type LegalSection = { heading: string; body: string; links?: LegalLink[] };
+
+/** Links stammen aus den eigenen Übersetzungsdateien; trotzdem nur mailto: und https: zulassen. */
+const isAllowedHref = (href: string) => href.startsWith("mailto:") || href.startsWith("https://");
 
 /** Liest `params` hinter <Suspense>, damit die Navigation sofort die Seitenhülle zeigt. */
 async function LegalContent({ params }: Pick<Props, "params">) {
@@ -45,14 +56,33 @@ async function LegalContent({ params }: Pick<Props, "params">) {
   return (
     <>
       <h1 className="text-3xl font-bold tracking-tight text-fg sm:text-4xl">{t(`${page}.title`)}</h1>
-      <Notice title={t("draftTitle")} className="mt-6">
-        {t("draftText")}
-      </Notice>
+      {DRAFT_PAGES.has(page) ? (
+        <Notice title={t("draftTitle")} className="mt-6">
+          {t("draftText")}
+        </Notice>
+      ) : null}
       <div className="mt-10 space-y-8">
         {sections.map((section) => (
           <section key={section.heading}>
             <h2 className="text-xl font-semibold text-fg">{section.heading}</h2>
             <p className="mt-2 whitespace-pre-line text-fg/85">{section.body}</p>
+            {section.links?.length ? (
+              <ul className="mt-2 space-y-1">
+                {section.links
+                  .filter((link) => isAllowedHref(link.href))
+                  .map((link) => (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        {...(link.href.startsWith("https://") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                        className="font-medium text-accent hover:text-accent-hover"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+              </ul>
+            ) : null}
           </section>
         ))}
       </div>

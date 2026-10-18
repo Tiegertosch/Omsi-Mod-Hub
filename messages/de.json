@@ -196,16 +196,34 @@
       "title": "Impressum",
       "sections": [
         {
-          "heading": "Angaben zum Betreiber",
-          "body": "[Name und Anschrift des Betreibers]\n[Straße, Hausnummer]\n[PLZ, Ort, Land]"
+          "heading": "Anbieter",
+          "body": "omsi-modhub – Tobias Schmidt\nc/o Online-Impressum 11973\nEuroparing 90\n53757 Sankt Augustin\nDeutschland"
         },
         {
           "heading": "Kontakt",
-          "body": "E-Mail: [Kontaktadresse]"
+          "body": "E-Mail und zweiter Kontaktweg:",
+          "links": [
+            {
+              "label": "kontakt@omsi-modhub.de",
+              "href": "mailto:kontakt@omsi-modhub.de"
+            },
+            {
+              "label": "Kontaktformular bei Online-Impressum.de",
+              "href": "https://mein.online-impressum.de/omsi-modhub/"
+            }
+          ]
         },
         {
-          "heading": "Verantwortlich für den Inhalt",
-          "body": "[Name, Anschrift] – Angaben nach den anwendbaren Vorschriften müssen noch ergänzt werden."
+          "heading": "Post",
+          "body": "Bitte den Zusatz „c/o Online-Impressum 11973“ unbedingt mit angeben, sonst kann der Brief nicht zugeordnet werden."
+        },
+        {
+          "heading": "Zuständige Aufsichtsbehörde",
+          "body": "Niedersächsische Landesmedienanstalt"
+        },
+        {
+          "heading": "Verbraucherstreitbeilegung",
+          "body": "Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
         }
       ]
     },

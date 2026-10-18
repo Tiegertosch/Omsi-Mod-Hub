@@ -196,16 +196,34 @@
       "title": "Imprint",
       "sections": [
         {
-          "heading": "Operator",
-          "body": "[Operator name and address]\n[Street, number]\n[Postcode, city, country]"
+          "heading": "Provider",
+          "body": "omsi-modhub – Tobias Schmidt\nc/o Online-Impressum 11973\nEuroparing 90\n53757 Sankt Augustin\nGermany"
         },
         {
           "heading": "Contact",
-          "body": "Email: [contact address]"
+          "body": "Email and second contact channel:",
+          "links": [
+            {
+              "label": "kontakt@omsi-modhub.de",
+              "href": "mailto:kontakt@omsi-modhub.de"
+            },
+            {
+              "label": "Contact form at Online-Impressum.de (in German)",
+              "href": "https://mein.online-impressum.de/omsi-modhub/"
+            }
+          ]
         },
         {
-          "heading": "Responsible for content",
-          "body": "[Name, address] – information required by applicable law still has to be added."
+          "heading": "Postal mail",
+          "body": "Please always include “c/o Online-Impressum 11973” in the address, otherwise the letter cannot be assigned."
+        },
+        {
+          "heading": "Supervisory authority",
+          "body": "Niedersächsische Landesmedienanstalt (Lower Saxony State Media Authority)"
+        },
+        {
+          "heading": "Consumer dispute resolution",
+          "body": "We are neither willing nor obliged to participate in dispute resolution proceedings before a consumer arbitration board."
         }
       ]
     },
