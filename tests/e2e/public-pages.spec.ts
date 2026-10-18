@@ -105,6 +105,21 @@ test("Impressum zeigt die Betreiberangaben, Entwürfe bleiben gekennzeichnet", a
   await expect(page.getByText("Entwurf", { exact: false }).first()).toBeVisible();
 });
 
+test("Nutzungsbedingungen: deutsche Fassung als Entwurf, englische Lesefassung", async ({ page }) => {
+  await page.goto("/de/legal/terms");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Nutzungsbedingungen");
+  await expect(page.getByText("Dieser Text ist ein Entwurf und wurde noch nicht rechtlich geprüft.")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(10);
+  await expect(page.getByRole("heading", { name: "9. Haftung und externe Seiten" })).toBeVisible();
+  await expect(page.getByText("Ein Konto darfst du ab 16 Jahren anlegen.")).toBeVisible();
+
+  await page.goto("/en/legal/terms");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of use");
+  await expect(page.getByRole("heading", { name: "9. Liability and external websites" })).toBeVisible();
+  await expect(page.getByText("Only the German version is legally binding.")).toBeVisible();
+  await expect(page.getByText("This text is currently only available in German.")).toHaveCount(0);
+});
+
 test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) => {
   await page.goto("/de/legal/privacy");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Datenschutzerklärung");

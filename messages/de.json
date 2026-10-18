@@ -191,7 +191,7 @@
   },
   "Legal": {
     "draftTitle": "Entwurf – rechtlich nicht geprüft",
-    "draftText": "Diese Seite ist eine Vorlage. Die Inhalte müssen vom Betreiber ergänzt und vor dem Livegang rechtlich geprüft werden. Platzhalter sind in eckigen Klammern markiert.",
+    "draftText": "Dieser Text ist ein Entwurf und wurde noch nicht rechtlich geprüft.",
     "imprint": {
       "title": "Impressum",
       "sections": [
@@ -235,21 +235,7 @@
       "title": "Datenschutzerklärung"
     },
     "terms": {
-      "title": "Nutzungsbedingungen",
-      "sections": [
-        {
-          "heading": "Gegenstand",
-          "body": "OMSI Mod Hub ist ein Katalog, der Projekte für OMSI 2 beschreibt und auf externe Downloadquellen verweist. Es werden keine Mod-Dateien gehostet."
-        },
-        {
-          "heading": "Externe Inhalte",
-          "body": "Für Inhalte externer Seiten und Dateien sind deren Anbieter verantwortlich. [Haftungsregelungen müssen ergänzt und geprüft werden.]"
-        },
-        {
-          "heading": "Beiträge von Creatorn",
-          "body": "[Regeln für eingestellte Projekte, Rechte an Inhalten und Moderation müssen ergänzt werden.]"
-        }
-      ]
+      "title": "Nutzungsbedingungen"
     },
     "languageFallback": "Dieser Text liegt derzeit nur auf Deutsch vor."
   },
@@ -264,7 +250,7 @@
     "password": "Passwort",
     "passwordHint": "Mindestens {min} Zeichen.",
     "passwordConfirm": "Passwort wiederholen",
-    "acceptTerms": "Ich habe die <terms>Nutzungsbedingungen</terms> und den <privacy>Datenschutzhinweis</privacy> gelesen.",
+    "acceptTerms": "Ich habe die <terms>Nutzungsbedingungen</terms> und die <privacy>Datenschutzerklärung</privacy> gelesen und bin mindestens 16 Jahre alt.",
     "submitLogin": "Anmelden",
     "submitRegister": "Konto erstellen",
     "submitting": "Bitte warten …",

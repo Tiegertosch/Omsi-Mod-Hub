@@ -57,4 +57,14 @@ describe("parseLegalMarkdown", () => {
     expect(text).not.toContain("](");
     expect(text).not.toContain(" -- ");
   });
+
+  it("hat in beiden Fassungen der Nutzungsbedingungen dieselben Abschnitte", () => {
+    const headings = (locale: string) =>
+      parseLegalMarkdown(readFileSync(path.join(process.cwd(), "content", "legal", `terms.${locale}.md`), "utf8"))
+        .filter((b) => b.type === "heading")
+        .map((b) => (b.type === "heading" ? b.text.split(".")[0] : ""));
+    const de = headings("de");
+    expect(de).toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
+    expect(headings("en")).toEqual(de);
+  });
 });

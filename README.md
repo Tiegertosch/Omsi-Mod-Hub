@@ -206,7 +206,7 @@ tests/
 - **Suche:** Teilstring-Suche über eine normalisierte Suchspalte – ausreichend für das MVP, aber ohne Relevanz-Ranking und bei vielen Tausend Projekten langsam. Geplant: PostgreSQL-Volltextsuche bzw. `pg_trgm`.
 - **Linkaufrufe** werden ohne Bot-Erkennung über die User-Agent-Heuristik hinaus gezählt und sind daher eine Näherung.
 - **Nur Dark Mode**; ein helles Theme ist nicht geplant, solange es keinen Bedarf gibt.
-- **Rechtstexte:** Das Impressum enthält die Angaben aus dem Impressums-Service (online-impressum.de). Die Datenschutzerklärung stammt aus dem Generator von WBS Legal und liegt unverändert als `content/legal/privacy.de.md` (neue Fassung: Datei ersetzen; die englische Seite zeigt den deutschen Text mit Hinweis). Die Nutzungsbedingungen sind noch eine ungeprüfte Vorlage (Hinweis „Entwurf“, nicht indexiert) und dürfen so nicht live gehen.
+- **Rechtstexte:** Das Impressum enthält die Angaben aus dem Impressums-Service (online-impressum.de). Die Datenschutzerklärung stammt aus dem Generator von WBS Legal und liegt unverändert als `content/legal/privacy.de.md` (neue Fassung: Datei ersetzen; die englische Seite zeigt den deutschen Text mit Hinweis). Die Nutzungsbedingungen liegen als `content/legal/terms.de.md` (maßgeblich) und `terms.en.md` (Lesefassung) vor; sie sind noch nicht rechtlich geprüft und deshalb als „Entwurf“ gekennzeichnet und nicht indexiert. Registrierung ab 16 Jahren (Bestätigung per Checkbox).
 - Content-Security-Policy ist noch nicht gesetzt (andere Sicherheits-Header schon).
 
 ## Nächste Schritte

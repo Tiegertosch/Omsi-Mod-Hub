@@ -191,7 +191,7 @@
   },
   "Legal": {
     "draftTitle": "Draft – not legally reviewed",
-    "draftText": "This page is a template. The operator must complete the content and have it legally reviewed before launch. Placeholders are marked with square brackets.",
+    "draftText": "This text is a draft and has not yet been legally reviewed.",
     "imprint": {
       "title": "Imprint",
       "sections": [
@@ -235,21 +235,7 @@
       "title": "Privacy policy"
     },
     "terms": {
-      "title": "Terms of use",
-      "sections": [
-        {
-          "heading": "Scope",
-          "body": "OMSI Mod Hub is a catalogue that describes projects for OMSI 2 and links to external download sources. No mod files are hosted."
-        },
-        {
-          "heading": "External content",
-          "body": "The providers of external pages and files are responsible for their content. [Liability provisions must be added and reviewed.]"
-        },
-        {
-          "heading": "Creator contributions",
-          "body": "[Rules for submitted projects, rights to content and moderation must be added.]"
-        }
-      ]
+      "title": "Terms of use"
     },
     "languageFallback": "This text is currently only available in German."
   },
@@ -264,7 +250,7 @@
     "password": "Password",
     "passwordHint": "At least {min} characters.",
     "passwordConfirm": "Repeat password",
-    "acceptTerms": "I have read the <terms>terms of use</terms> and the <privacy>privacy notice</privacy>.",
+    "acceptTerms": "I have read the <terms>terms of use</terms> and the <privacy>privacy policy</privacy> and am at least 16 years old.",
     "submitLogin": "Sign in",
     "submitRegister": "Create account",
     "submitting": "Please wait …",

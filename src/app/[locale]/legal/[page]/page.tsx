@@ -16,7 +16,8 @@ type LegalPage = (typeof LEGAL_PAGES)[number];
 /**
  * Seiten mit ungeprüften Vorlagentexten: mit Hinweis „Entwurf“ und nicht
  * indexiert. Impressum (Angaben von online-impressum.de) und Datenschutz-
- * erklärung (Generator von WBS Legal, content/legal/privacy.de.md) sind echt.
+ * erklärung (Generator von WBS Legal, content/legal/privacy.de.md) sind echt;
+ * die Nutzungsbedingungen (content/legal/terms.*.md) sind noch nicht geprüft.
  */
 const DRAFT_PAGES: ReadonlySet<LegalPage> = new Set(["terms"]);
 
@@ -118,10 +119,10 @@ async function LegalContent({ params }: Pick<Props, "params">) {
       ) : null}
       {document ? (
         <LegalDocumentView blocks={document.blocks} lang={document.locale} />
-      ) : page !== "privacy" ? (
+      ) : page === "imprint" ? (
         <LegalSections sections={t.raw(`${page}.sections`) as LegalSection[]} />
       ) : (
-        // Die Datenschutzerklärung gibt es nur als Datei; fehlt sie, ist das ein Deploy-Fehler.
+        // Datenschutz und Nutzungsbedingungen gibt es nur als Datei; fehlt sie, ist das ein Deploy-Fehler.
         notFound()
       )}
     </>

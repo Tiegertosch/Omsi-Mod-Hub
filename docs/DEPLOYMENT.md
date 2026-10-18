@@ -337,7 +337,7 @@ Danach wie in Abschnitt 8 neu registrieren und die Admin-Rolle setzen, dann ein 
 
 ## Vor dem öffentlichen Start
 
-- [ ] Nutzungsbedingungen vollständig und rechtlich geprüft (im Repo noch Entwurf); Datenschutzerklärung um E-Mail-Versand (dogado) und Cookies ergänzt; Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
+- [ ] Nutzungsbedingungen rechtlich geprüft und danach `terms` aus `DRAFT_PAGES` entfernt (`src/app/[locale]/legal/[page]/page.tsx`); Datenschutzerklärung um E-Mail-Versand (dogado) und Cookies ergänzt; Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
 - [ ] Basic Auth und `X-Robots-Tag` im Caddyfile entfernen; `robots.txt` und Sitemap prüfen
 - [ ] Content-Security-Policy ergänzen
 - [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen

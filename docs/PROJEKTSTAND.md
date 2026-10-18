@@ -7,7 +7,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - Zweisprachiges (DE/EN) Katalogportal für OMSI-2-Mods. **Es werden keine Mod-Dateien gehostet**, nur externe Links. Zielgruppe ist international, die Standardsprache Englisch.
 - Fertig sind: öffentlicher Katalog, Konten (inklusive E-Mail ändern, Geräteübersicht, Konto löschen), Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
 - **Geschlossene Beta live** unter `https://beta.omsi-modhub.de`, hinter Basic Auth, nicht indexiert. Die Datenbank wurde dort am 17.10.2026 mit PostgreSQL neu gestartet.
-- Tests: 109 Unit-Tests (Vitest) und 45 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
+- Tests: 110 Unit-Tests (Vitest) und 46 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
 
 ## Arbeitsweise mit dem Nutzer
 
@@ -38,7 +38,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
   - Meldeformular
   - Download-Links über `/go/[linkId]` mit Klickzähler (Raw SQL, verändert `updatedAt` nicht)
   - Projektseite: Titelbild und Screenshots in einem Karussell (`src/components/mods/media-carousel.tsx`, CSS-Scroll-Snapping, ohne Bibliothek); Karten zeigen nur das Titelbild
-  - Rechtsseiten: Impressum mit den echten Angaben (Adresse über online-impressum.de, `kontakt@omsi-modhub.de`); Datenschutzerklärung aus dem WBS-Generator als Datei `content/legal/privacy.de.md` (eigener kleiner Markdown-Parser `src/lib/legal-markdown.ts`, englische Seite mit Hinweis „nur Deutsch“); Nutzungsbedingungen noch **Entwurf**. SEO, Sitemap, Dark Mode
+  - Rechtsseiten: Impressum mit den echten Angaben (Adresse über online-impressum.de, `kontakt@omsi-modhub.de`); Datenschutzerklärung aus dem WBS-Generator als Datei `content/legal/privacy.de.md` (eigener kleiner Markdown-Parser `src/lib/legal-markdown.ts`, englische Seite mit Hinweis „nur Deutsch“); Nutzungsbedingungen als `content/legal/terms.de.md`/`terms.en.md` (Regeln: Konto ab 16, fremde Projekte nur mit Erlaubnis, Payware gekennzeichnet, Haftung und Rechtswahl nach Vorgabe des Betreibers), noch als **Entwurf** gekennzeichnet bis zur Rechtsprüfung. SEO, Sitemap, Dark Mode
 - **Konten:** Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code (Seite `/confirm-email`, eine Box pro Ziffer, Code erneut senden, Adresse über Schritt 1 korrigieren), Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
@@ -112,12 +112,13 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 
 1. **DKIM** bei dogado aktivieren bzw. den DNS-Schlüssel prüfen. Danach SPF von `?all` auf `~all` umstellen.
 2. **Vor einem öffentlichen Start:**
-   - Nutzungsbedingungen fertigstellen und prüfen lassen; Datenschutzerklärung ergänzen (E-Mail-Versand über dogado, Cookies, Sitzungsdaten) und prüfen lassen
+   - Nutzungsbedingungen rechtlich prüfen lassen, danach `terms` aus `DRAFT_PAGES` entfernen; Datenschutzerklärung ergänzen (E-Mail-Versand über dogado, Cookies, Sitzungsdaten) und prüfen lassen
    - Basic Auth und noindex entfernen
    - Content-Security-Policy ergänzen
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
-3. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
-4. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
-5. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
-6. **Smoke-Skript:** Es lag nur im Scratchpad der Sitzung. Seine Klickzähler-Prüfungen erwarten noch Werte ohne Cache; bei Bedarf neu und an das Caching angepasst schreiben.
+3. **Payware kennzeichnen:** Projekte brauchen ein Merkmal „kostenpflichtig“ mit Badge (wie bei den Voraussetzungen); bis dahin verlangen die Nutzungsbedingungen die Angabe in Kurzbeschreibung und Lizenz.
+4. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
+5. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
+6. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
+7. **Smoke-Skript:** Es lag nur im Scratchpad der Sitzung. Seine Klickzähler-Prüfungen erwarten noch Werte ohne Cache; bei Bedarf neu und an das Caching angepasst schreiben.
