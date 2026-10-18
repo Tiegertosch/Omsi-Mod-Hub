@@ -38,6 +38,26 @@ export function verificationCodeEmail(user: MailUser, code: string, minutes: num
   };
 }
 
+/**
+ * Registrierung mit einer schon vergebenen Adresse: Statt eines Codes erfährt
+ * der Inhaber, dass er bereits ein Konto hat (siehe src/server/existing-account.ts).
+ */
+export function accountExistsEmail(user: MailUser & { username: string; emailVerified: boolean }): MailMessage {
+  const locale = mailLocale(user);
+  const t = translator(locale);
+  return {
+    to: user.email,
+    subject: t("accountExistsSubject"),
+    text: t("accountExistsBody", {
+      name: user.name,
+      username: user.username,
+      status: user.emailVerified ? "verified" : "unverified",
+      loginUrl: absoluteUrl(`/${locale}/login`),
+      resetUrl: absoluteUrl(`/${locale}/forgot-password`),
+    }),
+  };
+}
+
 /** Schritt 1 der E-Mail-Änderung: Bestätigung über die bisherige Adresse. */
 export function changeEmailConfirmationEmail(user: MailUser, newEmail: string, url: string): MailMessage {
   const t = translator(mailLocale(user));

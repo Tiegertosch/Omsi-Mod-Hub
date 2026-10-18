@@ -283,7 +283,10 @@ test("Nach zu vielen falschen Eingaben ist ein neuer Code nötig", async ({ page
   await expect(page).toHaveURL(/\/de\/dashboard$/);
 });
 
-test("Registrierung mit vergebener Adresse sieht gleich aus, verschickt aber keinen Code", async ({ page, browser }) => {
+test("Registrierung mit vergebener Adresse sieht gleich aus, der Inhaber bekommt einen Hinweis statt eines Codes", async ({
+  page,
+  browser,
+}) => {
   const user = uniqueUser();
   await registerAndVerify(page, user);
 
@@ -293,8 +296,22 @@ test("Registrierung mit vergebener Adresse sieht gleich aus, verschickt aber kei
   // Dashboard). Mit Puffer wurde sie bei schnellem Durchlauf mitgezählt.
   const since = Date.now();
   await register(otherPage, { ...uniqueUser(), email: user.email });
+  // Nach außen wie eine neue Registrierung – auch kein Countdown, der etwas verraten würde
   await expect(otherPage.getByText(user.email, { exact: true })).toBeVisible();
-  await expect(waitForMail(user.email, /Bestätigungscode/, since, 3_000)).rejects.toThrow();
+  await expect(otherPage.getByRole("button", { name: "Code erneut senden" })).toBeVisible();
+
+  // Der Inhaber erfährt per Mail, dass er schon ein Konto hat – ein Code geht nicht raus
+  const notice = await waitForMail(user.email, /bereits ein Konto/, since);
+  expect(notice.text).toContain(`„${user.username}“`);
+  expect(notice.text).toMatch(/\/de\/login\b/);
+  expect(notice.text).toMatch(/\/de\/forgot-password\b/);
+  await expect(waitForMail(user.email, /Bestätigungscode/, since, 2_000)).rejects.toThrow();
+
+  // Erneuter Versuch kurz danach: kein zweiter Hinweis (kein Postfach-Spam)
+  const again = Date.now();
+  await register(otherPage, { ...uniqueUser(), email: user.email });
+  await expect(otherPage.getByText(user.email, { exact: true })).toBeVisible();
+  await expect(waitForMail(user.email, /bereits ein Konto/, again, 3_000)).rejects.toThrow();
   await other.close();
 });
 

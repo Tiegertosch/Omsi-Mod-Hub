@@ -23,6 +23,7 @@ import {
   readPendingRegistration,
   rememberPendingRegistration,
 } from "@/server/pending-verification";
+import { findExistingAccount, notifyExistingAccount } from "@/server/existing-account";
 import { clientKey, consumeRateLimits, hashKey } from "@/server/rate-limit";
 import { resendRetryAt, startResendCooldown } from "@/server/resend-cooldown";
 import { changeUnverifiedEmail } from "@/server/unverified-account";
@@ -86,6 +87,16 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   if (!allowed) return { status: "error", code: "rate_limit", values };
 
   const username = parsed.data.username.toLowerCase();
+
+  // Adresse schon vergeben: gleicher Ablauf nach außen, aber statt eines Codes
+  // erhält der Inhaber eine Mail „Du hast schon ein Konto“.
+  const existing = await findExistingAccount(parsed.data.email, username);
+  if (existing) {
+    await notifyExistingAccount(existing, parsed.data.password);
+    await rememberPendingRegistration({ email: parsed.data.email, username });
+    redirect(`/${locale}/confirm-email`);
+  }
+
   try {
     await auth.api.signUpEmail({
       body: {
@@ -116,8 +127,7 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
     }
   }
 
-  // Auch bei bereits registrierter E-Mail gleicher Ablauf (Schutz vor Ausspähen);
-  // der Code geht nur an unbestätigte Konten (siehe src/lib/auth.ts).
+  // Der Code geht nur an unbestätigte Konten (siehe src/lib/auth.ts).
   await sendVerificationCode(parsed.data.email);
   await rememberPendingRegistration({ email: parsed.data.email, username });
   redirect(`/${locale}/confirm-email`);

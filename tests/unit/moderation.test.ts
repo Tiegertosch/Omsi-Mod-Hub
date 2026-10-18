@@ -181,3 +181,23 @@ describe("Benachrichtigung über Moderationsentscheidungen", () => {
     expect(english.text).toMatch(/\/en\/dashboard\/projects\/p1\/edit/);
   });
 });
+
+describe("Hinweis bei Registrierung mit vergebener Adresse", () => {
+  it("nennt den Benutzernamen und verlinkt Anmeldung und Passwort-Reset in der Sprache des Kontos", async () => {
+    const { accountExistsEmail } = await import("@/server/emails");
+    const user = { email: "c@example.com", name: "Chris", username: "chris", emailVerified: true, preferredLocale: "de" };
+
+    const mail = accountExistsEmail(user);
+    expect(mail.to).toBe("c@example.com");
+    expect(mail.subject).toBe("Du hast bereits ein Konto bei OMSI Mod Hub");
+    expect(mail.text).toContain("„chris“");
+    expect(mail.text).toMatch(/\/de\/login\b/);
+    expect(mail.text).toMatch(/\/de\/forgot-password\b/);
+    expect(mail.text).not.toContain("noch nicht bestätigt");
+
+    const unverified = accountExistsEmail({ ...user, emailVerified: false, preferredLocale: "en" });
+    expect(unverified.subject).toBe("You already have an account at OMSI Mod Hub");
+    expect(unverified.text).toContain("has not been confirmed yet");
+    expect(unverified.text).toMatch(/\/en\/login\b/);
+  });
+});
