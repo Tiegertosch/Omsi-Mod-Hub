@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { TERMS_VERSION } from "@/lib/legal";
 import { parseInline, parseLegalMarkdown } from "@/lib/legal-markdown";
 
 describe("parseLegalMarkdown", () => {
@@ -66,5 +67,16 @@ describe("parseLegalMarkdown", () => {
     const de = headings("de");
     expect(de).toEqual(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
     expect(headings("en")).toEqual(de);
+  });
+
+  it("nennt in beiden Fassungen den Stand, der zu TERMS_VERSION passt", () => {
+    const [year, month, day] = TERMS_VERSION.split("-").map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    const format = (locale: string) =>
+      new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
+    const read = (locale: string) =>
+      readFileSync(path.join(process.cwd(), "content", "legal", `terms.${locale}.md`), "utf8");
+    expect(read("de")).toContain(`Stand: ${format("de-DE")}`);
+    expect(read("en")).toContain(`Last updated: ${format("en-GB")}`);
   });
 });

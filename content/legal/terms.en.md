@@ -1,5 +1,7 @@
 # Terms of use
 
+Last updated: 18 October 2026
+
 **This English version is provided for your convenience. Only the German version is legally binding.**
 
 These terms of use set out what you may and may not do on OMSI Mod Hub. By registering, you accept them.
@@ -34,7 +36,7 @@ Displayed visit counts for download pages are approximate.
 
 • Keep your login details secret. If you suspect someone else has access, change your password and sign out other devices under “Signed-in devices”.
 
-• You can delete your account at any time in the settings. This also deletes your creator profile, your projects and their images.
+• You can delete your account at any time in the settings. This also deletes your creator profile, your projects and their images. Reports you submitted about other people's projects are kept without any link to your account so that they can still be processed. OMSI Mod Hub currently has no comments or ratings.
 
 ## 4. Adding projects
 
@@ -48,7 +50,9 @@ As a creator you can add projects. The following applies:
 
 • You clearly label paid projects (payware) as paid, for example in the summary and the licence, and only link to official sales pages. Cracks, keys and ways to bypass a purchase are prohibited.
 
-• Linked files must not contain malware or hidden functions.
+• You must not submit projects or download links that you know contain malware or serve to secretly spy on or harm users. Your responsibility for the lawfulness of the submitted content and the necessary rights of use remains unaffected.
+
+• We cannot guarantee the security of external files. A technical or content review only takes place where we expressly state so.
 
 • You only use images you created yourself or have the right to use.
 
@@ -56,13 +60,19 @@ As a creator you can add projects. The following applies:
 
 ## 5. Rights to content
 
-The rights to texts, images and projects remain with you or the author.
+You retain your rights to the content you submit. You grant us a simple, non-exclusive, royalty-free right to store, reproduce, make publicly available and display your submitted texts and images on OMSI Mod Hub to the extent necessary. This includes in particular project pages, search results, creator profiles and previews, as well as technically necessary adjustments such as resizing and format conversion.
 
-You allow us, free of charge, to display the texts and images you submit on OMSI Mod Hub and to adapt them technically for this purpose, for example by resizing them or converting them to another image format. This permission applies as long as the content is published and ends when you delete it or your account.
+This use is limited to operating and presenting OMSI Mod Hub. The right of use generally ends when the content concerned is removed, unless statutory retention obligations or other legally permissible reasons require further storage.
+
+You confirm that you hold the rights necessary for this use. This right of use does not replace the author's permission if you submit other people's images or projects (see section 4).
 
 ## 6. What is not allowed
 
 • unlawful, offensive, discriminatory, pornographic or violence-glorifying content
+
+• content that infringes the rights of third parties, for example copyright, trademark or personality rights
+
+• publishing other people's personal data without a legal basis
 
 • spam and advertising unrelated to the respective project, and deceiving other users
 
@@ -74,13 +84,19 @@ You allow us, free of charge, to display the texts and images you submit on OMSI
 
 ## 7. Reports
 
-Anyone can report projects, even without an account, for example because of a broken link, suspected malware, a copyright infringement, incorrect information, inappropriate content or spam. We review reports but cannot promise a processing time.
+Anyone can report projects using “Report a problem” on the project page, even without an account, for example because of a broken link, suspected malware, a copyright infringement, incorrect information, inappropriate content or spam.
+
+Reports should, where possible, identify the project page or content concerned, describe the problem and include any further information that makes a review possible.
+
+We review incoming reports in accordance with the applicable legal requirements. Where reports are substantiated, we may temporarily hide content, block links or take other appropriate measures.
 
 ## 8. Moderation and bans
 
 We may reject submitted projects and hide published projects. The creator receives a reason by email.
 
 In the event of violations of these terms, we may ban accounts temporarily or permanently. A ban ends all sessions; the account's projects may be hidden.
+
+Moderation measures are taken on the basis of these terms of use and the applicable legal requirements. Where required by law, we inform affected users of the decision and its main reasons, as well as of any available means of complaint.
 
 There is no entitlement to the publication of a project.
 
@@ -100,7 +116,9 @@ The statutory obligations and the liability of the platform operator for its own
 
 You can delete your account at any time. In the event of violations of these terms, we may ban or delete accounts.
 
-We will announce changes to these terms of use in advance on the website or by email.
+Users will be informed of changes to these terms of use in an appropriate manner. Where changes require consent, they only become binding once consent has been validly given. Otherwise, changes are only made within the framework of the statutory requirements.
+
+Where necessary, we will inform users in good time about significant changes and point out when they take effect.
 
 Contact details can be found in the imprint.
 

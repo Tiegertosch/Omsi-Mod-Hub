@@ -203,6 +203,7 @@ test("Geschützte Better-Auth-Endpunkte sind über HTTP gesperrt", async ({ page
     "/api/auth/change-email",
     "/api/auth/update-user",
     "/api/auth/delete-user",
+    "/api/auth/sign-up/email",
     "/api/auth/send-verification-email",
     "/api/auth/email-otp/send-verification-otp",
     "/api/auth/email-otp/verify-email",

@@ -7,7 +7,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - Zweisprachiges (DE/EN) Katalogportal für OMSI-2-Mods. **Es werden keine Mod-Dateien gehostet**, nur externe Links. Zielgruppe ist international, die Standardsprache Englisch.
 - Fertig sind: öffentlicher Katalog, Konten (inklusive E-Mail ändern, Geräteübersicht, Konto löschen), Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
 - **Geschlossene Beta live** unter `https://beta.omsi-modhub.de`, hinter Basic Auth, nicht indexiert. Die Datenbank wurde dort am 17.10.2026 mit PostgreSQL neu gestartet.
-- Tests: 110 Unit-Tests (Vitest) und 46 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
+- Tests: 111 Unit-Tests (Vitest) und 46 E2E-Tests (Playwright) sind grün, lokal gegen PostgreSQL 18.
 
 ## Arbeitsweise mit dem Nutzer
 
@@ -65,7 +65,8 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - **Echter 404:** Der Proxy prüft Projekte, Kategorien, Creator und Rechtsseiten vor dem Rendern (`src/server/route-existence.ts`). `ensureStatic` scheidet aus, weil Session-Header und `searchParams` das verhindern.
 - **`getCurrentUser()`** ruft vor Better Auth `connection()` auf, sonst kommt es beim Runtime-Prefetch zum Fehler „blocking-prerender-current-time“. `cookies()` wird *vor* `connection()` gelesen.
 - **Direkte `auth.api`-Aufrufe** umgehen Rate-Limit und Origin-Prüfung von Better Auth. Deshalb haben die Server Actions eigene Limits (`src/server/rate-limit.ts`, Präfix `app:`).
-- **Über HTTP gesperrt** (`disabledPaths` in `src/lib/auth.ts`): `/change-email`, `/update-user`, `/list-sessions`, `/send-verification-email` und alle `emailOTP`-Endpunkte. Sie laufen nur über Server Actions mit Passwortabfrage und Validierung. Wer eine neue Oberfläche baut, die Better Auth direkt aus dem Browser nutzt, muss das berücksichtigen.
+- **Zustimmung zu den Nutzungsbedingungen:** Der Hook `databaseHooks.user.create.before` speichert `User.termsVersion` (= `TERMS_VERSION` in `src/lib/legal.ts`) und `termsAcceptedAt`. Bei jeder Änderung der Bedingungen `TERMS_VERSION` und die Zeile „Stand“ in `content/legal/terms.*.md` anpassen (Unit-Test prüft beides). Eine erneute Zustimmung bestehender Nutzer gibt es noch nicht.
+- **Über HTTP gesperrt** (`disabledPaths` in `src/lib/auth.ts`): `/sign-up/email`, `/change-email`, `/update-user`, `/list-sessions`, `/send-verification-email` und alle `emailOTP`-Endpunkte. Sie laufen nur über Server Actions mit Passwortabfrage und Validierung. Wer eine neue Oberfläche baut, die Better Auth direkt aus dem Browser nutzt, muss das berücksichtigen.
 - **PostgreSQL:** `contains` unterscheidet Groß- und Kleinschreibung; für Anzeigename und Name wird `mode: "insensitive"` verwendet. Enums sind native PostgreSQL-Typen. Die SQLite-Migrationen wurden durch eine neue Initial-Migration ersetzt.
 - **pnpm:**
   - `minimumReleaseAge` ist aktiv; frische Pakete brauchen eine Ausnahme in `pnpm-workspace.yaml`.
@@ -117,8 +118,9 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
    - Content-Security-Policy ergänzen
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
-3. **Payware kennzeichnen:** Projekte brauchen ein Merkmal „kostenpflichtig“ mit Badge (wie bei den Voraussetzungen); bis dahin verlangen die Nutzungsbedingungen die Angabe in Kurzbeschreibung und Lizenz.
-4. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
-5. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
-6. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
-7. **Smoke-Skript:** Es lag nur im Scratchpad der Sitzung. Seine Klickzähler-Prüfungen erwarten noch Werte ohne Cache; bei Bedarf neu und an das Caching angepasst schreiben.
+3. **Rechtliche Restpunkte aus der WBS-Plausibilitätsprüfung (18.10.2026):** anwaltlich klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Technisch fehlt dafür noch: E-Mail an gesperrte Nutzer mit Begründung, ein Beschwerdeweg gegen Moderationsentscheidungen, Linkstatus „gesperrt“ im Adminbereich setzen.
+4. **Payware kennzeichnen:** Projekte brauchen ein Merkmal „kostenpflichtig“ mit Badge (wie bei den Voraussetzungen); bis dahin verlangen die Nutzungsbedingungen die Angabe in Kurzbeschreibung und Lizenz.
+5. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
+6. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
+7. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
+8. **Smoke-Skript:** Es lag nur im Scratchpad der Sitzung. Seine Klickzähler-Prüfungen erwarten noch Werte ohne Cache; bei Bedarf neu und an das Caching angepasst schreiben.

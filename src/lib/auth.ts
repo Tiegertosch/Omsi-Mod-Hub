@@ -27,6 +27,7 @@ import {
   VERIFICATION_CODE_MINUTES,
 } from "./auth-rules";
 import { db } from "./db";
+import { TERMS_VERSION } from "./legal";
 import { siteConfig } from "./site";
 
 /**
@@ -102,6 +103,8 @@ export const auth = betterAuth({
     additionalFields: {
       preferredLocale: { type: "string", required: false, input: true },
       isSample: { type: "boolean", required: false, input: false, defaultValue: false },
+      termsVersion: { type: "string", required: false, input: false },
+      termsAcceptedAt: { type: "date", required: false, input: false },
     },
   },
   session: {
@@ -117,6 +120,8 @@ export const auth = betterAuth({
     "/change-email",
     "/update-user",
     "/list-sessions",
+    // Registrierung nur über das Formular: Dort ist die Zustimmung zu den Nutzungsbedingungen Pflicht.
+    "/sign-up/email",
     "/send-verification-email",
     "/email-otp/send-verification-otp",
     "/email-otp/check-verification-otp",
@@ -137,7 +142,6 @@ export const auth = betterAuth({
     customRules: {
       "/sign-in/email": RATE_LIMIT_STRICT,
       "/sign-in/username": RATE_LIMIT_STRICT,
-      "/sign-up/email": { window: 60 * 60, max: 5 },
       "/request-password-reset": { window: 60 * 60, max: 3 },
       "/reset-password": RATE_LIMIT_STRICT,
       "/change-password": RATE_LIMIT_STRICT,
@@ -151,6 +155,9 @@ export const auth = betterAuth({
           if (typeof user.username !== "string" || user.username.length === 0) {
             throw new APIError("BAD_REQUEST", { message: "USERNAME_REQUIRED" });
           }
+          // Konten entstehen nur über registerAction (Checkbox ist Pflicht, die
+          // HTTP-Registrierung ist gesperrt) – deshalb hier die Zustimmung festhalten.
+          return { data: { ...user, termsVersion: TERMS_VERSION, termsAcceptedAt: new Date() } };
         },
       },
     },
