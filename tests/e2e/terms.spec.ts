@@ -98,6 +98,8 @@ test("Serverseitige Sperre: ohne Zustimmung keine Änderungen, auch wenn das Pop
 
   // Creator werden ist ebenfalls gesperrt.
   await page.goto("/de/dashboard/projects");
+  // Erst nach der Hydration entfernen (das Popup öffnet sich per Effect), sonst bricht React die Seite ab.
+  await expect(dialog).toBeVisible();
   await page.evaluate(() => document.querySelector("dialog")?.remove());
   await page.getByLabel("Öffentlicher Name").fill("Umgangene Werkstatt");
   await page.getByRole("button", { name: "Creator-Profil anlegen" }).click();

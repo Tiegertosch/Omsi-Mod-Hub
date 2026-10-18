@@ -30,7 +30,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
 | Konto: E-Mail-Adresse ändern (Bestätigung über alte und neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto mit allen Projekten löschen | ✅ |
 | Rollen `user` / `creator` / `admin`, serverseitig geprüft; Adminübersicht (Kennzahlen, Meldungen, neue Konten) | ✅ |
-| Creator werden (Creator-Profil), Projektliste, Editor: Texte DE/EN, Kategorie, Tags, Lizenz, Mitwirkende | ✅ |
+| Creator werden (Creator-Profil), Projektliste, Editor in Tabs: Texte DE/EN, Kategorie, Tags, Lizenz, Add-ons, Mitwirkende, Bilder, Downloads | ✅ |
 | Titelbild und Screenshots: sicherer Upload (Signaturprüfung, ≤ 5 MB, Neukodierung zu WebP ohne Metadaten); auf der Projektseite gemeinsam in einem Karussell (Wischen, Pfeile, Vorschaubilder), Vorschaukarten zeigen nur das Titelbild | ✅ |
 | Versionen mit Changelog und mehreren externen Downloadlinks | ✅ |
 | Status: Entwurf → Einreichen → Freigabe/Zurückweisung (mit Begründung), Zurückziehen, Archivieren; Vorschau | ✅ |

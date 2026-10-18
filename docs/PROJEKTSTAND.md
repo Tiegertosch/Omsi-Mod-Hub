@@ -42,6 +42,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
 - **Konten:** Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code (Seite `/confirm-email`, eine Box pro Ziffer, Code erneut senden, Adresse über Schritt 1 korrigieren), Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
+  - Editor in Tabs: Allgemein (inkl. Tags), Beschreibung, Add-ons & Mitwirkende, Bilder, Downloads. Neue Projekte zeigen nur die ersten drei und landen nach dem Anlegen im Tab Bilder. Fehlerhafte Tabs werden markiert und geöffnet, offene Checklistenpunkte führen zum passenden Tab, der Tab steht im Anker der Adresse (`#media`).
   - Titelbild und Screenshots, Versionen mit Links
   - Voraussetzungen & benötigte Add-ons als Liste (`ProjectRequirement`: Name, optionaler Link, `FREEWARE`/`PAYWARE`); das frühere Freitextfeld ist mit der Migration `project_requirements` entfallen. Namen fließen in die Suchspalte ein.
   - Statusablauf DRAFT → PENDING_REVIEW → PUBLISHED/REJECTED, dazu ARCHIVED; HIDDEN setzt nur die Moderation

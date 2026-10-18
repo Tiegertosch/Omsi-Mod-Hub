@@ -598,6 +598,15 @@
     "newIntro": "Fülle zuerst die Grunddaten aus. Bilder, Versionen und Downloadlinks ergänzt du im nächsten Schritt.",
     "editTitle": "Projekt bearbeiten",
     "backToList": "Zurück zu meinen Projekten",
+    "tabsLabel": "Bereiche des Projekts",
+    "tabHasErrors": "(enthält Fehler)",
+    "tabs": {
+      "general": "Allgemein",
+      "texts": "Beschreibung",
+      "extras": "Add-ons & Mitwirkende",
+      "media": "Bilder",
+      "versions": "Downloads"
+    },
     "sections": {
       "general": "Allgemein",
       "texts": "Beschreibung",

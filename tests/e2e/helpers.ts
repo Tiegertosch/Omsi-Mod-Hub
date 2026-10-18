@@ -116,15 +116,30 @@ export async function becomeCreator(page: Page, displayName: string) {
 }
 
 /** Legt ein Projekt mit Titelbild und Version an; liefert ID und Slug. */
+/** Öffnet einen Tab des Projekt-Editors (der Name kann einen Fehlerhinweis tragen). */
+export async function openEditorTab(page: Page, name: string) {
+  const tab = page.getByRole("tablist", { name: "Bereiche des Projekts" }).getByRole("tab", { name: new RegExp(`^${name}`) });
+  await tab.click();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+}
+
+/** Deutsche Texte im Tab „Beschreibung“ (innerer Sprach-Tab). */
+export function germanTexts(page: Page) {
+  return page.getByRole("tabpanel", { name: "Deutsch" });
+}
+
 export async function createSubmittableProject(page: Page, title: string) {
   await page.goto("/de/dashboard/projects/new");
   await page.getByLabel(/^Kategorie/).selectOption({ label: "Busse & Fahrzeuge" });
   await page.getByLabel(/^Lizenz/).fill("Private Nutzung erlaubt");
-  await page.getByRole("tabpanel").getByLabel("Titel", { exact: true }).fill(title);
-  await page.getByRole("tabpanel").getByLabel("Kurzbeschreibung").fill("Ein Testbus aus dem E2E-Test.");
-  await page.getByRole("tabpanel").getByLabel("Beschreibung", { exact: true }).fill("Ausführliche Beschreibung.\n\nZweiter Absatz.");
+  await openEditorTab(page, "Beschreibung");
+  await germanTexts(page).getByLabel("Titel", { exact: true }).fill(title);
+  await germanTexts(page).getByLabel("Kurzbeschreibung").fill("Ein Testbus aus dem E2E-Test.");
+  await germanTexts(page).getByLabel("Beschreibung", { exact: true }).fill("Ausführliche Beschreibung.\n\nZweiter Absatz.");
   await page.getByRole("button", { name: "Projekt anlegen" }).click();
-  await expect(page).toHaveURL(/\/de\/dashboard\/projects\/[a-z0-9]+\/edit$/);
+  // Nach dem Anlegen geht es direkt im Tab „Bilder“ weiter.
+  await expect(page).toHaveURL(/\/de\/dashboard\/projects\/[a-z0-9]+\/edit#media$/);
+  await expect(page.getByRole("tab", { name: "Bilder" })).toHaveAttribute("aria-selected", "true");
   const id = /projects\/([a-z0-9]+)\/edit/.exec(page.url())?.[1] ?? "";
 
   await expect(page.getByRole("button", { name: "Zur Prüfung einreichen" })).toBeDisabled();
@@ -134,6 +149,10 @@ export async function createSubmittableProject(page: Page, title: string) {
   await page.getByRole("button", { name: "Titelbild hochladen" }).click();
   await expect(page.getByText("Bild gespeichert.")).toBeVisible();
 
+  // Offene Punkte der Checkliste führen zum passenden Tab.
+  await page.getByRole("link", { name: "Mindestens eine Version" }).click();
+  await expect(page.getByRole("tab", { name: "Downloads" })).toHaveAttribute("aria-selected", "true");
+  await expect(page).toHaveURL(/#versions$/);
   const newVersion = page.locator("details", { hasText: "Neue Version" });
   await newVersion.getByLabel("Versionsnummer").fill("1.0.0");
   await newVersion.getByLabel("URL").fill("https://example.com/e2e-download");

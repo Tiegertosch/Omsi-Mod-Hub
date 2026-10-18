@@ -598,6 +598,15 @@
     "newIntro": "Fill in the basic information first. You will add images, versions and download links in the next step.",
     "editTitle": "Edit project",
     "backToList": "Back to my projects",
+    "tabsLabel": "Project sections",
+    "tabHasErrors": "(contains errors)",
+    "tabs": {
+      "general": "General",
+      "texts": "Description",
+      "extras": "Add-ons & contributors",
+      "media": "Images",
+      "versions": "Downloads"
+    },
     "sections": {
       "general": "General",
       "texts": "Description",

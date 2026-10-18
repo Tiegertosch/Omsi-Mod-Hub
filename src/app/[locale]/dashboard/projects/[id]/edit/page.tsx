@@ -7,6 +7,7 @@ import { locale as rootLocale } from "next/root-params";
 import { Suspense, type ReactNode } from "react";
 
 import { FormSkeleton } from "@/components/auth/auth-shell";
+import { EditorTabList, EditorTabPanel, EditorTabs } from "@/components/editor/editor-tabs";
 import { MediaManager } from "@/components/editor/media-manager";
 import { ProjectForm } from "@/components/editor/project-form";
 import { StatusPanel } from "@/components/editor/status-panel";
@@ -15,6 +16,7 @@ import { buttonStyles } from "@/components/ui/button";
 import { Notice } from "@/components/ui/state";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
+import { EDITOR_TABS } from "@/lib/editor-tabs";
 import { isSafeImageSrc } from "@/lib/external-url";
 import { isReviewRequired } from "@/lib/project-rules";
 import { availableCreatorActions, isEditableByCreator, publishChecklist } from "@/lib/project-status";
@@ -93,74 +95,81 @@ async function EditorContent({ params }: Pick<Props, "params">) {
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="min-w-0 space-y-6">
-          {!editable ? <Notice>{t("lockedNotice")}</Notice> : null}
-          {editable && project.status === "PUBLISHED" ? <Notice tone="info">{t("publishedEditNotice")}</Notice> : null}
+      <EditorTabs tabs={EDITOR_TABS}>
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="min-w-0 space-y-6">
+            {!editable ? <Notice>{t("lockedNotice")}</Notice> : null}
+            {editable && project.status === "PUBLISHED" ? <Notice tone="info">{t("publishedEditNotice")}</Notice> : null}
 
-          {editable ? (
-            <>
-              <ProjectForm
-                options={options}
-                values={{
-                  projectId: project.id,
-                  categoryId: project.categoryId,
-                  defaultLocale,
-                  slug: project.slug,
-                  slugLocked: project.publishedAt !== null,
-                  license: project.license,
-                  sourceUrl: project.sourceUrl ?? "",
-                  gameCompatibility: project.gameCompatibility ?? "",
-                  translations,
-                  tags: project.tags.map(({ tag }) => tag.slug),
-                  contributors: project.contributors.map((c) => ({ name: c.name, role: c.role ?? "" })),
-                  requirements: project.requirements.map((r) => ({ name: r.name, url: r.url ?? "", pricing: r.pricing })),
-                }}
-              />
-              <Panel id="section-media" title={t("sections.media")}>
-                <MediaManager
-                  projectId={project.id}
-                  cover={
-                    isSafeImageSrc(project.coverImageUrl)
-                      ? { url: project.coverImageUrl, alt: project.coverImageAlt ?? title }
-                      : null
-                  }
-                  screenshots={project.screenshots
-                    .filter((s) => isSafeImageSrc(s.imageUrl))
-                    .map((s) => ({ id: s.id, url: s.imageUrl, alt: s.altText }))}
+            {editable ? (
+              <>
+                <EditorTabList label={t("tabsLabel")} />
+                <ProjectForm
+                  options={options}
+                  values={{
+                    projectId: project.id,
+                    categoryId: project.categoryId,
+                    defaultLocale,
+                    slug: project.slug,
+                    slugLocked: project.publishedAt !== null,
+                    license: project.license,
+                    sourceUrl: project.sourceUrl ?? "",
+                    gameCompatibility: project.gameCompatibility ?? "",
+                    translations,
+                    tags: project.tags.map(({ tag }) => tag.slug),
+                    contributors: project.contributors.map((c) => ({ name: c.name, role: c.role ?? "" })),
+                    requirements: project.requirements.map((r) => ({ name: r.name, url: r.url ?? "", pricing: r.pricing })),
+                  }}
                 />
-              </Panel>
-              <Panel id="section-versions" title={t("sections.versions")}>
-                <VersionManager
-                  projectId={project.id}
-                  versions={project.versions.map((v) => ({
-                    id: v.id,
-                    version: v.version,
-                    changelog: v.changelog ?? "",
-                    releasedAt: v.releasedAt,
-                    links: v.links.map((l) => ({ id: l.id, url: l.url, label: l.label ?? "", sourceType: l.sourceType })),
-                  }))}
-                />
-              </Panel>
-            </>
-          ) : null}
-        </div>
-
-        <aside className="order-first xl:order-none">
-          <div className="xl:sticky xl:top-24">
-            <Panel id="section-status" title={t("sections.status")}>
-              <StatusPanel
-                projectId={project.id}
-                status={project.status}
-                moderationNote={project.moderationNote}
-                checklist={checklist.items}
-                actions={availableCreatorActions(project.status, { reviewRequired })}
-                reviewRequired={reviewRequired}
-              />
-            </Panel>
+                <EditorTabPanel tab="media">
+                  <Panel id="section-media" title={t("sections.media")}>
+                    <MediaManager
+                      projectId={project.id}
+                      cover={
+                        isSafeImageSrc(project.coverImageUrl)
+                          ? { url: project.coverImageUrl, alt: project.coverImageAlt ?? title }
+                          : null
+                      }
+                      screenshots={project.screenshots
+                        .filter((s) => isSafeImageSrc(s.imageUrl))
+                        .map((s) => ({ id: s.id, url: s.imageUrl, alt: s.altText }))}
+                    />
+                  </Panel>
+                </EditorTabPanel>
+                <EditorTabPanel tab="versions">
+                  <Panel id="section-versions" title={t("sections.versions")}>
+                    <VersionManager
+                      projectId={project.id}
+                      versions={project.versions.map((v) => ({
+                        id: v.id,
+                        version: v.version,
+                        changelog: v.changelog ?? "",
+                        releasedAt: v.releasedAt,
+                        links: v.links.map((l) => ({ id: l.id, url: l.url, label: l.label ?? "", sourceType: l.sourceType })),
+                      }))}
+                    />
+                  </Panel>
+                </EditorTabPanel>
+              </>
+            ) : null}
           </div>
-        </aside>
-      </div>
+
+          <aside className="order-first xl:order-none">
+            <div className="xl:sticky xl:top-24">
+              <Panel id="section-status" title={t("sections.status")}>
+                <StatusPanel
+                  projectId={project.id}
+                  status={project.status}
+                  moderationNote={project.moderationNote}
+                  checklist={checklist.items}
+                  actions={availableCreatorActions(project.status, { reviewRequired })}
+                  reviewRequired={reviewRequired}
+                />
+              </Panel>
+            </div>
+          </aside>
+        </div>
+      </EditorTabs>
     </>
   );
 }

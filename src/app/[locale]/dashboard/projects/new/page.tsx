@@ -5,10 +5,12 @@ import { locale as rootLocale } from "next/root-params";
 import { Suspense } from "react";
 
 import { FormSkeleton } from "@/components/auth/auth-shell";
+import { EditorTabList, EditorTabs } from "@/components/editor/editor-tabs";
 import { ProjectForm } from "@/components/editor/project-form";
 import { Link } from "@/i18n/navigation";
 import { hasLocale } from "next-intl";
 import { routing } from "@/i18n/routing";
+import { PROJECT_FORM_TABS } from "@/lib/editor-tabs";
 import { requireCreator } from "@/server/creator";
 import { getEditorOptions } from "@/server/data/creator-projects";
 
@@ -22,29 +24,35 @@ const emptyTranslation = { title: "", summary: "", description: "", installation
 async function NewProjectContent() {
   const locale = await rootLocale();
   await requireCreator(locale, `/${locale}/dashboard/projects/new`);
-  const options = await getEditorOptions(locale);
+  const [t, options] = await Promise.all([getTranslations("Editor"), getEditorOptions(locale)]);
   const defaultLocale = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
 
+  // Bilder und Versionen folgen nach dem Anlegen; bis dahin nur die Tabs des Formulars.
   return (
-    <ProjectForm
-      options={options}
-      values={{
-        categoryId: "",
-        defaultLocale,
-        slug: "",
-        slugLocked: false,
-        license: "",
-        sourceUrl: "",
-        gameCompatibility: "",
-        translations: Object.fromEntries(routing.locales.map((l) => [l, emptyTranslation])) as Record<
-          (typeof routing.locales)[number],
-          typeof emptyTranslation
-        >,
-        tags: [],
-        contributors: [],
-        requirements: [],
-      }}
-    />
+    <EditorTabs tabs={PROJECT_FORM_TABS}>
+      <div className="space-y-6">
+        <EditorTabList label={t("tabsLabel")} />
+        <ProjectForm
+          options={options}
+          values={{
+            categoryId: "",
+            defaultLocale,
+            slug: "",
+            slugLocked: false,
+            license: "",
+            sourceUrl: "",
+            gameCompatibility: "",
+            translations: Object.fromEntries(routing.locales.map((l) => [l, emptyTranslation])) as Record<
+              (typeof routing.locales)[number],
+              typeof emptyTranslation
+            >,
+            tags: [],
+            contributors: [],
+            requirements: [],
+          }}
+        />
+      </div>
+    </EditorTabs>
   );
 }
 

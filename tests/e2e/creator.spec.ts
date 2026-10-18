@@ -1,6 +1,15 @@
 import { expect, test } from "@playwright/test";
 
-import { adminPage, becomeCreator, createSubmittableProject, randomIp, registerAndVerify, uniqueUser } from "./helpers";
+import {
+  adminPage,
+  becomeCreator,
+  createSubmittableProject,
+  germanTexts,
+  openEditorTab,
+  randomIp,
+  registerAndVerify,
+  uniqueUser,
+} from "./helpers";
 
 test.beforeEach(async ({ context }) => {
   await context.setExtraHTTPHeaders({ "x-forwarded-for": randomIp() });
@@ -15,6 +24,7 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
   const project = await createSubmittableProject(page, title);
 
   // Gefälschte Bilddatei wird abgelehnt
+  await openEditorTab(page, "Bilder");
   await page.locator("#screenshot-upload-file").setInputFiles({
     name: "fake.png",
     mimeType: "image/png",
@@ -59,9 +69,11 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
 
   // Änderungen an veröffentlichten Projekten sind trotz Zwischenspeicherung sofort öffentlich.
   await page.goto(`/de/dashboard/projects/${project.id}/edit`);
-  await page.getByRole("tabpanel").getByLabel("Kurzbeschreibung").fill("Neue Kurzbeschreibung nach der Freigabe.");
+  await openEditorTab(page, "Beschreibung");
+  await germanTexts(page).getByLabel("Kurzbeschreibung").fill("Neue Kurzbeschreibung nach der Freigabe.");
 
   // Voraussetzungen: Freeware mit Link, Payware mit Link, eine ohne Link
+  await openEditorTab(page, "Add-ons & Mitwirkende");
   const editorRequirements = page.getByRole("region", { name: "Voraussetzungen & benötigte Add-ons" });
   for (let row = 0; row < 3; row++) {
     await editorRequirements.getByRole("button", { name: "Voraussetzung hinzufügen" }).click();
@@ -153,8 +165,8 @@ test("Fremde Projekte sind nicht erreichbar – auch nicht per manipulierter ID"
   await expect(other.getByRole("alert").filter({ hasText: "Das Projekt wurde nicht gefunden." })).toBeVisible();
 
   // Das fremde Projekt ist unverändert
-  await page.goto(`/de/dashboard/projects/${foreign.id}/edit`);
-  await expect(page.getByRole("tabpanel").getByLabel("Titel", { exact: true })).toHaveValue(/^E2E Fremd /);
+  await page.goto(`/de/dashboard/projects/${foreign.id}/edit#texts`);
+  await expect(germanTexts(page).getByLabel("Titel", { exact: true })).toHaveValue(/^E2E Fremd /);
 });
 
 test("Ohne Creator-Status gibt es keinen Editor", async ({ page }) => {
@@ -164,18 +176,37 @@ test("Ohne Creator-Status gibt es keinen Editor", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Creator werden" })).toBeVisible();
 });
 
-test("Editor validiert Pflichtfelder und behält Eingaben", async ({ page }) => {
+test("Editor validiert Pflichtfelder, zeigt Fehler in Tabs und behält Eingaben", async ({ page }) => {
   await registerAndVerify(page, uniqueUser("e2e-creator"));
   await becomeCreator(page, "E2E Validierung");
   await page.goto("/de/dashboard/projects/new");
-  await page.getByRole("tabpanel").getByLabel("Titel", { exact: true }).fill("Nur ein Titel");
+  // Ohne Bilder und Versionen: die gibt es erst nach dem Anlegen.
+  const tabs = page.getByRole("tablist", { name: "Bereiche des Projekts" }).getByRole("tab");
+  await expect(tabs).toHaveText(["Allgemein", "Beschreibung", "Add-ons & Mitwirkende"]);
+
   await page.getByLabel("Originalquelle (optional)").fill("javascript:alert(1)");
+  // Tastatur: Pfeiltaste nach rechts öffnet den nächsten Tab
+  await page.getByRole("tab", { name: "Allgemein" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("tab", { name: "Beschreibung" })).toBeFocused();
+  await expect(page).toHaveURL(/#texts$/);
+  await germanTexts(page).getByLabel("Titel", { exact: true }).fill("Nur ein Titel");
+  // Auf der englischen Fassung und in einem fehlerfreien Tab absenden
+  await page.getByRole("tab", { name: "Englisch" }).click();
+  await openEditorTab(page, "Add-ons & Mitwirkende");
   await page.getByRole("button", { name: "Projekt anlegen" }).click();
 
   await expect(page.getByRole("alert").filter({ hasText: "Bitte prüfe die markierten Felder." })).toBeVisible();
+  // Der erste Tab mit Fehlern öffnet sich, betroffene Tabs sind markiert
+  await expect(page.getByRole("tab", { name: "Allgemein (enthält Fehler)" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tab", { name: "Beschreibung (enthält Fehler)" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Add-ons & Mitwirkende", exact: true })).toBeVisible();
   await expect(page.getByText("Bitte wähle eine Kategorie.")).toBeVisible();
   await expect(page.getByText("Bitte gib eine öffentliche http(s)-Adresse ein.")).toBeVisible();
-  await expect(page.getByRole("tabpanel").getByLabel("Kurzbeschreibung")).toHaveAttribute("aria-invalid", "true");
+
+  // Im Tab „Beschreibung“ ist wieder Deutsch gewählt, weil dort die Fehler liegen
+  await openEditorTab(page, "Beschreibung");
+  await expect(germanTexts(page).getByLabel("Kurzbeschreibung")).toHaveAttribute("aria-invalid", "true");
   // Eingaben bleiben erhalten
-  await expect(page.getByRole("tabpanel").getByLabel("Titel", { exact: true })).toHaveValue("Nur ein Titel");
+  await expect(germanTexts(page).getByLabel("Titel", { exact: true })).toHaveValue("Nur ein Titel");
 });

@@ -191,7 +191,8 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
 
   if (!existing) {
     await audit(user.id, "project.create", id);
-    redirect(`/${locale}/dashboard/projects/${id}/edit`);
+    // Nächster Schritt nach dem Anlegen: Bilder, danach Versionen.
+    redirect(`/${locale}/dashboard/projects/${id}/edit#media`);
   }
   projectsChanged([slug]);
   refresh();
