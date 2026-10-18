@@ -79,3 +79,35 @@ test("Konto ohne gespeicherte Zustimmung: Ablehnen schließt das Konto nach Pass
   await login(page, user.email, user.password);
   await expect(page.getByRole("alert").filter({ hasText: "Passwort ist falsch" })).toBeVisible();
 });
+
+test("Serverseitige Sperre: ohne Zustimmung keine Änderungen, auch wenn das Popup umgangen wird", async ({ page }) => {
+  const user = uniqueUser();
+  await registerAndVerify(page, user);
+  setTermsVersion(user.email, "2000-01-01");
+
+  await page.goto("/de/dashboard/settings");
+  const dialog = page.getByRole("dialog", { name: "Neue Nutzungsbedingungen" });
+  await expect(dialog).toBeVisible();
+  // Umgehung simulieren: Popup aus der Seite entfernen.
+  await page.evaluate(() => document.querySelector("dialog")?.remove());
+
+  const profile = page.getByRole("region", { name: "Profil" });
+  await profile.getByLabel("Anzeigename").fill("Umgangen");
+  await profile.getByRole("button", { name: "Profil speichern" }).click();
+  await expect(profile.getByRole("alert")).toContainText("Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu.");
+
+  // Creator werden ist ebenfalls gesperrt.
+  await page.goto("/de/dashboard/projects");
+  await page.evaluate(() => document.querySelector("dialog")?.remove());
+  await page.getByLabel("Öffentlicher Name").fill("Umgangene Werkstatt");
+  await page.getByRole("button", { name: "Creator-Profil anlegen" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Bitte stimme zuerst" })).toBeVisible();
+
+  // Nach dem Akzeptieren klappt es.
+  await page.goto("/de/dashboard/settings");
+  await dialog.getByRole("button", { name: "Änderungen akzeptieren" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await profile.getByLabel("Anzeigename").fill("Akzeptiert");
+  await profile.getByRole("button", { name: "Profil speichern" }).click();
+  await expect(profile.getByRole("status")).toContainText("Profil gespeichert.");
+});

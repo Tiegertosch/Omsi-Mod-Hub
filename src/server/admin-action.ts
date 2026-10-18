@@ -7,7 +7,7 @@ import type { FormState } from "@/lib/form-state";
 import { isAdmin } from "@/lib/roles";
 
 import { consumeRateLimit } from "./rate-limit";
-import { getCurrentUser, type CurrentUser } from "./session";
+import { getActingUser, type CurrentUser } from "./session";
 
 export type AdminState = FormState<AdminErrorCode, AdminFieldCode>;
 
@@ -22,8 +22,10 @@ export function adminFail(code: AdminErrorCode, fieldErrors?: Record<string, Adm
  * vor versehentlichen Massenänderungen (z. B. Skripte mit gestohlener Session).
  */
 export async function adminActor(): Promise<{ ok: true; admin: CurrentUser } | { ok: false; state: AdminState }> {
-  const user = await getCurrentUser();
-  if (!user || !isAdmin(user.role)) return { ok: false, state: adminFail("unauthorized") };
+  const acting = await getActingUser();
+  if (!acting.ok) return { ok: false, state: adminFail(acting.reason) };
+  const user = acting.user;
+  if (!isAdmin(user.role)) return { ok: false, state: adminFail("unauthorized") };
   if (!(await consumeRateLimit(`admin:${user.id}`, 120, 60_000))) return { ok: false, state: adminFail("rate_limit") };
   return { ok: true, admin: user };
 }

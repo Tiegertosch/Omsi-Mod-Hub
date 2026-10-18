@@ -174,7 +174,8 @@
     "errorValidation": "Please choose a reason and check the description.",
     "errorRateLimit": "Too many reports in a short time. Please try again later.",
     "errorNotFound": "This project can no longer be reported.",
-    "errorGeneric": "The report could not be saved. Please try again."
+    "errorGeneric": "The report could not be saved. Please try again.",
+    "errorTerms": "Please accept the current terms of use first. Reload the page to see them."
   },
   "Creators": {
     "title": "Creators",
@@ -293,7 +294,8 @@
       "code_invalid": "The code is incorrect or no longer valid.",
       "code_expired": "The code has expired. Please request a new one.",
       "code_attempts": "Too many incorrect attempts. Please request a new code.",
-      "resend_cooldown": "Please wait a minute before requesting a new code."
+      "resend_cooldown": "Please wait a minute before requesting a new code.",
+      "terms_required": "Please accept the current terms of use first. Reload the page to see them."
     },
     "fieldErrors": {
       "username": "This username is not valid.",
@@ -439,7 +441,8 @@
       "forbidden_target": "This account cannot be banned.",
       "in_use": "The entry is still in use and cannot be deleted.",
       "rate_limit": "Too many changes in a short time. Please wait a moment.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "terms_required": "Please accept the current terms of use first. Reload the page to see them."
     },
     "fieldErrors": {
       "required": "This field is required.",
@@ -711,7 +714,8 @@
       "upload_failed": "The image could not be saved.",
       "too_many_screenshots": "The maximum number of screenshots has been reached.",
       "last_version": "A published project needs at least one version.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "terms_required": "Please accept the current terms of use first. Reload the page to see them."
     },
     "fieldErrors": {
       "required": "This field is required.",

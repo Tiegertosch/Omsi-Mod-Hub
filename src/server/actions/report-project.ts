@@ -5,12 +5,13 @@ import { z } from "zod";
 import { ReportReason } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
 import { clientKey, consumeRateLimit } from "@/server/rate-limit";
+import { needsTermsConsent } from "@/lib/legal";
 import { getCurrentUser } from "@/server/session";
 
 export type ReportFormState =
   | { status: "idle" }
   | { status: "success" }
-  | { status: "error"; code: "validation" | "rate_limit" | "not_found" | "generic" };
+  | { status: "error"; code: "validation" | "rate_limit" | "not_found" | "terms_required" | "generic" };
 
 const reportSchema = z.object({
   projectId: z.string().min(1).max(64),
@@ -53,7 +54,9 @@ export async function reportProject(_prev: ReportFormState, formData: FormData):
     if (!project) return { status: "error", code: "not_found" };
 
     // Angemeldete Nutzer werden als Meldende gespeichert, Gäste anonym.
+    // Gäste dürfen melden; ein angemeldetes Konto braucht die Zustimmung zu den Nutzungsbedingungen.
     const reporter = await getCurrentUser();
+    if (reporter && needsTermsConsent(reporter.termsVersion)) return { status: "error", code: "terms_required" };
     await db.report.create({
       data: {
         projectId: project.id,

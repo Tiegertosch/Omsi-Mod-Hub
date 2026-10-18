@@ -21,6 +21,7 @@ const ERROR_KEYS = {
   validation: "errorValidation",
   rate_limit: "errorRateLimit",
   not_found: "errorNotFound",
+  terms_required: "errorTerms",
   generic: "errorGeneric",
 } as const;
 

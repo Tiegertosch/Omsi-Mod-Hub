@@ -6,6 +6,7 @@ import { connection } from "next/server";
 import { cache } from "react";
 
 import { auth } from "@/lib/auth";
+import { needsTermsConsent } from "@/lib/legal";
 import { hasRole, isAdmin, type AppRole } from "@/lib/roles";
 
 /**
@@ -57,6 +58,24 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     termsVersion: user.termsVersion ?? null,
   };
 });
+
+export type ActingUser =
+  | { ok: true; user: CurrentUser }
+  | { ok: false; reason: "unauthorized" | "terms_required" };
+
+/**
+ * Serverseitige Sperre für Server Actions, die Inhalte oder Profile ändern:
+ * nur mit Zustimmung zur neuesten Fassung der Nutzungsbedingungen (das Popup
+ * allein ließe sich umgehen). Bewusst NICHT verwendet von Anmelden/Abmelden,
+ * Kontosicherheit (Passwort, E-Mail, Sitzungen), den Popup-Aktionen und dem
+ * Löschen des eigenen Kontos – die nutzen getCurrentUser().
+ */
+export async function getActingUser(): Promise<ActingUser> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, reason: "unauthorized" };
+  if (needsTermsConsent(user.termsVersion)) return { ok: false, reason: "terms_required" };
+  return { ok: true, user };
+}
 
 /** Leitet nicht angemeldete Nutzer zum Login um (mit Rücksprungziel). */
 export async function requireUser(locale: string, returnTo: string): Promise<CurrentUser> {

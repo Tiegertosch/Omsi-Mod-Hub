@@ -15,6 +15,7 @@ export type AdminErrorCode =
   | "forbidden_target"
   | "in_use"
   | "rate_limit"
+  | "terms_required"
   | "generic";
 
 export type AdminFieldCode = "required" | "tooLong" | "slug" | "slugTaken" | "icon" | "number" | "duration";

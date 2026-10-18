@@ -26,7 +26,7 @@ import { canManageProjects } from "@/server/creator";
 import { processImageUpload } from "@/server/images";
 import { rebuildSearchText } from "@/server/project-search";
 import { consumeRateLimit } from "@/server/rate-limit";
-import { getCurrentUser, type CurrentUser } from "@/server/session";
+import { getActingUser, type CurrentUser } from "@/server/session";
 import { deleteMedia, storeMedia } from "@/server/storage";
 import { projectsChanged } from "@/server/public-cache";
 
@@ -43,10 +43,11 @@ const fail = (code: EditorErrorCode, fieldErrors?: Record<string, EditorFieldCod
   fieldErrors,
 });
 
-/** Angemeldeter Nutzer mit Creator-Rechten oder null. */
-async function currentCreator(): Promise<CurrentUser | null> {
-  const user = await getCurrentUser();
-  return user && canManageProjects(user) ? user : null;
+/** Angemeldeter Nutzer mit Creator-Rechten und Zustimmung zu den Nutzungsbedingungen. */
+async function currentCreator(): Promise<{ user: CurrentUser; error?: never } | { user?: never; error: EditorErrorCode }> {
+  const acting = await getActingUser();
+  if (!acting.ok) return { error: acting.reason };
+  return canManageProjects(acting.user) ? { user: acting.user } : { error: "unauthorized" };
 }
 
 /** Lädt ein Projekt nur, wenn es dem Nutzer gehört. */
@@ -89,8 +90,8 @@ async function uniqueSlug(base: string, excludeId: string | null, reserved: Set<
 }
 
 export async function saveProjectAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
-  const user = await currentCreator();
-  if (!user) return fail("unauthorized");
+  const { user, error } = await currentCreator();
+  if (!user) return fail(error);
   if (!(await consumeRateLimit(`project-save:user:${user.id}`, 60, 10 * MINUTE))) return fail("rate_limit");
 
   const locale = z.enum(routing.locales).catch(routing.defaultLocale).parse(str(formData, "locale"));
@@ -204,8 +205,8 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
 const altSchema = z.string().trim().max(PROJECT_LIMITS.imageAlt, { message: "tooLong" });
 
 async function editableProjectForUpload(formData: FormData) {
-  const user = await currentCreator();
-  if (!user) return { ok: false, error: fail("unauthorized") } as const;
+  const { user, error } = await currentCreator();
+  if (!user) return { ok: false, error: fail(error) } as const;
   if (!(await consumeRateLimit(`upload:user:${user.id}`, 30, 10 * MINUTE))) return { ok: false, error: fail("rate_limit") } as const;
   const project = await ownProject(user, str(formData, "projectId"));
   if (!project) return { ok: false, error: fail("not_found") } as const;
@@ -285,8 +286,8 @@ export async function deleteScreenshotAction(_prev: EditorState, formData: FormD
 // ---------------------------------------------------------------------------
 
 export async function saveVersionAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
-  const user = await currentCreator();
-  if (!user) return fail("unauthorized");
+  const { user, error } = await currentCreator();
+  if (!user) return fail(error);
   if (!(await consumeRateLimit(`version-save:user:${user.id}`, 60, 10 * MINUTE))) return fail("rate_limit");
 
   const project = await ownProject(user, str(formData, "projectId"));
@@ -374,8 +375,8 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
 }
 
 export async function deleteVersionAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
-  const user = await currentCreator();
-  if (!user) return fail("unauthorized");
+  const { user, error } = await currentCreator();
+  if (!user) return fail(error);
   const project = await ownProject(user, str(formData, "projectId"));
   if (!project) return fail("not_found");
   if (!isEditableByCreator(project.status)) return fail("not_editable");
@@ -410,8 +411,8 @@ export async function deleteVersionAction(_prev: EditorState, formData: FormData
 const statusActionSchema = z.enum(["submit", "withdraw", "archive", "restore"]);
 
 export async function changeProjectStatusAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
-  const user = await currentCreator();
-  if (!user) return fail("unauthorized");
+  const { user, error } = await currentCreator();
+  if (!user) return fail(error);
   const action = statusActionSchema.safeParse(str(formData, "action"));
   if (!action.success) return fail("invalid_transition");
 

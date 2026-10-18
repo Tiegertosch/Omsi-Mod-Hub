@@ -12,15 +12,16 @@ import { isAdmin } from "@/lib/roles";
 import { pickTranslation } from "@/lib/translation";
 import { projectDecisionEmail } from "@/server/emails";
 import { sendMailInBackground } from "@/server/mail";
-import { getCurrentUser } from "@/server/session";
+import { getActingUser, type CurrentUser } from "@/server/session";
 import { projectsChanged } from "@/server/public-cache";
 
 type ReviewState = FormState<EditorErrorCode, EditorFieldCode>;
 
-/** Nur Admins; die Berechtigung wird in jeder Action erneut geprüft. */
-async function currentAdmin() {
-  const user = await getCurrentUser();
-  return user && isAdmin(user.role) ? user : null;
+/** Nur Admins mit Zustimmung zu den Nutzungsbedingungen; wird in jeder Action erneut geprüft. */
+async function currentAdmin(): Promise<{ admin: CurrentUser; error?: never } | { admin?: never; error: EditorErrorCode }> {
+  const acting = await getActingUser();
+  if (!acting.ok) return { error: acting.reason };
+  return isAdmin(acting.user.role) ? { admin: acting.user } : { error: "unauthorized" };
 }
 
 const idSchema = z.string().min(1).max(64);
@@ -30,8 +31,8 @@ const idSchema = z.string().min(1).max(64);
  * Statusübergang, Begründung, Audit-Log und Benachrichtigung des Creators.
  */
 async function moderateProject(action: AdminProjectAction, formData: FormData): Promise<ReviewState> {
-  const admin = await currentAdmin();
-  if (!admin) return { status: "error", code: "unauthorized" };
+  const { admin, error } = await currentAdmin();
+  if (!admin) return { status: "error", code: error };
   const id = idSchema.safeParse(formData.get("projectId"));
   if (!id.success) return { status: "error", code: "not_found" };
 

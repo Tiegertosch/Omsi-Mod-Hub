@@ -15,6 +15,7 @@ export type FormErrorCode =
   | "code_expired"
   | "code_attempts"
   | "resend_cooldown"
+  | "terms_required"
   | "unauthorized"
   | "generic";
 

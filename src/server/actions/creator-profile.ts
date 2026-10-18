@@ -10,7 +10,7 @@ import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { creatorProfileSchema, readCreatorProfileForm, type EditorErrorCode, type EditorFieldCode } from "@/lib/project-form";
 import { hasRole } from "@/lib/roles";
 import { consumeRateLimit } from "@/server/rate-limit";
-import { getCurrentUser } from "@/server/session";
+import { getActingUser } from "@/server/session";
 import { creatorChanged } from "@/server/public-cache";
 
 type EditorState = FormState<EditorErrorCode, EditorFieldCode>;
@@ -21,8 +21,10 @@ type EditorState = FormState<EditorErrorCode, EditorFieldCode>;
  * Auth-API, dort ist sie kein Eingabefeld) und im Audit-Log protokolliert.
  */
 export async function becomeCreatorAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
-  const user = await getCurrentUser();
-  if (!user || !user.emailVerified) return { status: "error", code: "unauthorized" };
+  const acting = await getActingUser();
+  if (!acting.ok) return { status: "error", code: acting.reason };
+  const user = acting.user;
+  if (!user.emailVerified) return { status: "error", code: "unauthorized" };
   if (!(await consumeRateLimit(`creator-profile:user:${user.id}`, 20, 10 * 60 * 1000))) {
     return { status: "error", code: "rate_limit" };
   }
@@ -58,8 +60,9 @@ export async function becomeCreatorAction(_prev: EditorState, formData: FormData
 }
 
 export async function updateCreatorProfileAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
-  const user = await getCurrentUser();
-  if (!user) return { status: "error", code: "unauthorized" };
+  const acting = await getActingUser();
+  if (!acting.ok) return { status: "error", code: acting.reason };
+  const user = acting.user;
   if (!(await consumeRateLimit(`creator-profile:user:${user.id}`, 20, 10 * 60 * 1000))) {
     return { status: "error", code: "rate_limit" };
   }

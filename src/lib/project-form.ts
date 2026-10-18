@@ -19,6 +19,7 @@ export type EditorErrorCode =
   | "upload_failed"
   | "too_many_screenshots"
   | "last_version"
+  | "terms_required"
   | "generic";
 
 export type EditorFieldCode =

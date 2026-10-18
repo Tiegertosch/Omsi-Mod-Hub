@@ -174,7 +174,8 @@
     "errorValidation": "Bitte wähle einen Grund und prüfe die Beschreibung.",
     "errorRateLimit": "Zu viele Meldungen in kurzer Zeit. Bitte versuche es später erneut.",
     "errorNotFound": "Dieses Projekt kann nicht mehr gemeldet werden.",
-    "errorGeneric": "Die Meldung konnte nicht gespeichert werden. Bitte versuche es erneut."
+    "errorGeneric": "Die Meldung konnte nicht gespeichert werden. Bitte versuche es erneut.",
+    "errorTerms": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen."
   },
   "Creators": {
     "title": "Creator",
@@ -293,7 +294,8 @@
       "code_invalid": "Der Code ist falsch oder nicht mehr gültig.",
       "code_expired": "Der Code ist abgelaufen. Fordere bitte einen neuen an.",
       "code_attempts": "Zu viele falsche Eingaben. Fordere bitte einen neuen Code an.",
-      "resend_cooldown": "Bitte warte eine Minute, bevor du einen neuen Code anforderst."
+      "resend_cooldown": "Bitte warte eine Minute, bevor du einen neuen Code anforderst.",
+      "terms_required": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen."
     },
     "fieldErrors": {
       "username": "Dieser Benutzername ist ungültig.",
@@ -439,7 +441,8 @@
       "forbidden_target": "Dieses Konto kann nicht gesperrt werden.",
       "in_use": "Der Eintrag wird noch verwendet und kann nicht gelöscht werden.",
       "rate_limit": "Zu viele Änderungen in kurzer Zeit. Bitte warte einen Moment.",
-      "generic": "Das hat nicht geklappt. Bitte versuche es erneut."
+      "generic": "Das hat nicht geklappt. Bitte versuche es erneut.",
+      "terms_required": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen."
     },
     "fieldErrors": {
       "required": "Dieses Feld ist erforderlich.",
@@ -711,7 +714,8 @@
       "upload_failed": "Das Bild konnte nicht gespeichert werden.",
       "too_many_screenshots": "Die maximale Anzahl an Screenshots ist erreicht.",
       "last_version": "Ein veröffentlichtes Projekt braucht mindestens eine Version.",
-      "generic": "Das hat nicht geklappt. Bitte versuche es erneut."
+      "generic": "Das hat nicht geklappt. Bitte versuche es erneut.",
+      "terms_required": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen."
     },
     "fieldErrors": {
       "required": "Dieses Feld ist erforderlich.",

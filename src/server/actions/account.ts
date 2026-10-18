@@ -14,7 +14,7 @@ import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { mapAuthError } from "@/server/auth-errors";
 import { deleteOwnAccount } from "@/server/own-account-deletion";
 import { consumeRateLimits } from "@/server/rate-limit";
-import { getCurrentUser } from "@/server/session";
+import { getActingUser, getCurrentUser } from "@/server/session";
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -39,8 +39,10 @@ const profileSchema = z.object({
 
 export async function updateProfileAction(_prev: FormState, formData: FormData): Promise<FormState> {
   // Jede Action prüft die Session selbst – UI-Prüfungen schützen keine Daten.
-  const user = await getCurrentUser();
-  if (!user) return { status: "error", code: "unauthorized" };
+  // Profiländerungen nur mit Zustimmung zu den Nutzungsbedingungen.
+  const acting = await getActingUser();
+  if (!acting.ok) return { status: "error", code: acting.reason };
+  const user = acting.user;
 
   const values = { name: text(formData, "name"), preferredLocale: text(formData, "preferredLocale") };
   const parsed = profileSchema.safeParse(values);
