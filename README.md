@@ -1,4 +1,8 @@
 <p align="center">
+  <a href="README.md">🇩🇪 Deutsch</a> · <a href="README.en.md">🇬🇧 English</a>
+</p>
+
+<p align="center">
   <img src="docs/images/made-with-ai.png" alt="Made with AI – dieses Projekt wurde mit KI erstellt" width="400">
 </p>
 
@@ -200,7 +204,7 @@ tests/
 - **Benachrichtigungen** werden ohne Warteschlange im Hintergrund versendet; schlägt der Versand fehl, wird das nur protokolliert (kein erneuter Versuch). An Beispielkonten wird nichts gesendet.
 - **Bildspeicher lokal:** Uploads liegen im Dateisystem (`UPLOAD_DIR`). Für mehrere Server-Instanzen oder Serverless-Hosting ist ein Objektspeicher (z. B. S3) nötig; die Schnittstelle ist in `src/server/storage.ts` gekapselt. Backups müssen dieses Verzeichnis einschließen.
 - **Reihenfolge von Screenshots** lässt sich noch nicht ändern (Upload-Reihenfolge); Bildbeschreibungen nur beim Hochladen.
-- **SMTP-Versand:** Die E2E-Tests nutzen `MAIL_TRANSPORT=file`. Den SMTP-Zugang prüft `pnpm mail:test <adresse>` (lokal gegen einen Test-SMTP-Server geprüft, noch nicht gegen einen echten Anbieter).
+- **SMTP-Versand:** Die E2E-Tests nutzen `MAIL_TRANSPORT=file`. Den SMTP-Zugang prüft `pnpm mail:test <adresse>` (auf der Beta mit einem echten SMTP-Anbieter im Einsatz).
 - **IP-basierte Rate-Limits** lesen `X-Forwarded-For`. Das ist nur hinter einem Reverse Proxy belastbar, der diesen Header setzt bzw. überschreibt; direkt im Internet ließe sich das IP-Limit umgehen. Limits pro Konto/E-Mail bleiben wirksam.
 - **Benutzernamen** sind nach der Registrierung unveränderlich (Teil der Profil-URL). Admins können ihr Konto nicht selbst löschen; die Rolle wird zuvor per CLI entzogen. Beim Löschen eines Kontos entstehen Protokolleinträge `user.self_delete` ohne Akteur; das E2E-Aufräumskript (`scripts/cleanup-e2e.ts`) entfernt sie bewusst nicht, weil sie sich nicht von echten unterscheiden lassen.
 - **Zwischenspeicherung:** Öffentliche Daten sind gecacht (Details in ARCHITECTURE.md). Listen und Katalog zeigen nach einer Änderung für eine Anfrage noch den alten Stand; Aufrufzähler sind bis zu einige Minuten alt. Änderungen direkt in der Datenbank (Seed, Prisma Studio, CLI) erscheinen erst nach Ablauf der Cache-Dauer oder nach einem Neustart. Der Cache liegt im Arbeitsspeicher – für mehrere Server-Instanzen ist ein gemeinsamer Cache-Handler nötig. `pnpm build` braucht Zugriff auf die Datenbank.
@@ -208,7 +212,7 @@ tests/
 - **Suche:** Teilstring-Suche über eine normalisierte Suchspalte – ausreichend für das MVP, aber ohne Relevanz-Ranking und bei vielen Tausend Projekten langsam. Geplant: PostgreSQL-Volltextsuche bzw. `pg_trgm`.
 - **Linkaufrufe** werden ohne Bot-Erkennung über die User-Agent-Heuristik hinaus gezählt und sind daher eine Näherung.
 - **Nur Dark Mode**; ein helles Theme ist nicht geplant, solange es keinen Bedarf gibt.
-- **Rechtstexte:** Das Impressum enthält die Angaben aus dem Impressums-Service (online-impressum.de). Die Datenschutzerklärung stammt aus dem Generator von WBS Legal und liegt unverändert als `content/legal/privacy.de.md` (neue Fassung: Datei ersetzen; die englische Seite zeigt den deutschen Text mit Hinweis). Die Nutzungsbedingungen liegen versioniert unter `content/legal/terms/<fassung>.de.md` (maßgeblich) und `.en.md` (Lesefassung); eine neue Fassung wird in `src/lib/legal.ts` eingetragen, angemeldete Nutzer müssen ihr dann per Popup zustimmen oder ihr Konto schließen. Die Bedingungen sie sind noch nicht rechtlich geprüft und deshalb als „Entwurf“ gekennzeichnet und nicht indexiert. Registrierung ab 16 Jahren (Bestätigung per Checkbox).
+- **Rechtstexte:** Das Impressum enthält die Angaben aus dem Impressums-Service (online-impressum.de). Die Datenschutzerklärung stammt aus dem Generator von WBS Legal und liegt unverändert als `content/legal/privacy.de.md` (neue Fassung: Datei ersetzen; die englische Seite zeigt den deutschen Text mit Hinweis). Die Nutzungsbedingungen liegen versioniert unter `content/legal/terms/<fassung>.de.md` (maßgeblich) und `.en.md` (Lesefassung); eine neue Fassung wird in `src/lib/legal.ts` eingetragen, angemeldete Nutzer müssen ihr dann per Popup zustimmen oder ihr Konto schließen. Die Bedingungen sind noch nicht rechtlich geprüft und deshalb als „Entwurf“ gekennzeichnet und nicht indexiert. Registrierung ab 16 Jahren (Bestätigung per Checkbox).
 - Content-Security-Policy ist noch nicht gesetzt (andere Sicherheits-Header schon).
 
 ## Nächste Schritte
@@ -227,7 +231,7 @@ Sicherheitslücken bitte **nicht** als öffentliches Issue melden, sondern wie i
 
 ## Lizenz
 
-Copyright © 2026 Tiegertosch
+Copyright © 2026 SirTiegertosch
 
 Dieses Projekt steht unter der **GNU Affero General Public License v3.0** ([LICENSE](LICENSE)). Wer den Code verändert und als Website betreibt, muss den Nutzern den geänderten Quellcode ebenfalls unter dieser Lizenz zugänglich machen.
 
