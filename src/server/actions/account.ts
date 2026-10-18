@@ -11,11 +11,8 @@ import { auth } from "@/lib/auth";
 import { DISPLAY_NAME_MAX, PASSWORD_MAX, PASSWORD_MIN } from "@/lib/auth-rules";
 import { db } from "@/lib/db";
 import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
-import { deleteUserAccount } from "@/server/account-deletion";
 import { mapAuthError } from "@/server/auth-errors";
-import { accountDeletedEmail } from "@/server/emails";
-import { sendMailInBackground } from "@/server/mail";
-import { creatorChanged, projectsChanged } from "@/server/public-cache";
+import { deleteOwnAccount } from "@/server/own-account-deletion";
 import { consumeRateLimits } from "@/server/rate-limit";
 import { getCurrentUser } from "@/server/session";
 
@@ -232,35 +229,5 @@ export async function deleteAccountAction(_prev: FormState, formData: FormData):
     return { status: "error", code: "validation", fieldErrors: { confirmUsername: "confirmUsername" } };
   }
 
-  if (!(await consumeRateLimits([{ key: `delete:user:${user.id}`, limit: 5, windowMs: 15 * MINUTE }]))) {
-    return { status: "error", code: "rate_limit" };
-  }
-
-  const requestHeaders = await headers();
-  try {
-    await auth.api.verifyPassword({ body: { password: parsed.data.password }, headers: requestHeaders });
-  } catch (error) {
-    return { status: "error", code: mapAuthError(error) };
-  }
-
-  let deleted;
-  try {
-    deleted = await deleteUserAccount(user.id);
-  } catch (error) {
-    console.error("[account] Löschen fehlgeschlagen:", error instanceof Error ? error.message : "unbekannt");
-    return { status: "error", code: "generic" };
-  }
-
-  if (deleted.projectSlugs.length > 0) projectsChanged(deleted.projectSlugs);
-  if (deleted.hadCreatorProfile) creatorChanged(user.username);
-
-  // Die Session ist mit dem Konto gelöscht; hier wird nur noch das Cookie entfernt.
-  try {
-    await auth.api.signOut({ headers: requestHeaders });
-  } catch {
-    // Ein verbliebenes Cookie verweist auf keine Session mehr.
-  }
-
-  sendMailInBackground(accountDeletedEmail(user));
-  redirect(`/${locale}/account-deleted`);
+  return deleteOwnAccount({ user, password: parsed.data.password, locale, reason: "settings" });
 }

@@ -237,7 +237,12 @@
     "terms": {
       "title": "Nutzungsbedingungen"
     },
-    "languageFallback": "Dieser Text liegt derzeit nur auf Deutsch vor."
+    "languageFallback": "Dieser Text liegt derzeit nur auf Deutsch vor.",
+    "termsUpcoming": "Ab dem {date} gilt eine neue Fassung der Nutzungsbedingungen.",
+    "termsReadUpcoming": "Neue Fassung lesen",
+    "termsShownUpcoming": "Diese Fassung gilt erst ab dem {date}.",
+    "termsShownOutdated": "Diese Fassung ist nicht mehr gültig.",
+    "termsReadCurrent": "Aktuell gültige Fassung lesen"
   },
   "Auth": {
     "loginTitle": "Anmelden",
@@ -792,5 +797,27 @@
     "genericTitle": "Etwas ist schiefgelaufen",
     "genericText": "Beim Laden dieser Seite ist ein Fehler aufgetreten. Bitte versuche es erneut.",
     "retry": "Erneut versuchen"
+  },
+  "TermsConsent": {
+    "titleChanged": "Neue Nutzungsbedingungen",
+    "titleFirst": "Bitte bestätige die Nutzungsbedingungen",
+    "introChanged": "Wir haben unsere Nutzungsbedingungen geändert. Die neue Fassung gilt verbindlich ab dem {date}. Um OMSI Mod Hub weiter mit deinem Konto zu nutzen, musst du ihr zustimmen.",
+    "introFirst": "Für OMSI Mod Hub gelten Nutzungsbedingungen, verbindlich ab dem {date}. Um die Seite weiter mit deinem Konto zu nutzen, musst du ihnen zustimmen.",
+    "changesTitle": "Die Änderungen im Überblick",
+    "readFull": "Vollständige Fassung lesen",
+    "opensInNewTab": "(öffnet in neuem Tab)",
+    "accept": "Änderungen akzeptieren",
+    "decline": "Nicht akzeptieren und Konto schließen",
+    "declineTitle": "Konto schließen",
+    "declineIntro": "Wenn du die Nutzungsbedingungen nicht akzeptierst, wird dein Konto geschlossen. Dabei wird endgültig gelöscht und geht verloren:",
+    "deleteAccount": "dein Konto „{username}“ mit E-Mail-Adresse und Passwort – der Benutzername kann danach von anderen registriert werden",
+    "deleteCreator": "dein Creator-Profil, falls vorhanden",
+    "deleteProjects": "{count, plural, =0 {keine Projekte (du hast derzeit keine)} one {dein Projekt mit allen Versionen, Downloadlinks und Bildern ({published} davon veröffentlicht)} other {deine # Projekte mit allen Versionen, Downloadlinks und Bildern ({published} davon veröffentlicht)}}",
+    "deleteSessions": "deine Anmeldungen auf allen Geräten",
+    "declineKeep": "Meldungen, die du zu Projekten anderer abgegeben hast, bleiben ohne Bezug zu deinem Konto erhalten. Das Schließen lässt sich nicht rückgängig machen; du bekommst eine Bestätigung per E-Mail.",
+    "adminNote": "Admin-Konten können nicht selbst geschlossen werden. Akzeptiere die Änderungen oder entziehe zuerst auf dem Server die Admin-Rolle (pnpm user:set-role).",
+    "password": "Passwort zur Bestätigung",
+    "declineSubmit": "Konto endgültig schließen",
+    "back": "Zurück"
   }
 }

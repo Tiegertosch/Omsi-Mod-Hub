@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { locale as rootLocale } from "next/root-params";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { Container } from "@/components/ui/container";
 import { Notice, Skeleton } from "@/components/ui/state";
+import { Link } from "@/i18n/navigation";
+import { berlinDate, findTermsVersion, termsInForce, upcomingTerms, type TermsVersion } from "@/lib/legal";
 import { type LegalBlock, type LegalInline } from "@/lib/legal-markdown";
 import { localizedAlternates } from "@/lib/metadata";
-import { getLegalDocument } from "@/server/legal-documents";
+import { getLegalDocument, getTermsDocument } from "@/server/legal-documents";
 import { LEGAL_PAGES } from "@/server/route-existence";
 
 type LegalPage = (typeof LEGAL_PAGES)[number];
@@ -17,7 +20,7 @@ type LegalPage = (typeof LEGAL_PAGES)[number];
  * Seiten mit ungeprüften Vorlagentexten: mit Hinweis „Entwurf“ und nicht
  * indexiert. Impressum (Angaben von online-impressum.de) und Datenschutz-
  * erklärung (Generator von WBS Legal, content/legal/privacy.de.md) sind echt;
- * die Nutzungsbedingungen (content/legal/terms.*.md) sind noch nicht geprüft.
+ * die Nutzungsbedingungen (content/legal/terms/<fassung>.*.md) sind noch nicht geprüft.
  */
 const DRAFT_PAGES: ReadonlySet<LegalPage> = new Set(["terms"]);
 
@@ -98,11 +101,56 @@ function LegalDocumentView({ blocks, lang }: { blocks: LegalBlock[]; lang: strin
   );
 }
 
+type TermsSelection = { shown: TermsVersion; inForce: TermsVersion; upcoming: TermsVersion | null; today: string };
+
+/** Welche Fassung der Nutzungsbedingungen angezeigt wird: die geltende oder per ?fassung=… eine andere. */
+async function selectTerms(searchParams: Props["searchParams"]): Promise<TermsSelection> {
+  const { fassung } = await searchParams;
+  // Welche Fassung gilt, hängt vom heutigen Datum ab – nicht vorab rendern.
+  await connection();
+  const now = new Date();
+  const inForce = termsInForce(now);
+  const requested = typeof fassung === "string" ? findTermsVersion(fassung) : null;
+  return { shown: requested ?? inForce, inForce, upcoming: upcomingTerms(now), today: berlinDate(now) };
+}
+
+async function TermsVersionNotice({ terms }: { terms: TermsSelection }) {
+  const [t, format] = await Promise.all([getTranslations("Legal"), getFormatter()]);
+  const date = (value: string) => format.dateTime(new Date(`${value}T12:00:00Z`), { dateStyle: "long" });
+  const link = (href: string, label: string) => (
+    <Link href={href} className="font-medium text-accent hover:text-accent-hover">
+      {label}
+    </Link>
+  );
+
+  if (terms.shown.version === terms.inForce.version) {
+    if (!terms.upcoming) return null;
+    return (
+      <Notice tone="info" className="mt-6">
+        {t("termsUpcoming", { date: date(terms.upcoming.effectiveFrom) })}{" "}
+        {link(`/legal/terms?fassung=${terms.upcoming.version}`, t("termsReadUpcoming"))}
+      </Notice>
+    );
+  }
+  return (
+    <Notice tone="info" className="mt-6">
+      {terms.shown.effectiveFrom > terms.today
+        ? t("termsShownUpcoming", { date: date(terms.shown.effectiveFrom) })
+        : t("termsShownOutdated")}{" "}
+      {link("/legal/terms", t("termsReadCurrent"))}
+    </Notice>
+  );
+}
+
 /** Liest `params` hinter <Suspense>, damit die Navigation sofort die Seitenhülle zeigt. */
-async function LegalContent({ params }: Pick<Props, "params">) {
+async function LegalContent({ params, searchParams }: Pick<Props, "params" | "searchParams">) {
   const [{ page }, locale] = await Promise.all([params, rootLocale()]);
   if (!isLegalPage(page)) notFound();
-  const [t, document] = await Promise.all([getTranslations("Legal"), getLegalDocument(page, locale)]);
+  const terms = page === "terms" ? await selectTerms(searchParams) : null;
+  const [t, document] = await Promise.all([
+    getTranslations("Legal"),
+    terms ? getTermsDocument(terms.shown.version, locale) : getLegalDocument(page, locale),
+  ]);
 
   return (
     <>
@@ -112,6 +160,7 @@ async function LegalContent({ params }: Pick<Props, "params">) {
           {t("draftText")}
         </Notice>
       ) : null}
+      {terms ? <TermsVersionNotice terms={terms} /> : null}
       {document && document.locale !== locale ? (
         <Notice tone="info" className="mt-6">
           {t("languageFallback")}
@@ -160,7 +209,7 @@ function LegalSections({ sections }: { sections: LegalSection[] }) {
   );
 }
 
-export default function LegalPageView({ params }: Props) {
+export default function LegalPageView({ params, searchParams }: Props) {
   return (
     <Container className="max-w-3xl py-12">
       <Suspense
@@ -172,7 +221,7 @@ export default function LegalPageView({ params }: Props) {
           </div>
         }
       >
-        <LegalContent params={params} />
+        <LegalContent params={params} searchParams={searchParams} />
       </Suspense>
     </Container>
   );

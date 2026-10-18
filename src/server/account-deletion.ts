@@ -4,6 +4,9 @@ import { db } from "@/lib/db";
 import { mediaKeyFromUrl } from "@/lib/image-signature";
 import { deleteMedia } from "@/server/storage";
 
+/** Anlass für das Protokoll: Einstellungen oder abgelehnte neue Nutzungsbedingungen */
+export type DeletionReason = "settings" | "terms_declined";
+
 export type DeletedAccount = {
   /** Slugs aller entfernten Projekte, für die Cache-Invalidierung */
   projectSlugs: string[];
@@ -20,7 +23,7 @@ export type DeletedAccount = {
  *
  * Prüft keine Berechtigung – das übernimmt die aufrufende Server Action.
  */
-export async function deleteUserAccount(userId: string): Promise<DeletedAccount> {
+export async function deleteUserAccount(userId: string, reason: DeletionReason = "settings"): Promise<DeletedAccount> {
   const { projects, creatorProfile } = await db.$transaction(async (tx) => {
     const [projects, creatorProfile] = await Promise.all([
       tx.project.findMany({
@@ -40,7 +43,7 @@ export async function deleteUserAccount(userId: string): Promise<DeletedAccount>
         action: "user.self_delete",
         entityType: "User",
         entityId: userId,
-        metadata: JSON.stringify({ projects: projects.length }),
+        metadata: JSON.stringify({ projects: projects.length, reason }),
       },
     });
     return { projects, creatorProfile };

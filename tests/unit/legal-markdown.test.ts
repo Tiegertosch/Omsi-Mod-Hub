@@ -61,7 +61,7 @@ describe("parseLegalMarkdown", () => {
 
   it("hat in beiden Fassungen der Nutzungsbedingungen dieselben Abschnitte", () => {
     const headings = (locale: string) =>
-      parseLegalMarkdown(readFileSync(path.join(process.cwd(), "content", "legal", `terms.${locale}.md`), "utf8"))
+      parseLegalMarkdown(readFileSync(path.join(process.cwd(), "content", "legal", "terms", `${TERMS_VERSION}.${locale}.md`), "utf8"))
         .filter((b) => b.type === "heading")
         .map((b) => (b.type === "heading" ? b.text.split(".")[0] : ""));
     const de = headings("de");
@@ -75,7 +75,7 @@ describe("parseLegalMarkdown", () => {
     const format = (locale: string) =>
       new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
     const read = (locale: string) =>
-      readFileSync(path.join(process.cwd(), "content", "legal", `terms.${locale}.md`), "utf8");
+      readFileSync(path.join(process.cwd(), "content", "legal", "terms", `${TERMS_VERSION}.${locale}.md`), "utf8");
     expect(read("de")).toContain(`Stand: ${format("de-DE")}`);
     expect(read("en")).toContain(`Last updated: ${format("en-GB")}`);
   });

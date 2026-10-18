@@ -156,3 +156,8 @@ export async function createAdmin(browser: Browser) {
 export async function adminPage(browser: Browser) {
   return (await createAdmin(browser)).page;
 }
+
+/** Setzt die gespeicherte Zustimmung zu den Nutzungsbedingungen eines Testkontos (null = keine). */
+export function setTermsVersion(email: string, version: string | null) {
+  execSync(`pnpm exec tsx tests/e2e/support/set-terms-version.ts ${email} ${version ?? "null"}`, { stdio: "pipe" });
+}

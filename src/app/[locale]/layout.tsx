@@ -4,9 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { Barlow, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { locale as rootLocale } from "next/root-params";
+import { Suspense } from "react";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { TermsGate } from "@/components/legal/terms-gate";
 import { getClientMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
 import { siteConfig } from "@/lib/site";
@@ -62,6 +64,10 @@ export default async function LocaleLayout({ children }: LayoutProps<"/[locale]"
             {children}
           </main>
           <SiteFooter />
+          {/* Popup bei neuer Fassung der Nutzungsbedingungen (liest die Session, daher hinter Suspense) */}
+          <Suspense fallback={null}>
+            <TermsGate />
+          </Suspense>
         </NextIntlClientProvider>
       </body>
     </html>

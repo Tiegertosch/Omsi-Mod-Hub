@@ -237,7 +237,12 @@
     "terms": {
       "title": "Terms of use"
     },
-    "languageFallback": "This text is currently only available in German."
+    "languageFallback": "This text is currently only available in German.",
+    "termsUpcoming": "A new version of the terms of use applies from {date}.",
+    "termsReadUpcoming": "Read new version",
+    "termsShownUpcoming": "This version only applies from {date}.",
+    "termsShownOutdated": "This version is no longer valid.",
+    "termsReadCurrent": "Read the version currently in force"
   },
   "Auth": {
     "loginTitle": "Sign in",
@@ -792,5 +797,27 @@
     "genericTitle": "Something went wrong",
     "genericText": "An error occurred while loading this page. Please try again.",
     "retry": "Try again"
+  },
+  "TermsConsent": {
+    "titleChanged": "New terms of use",
+    "titleFirst": "Please confirm the terms of use",
+    "introChanged": "We have changed our terms of use. The new version is binding from {date}. To keep using OMSI Mod Hub with your account, you need to accept it.",
+    "introFirst": "OMSI Mod Hub has terms of use, binding from {date}. To keep using the site with your account, you need to accept them.",
+    "changesTitle": "Summary of changes",
+    "readFull": "Read the full version",
+    "opensInNewTab": "(opens in a new tab)",
+    "accept": "Accept changes",
+    "decline": "Don't accept and close account",
+    "declineTitle": "Close account",
+    "declineIntro": "If you don't accept the terms of use, your account will be closed. The following will be permanently deleted and lost:",
+    "deleteAccount": "your account “{username}” with email address and password – others can register the username afterwards",
+    "deleteCreator": "your creator profile, if you have one",
+    "deleteProjects": "{count, plural, =0 {no projects (you currently have none)} one {your project with all versions, download links and images ({published} of them published)} other {your # projects with all versions, download links and images ({published} of them published)}}",
+    "deleteSessions": "your sign-ins on all devices",
+    "declineKeep": "Reports you submitted about other people's projects are kept without any link to your account. Closing cannot be undone; you will receive a confirmation by email.",
+    "adminNote": "Admin accounts cannot close themselves. Accept the changes or first remove the admin role on the server (pnpm user:set-role).",
+    "password": "Password to confirm",
+    "declineSubmit": "Permanently close account",
+    "back": "Back"
   }
 }
