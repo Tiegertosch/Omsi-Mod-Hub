@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { FormAlert } from "./form";
 
-export const AUTO_DISMISS_MS = 15_000;
+export const AUTO_DISMISS_MS = 5_000;
 
 /**
  * Hinweis, der sich nach `durationMs` selbst ausblendet. Ein kleiner Ring oben
@@ -19,7 +19,7 @@ export const AUTO_DISMISS_MS = 15_000;
  *
  * Ausgeblendet wird per Timer, nicht am Animationsende – bei „Bewegung
  * reduzieren“ verkürzt globals.css alle Animationen auf fast null, der Ring
- * entfällt dann, die 15 Sekunden bleiben.
+ * entfällt dann, die Anzeigedauer bleibt.
  */
 export function AutoDismissAlert({
   tone,

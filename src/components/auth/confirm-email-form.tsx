@@ -31,7 +31,7 @@ export function ConfirmEmailForm({ email, next }: { email: string | null; next: 
     <form action={verifyAction} className="space-y-6" noValidate>
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="next" value={next} />
-      {/* Hinweise blenden sich nach 15 Sekunden aus; ein neues Ergebnis zeigt sie wieder. */}
+      {/* Hinweise blenden sich nach 5 Sekunden aus; ein neues Ergebnis zeigt sie wieder. */}
       {formError ? (
         <AutoDismissAlert tone="error" resetKey={state}>
           {formError}
