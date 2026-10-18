@@ -45,10 +45,10 @@ enum LinkStatus {
   BLOCKED
 }
 
-/// Bezugsart einer Voraussetzung: bestimmt den Knopf auf der Projektseite
+/// Preismodell von Projekten und Voraussetzungen: bestimmt Badge und Knopftext („Download“ bzw. „Zum Shop“)
 enum RequirementPricing {
   FREEWARE // kostenlos → „Download“
-  PAYWARE // kostenpflichtig → „Jetzt kaufen“
+  PAYWARE // kostenpflichtig → „Zum Shop“
 }
 
 enum ReportReason {
@@ -268,6 +268,8 @@ model Project {
   sourceUrl          String?
   /// kompatible OMSI-Version(en), z. B. "OMSI 2.3.004"
   gameCompatibility  String?
+  /// Freeware oder Payware (gleicher Enum wie bei den Voraussetzungen); Payware: Links führen zum Shop
+  pricing            RequirementPricing @default(FREEWARE)
   coverImageUrl      String?
   coverImageAlt      String?
   /// gemessene Aufrufe externer Downloadseiten (keine Downloads!)

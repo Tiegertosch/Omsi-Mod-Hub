@@ -10,7 +10,7 @@ export type RequirementItem = { id: string; name: string; url: string | null; pr
 
 /**
  * Voraussetzungen und benötigte Add-ons. Freeware bekommt „Download“, Payware
- * „Jetzt kaufen“; ohne Link nur Name und Bezugsart. Links führen direkt zum
+ * „Zum Shop“; ohne Link nur Name und Bezugsart. Links führen direkt zum
  * Anbieter (beim Speichern wie Downloadlinks geprüft), das Ziel steht dabei.
  */
 export async function RequirementList({ requirements }: { requirements: RequirementItem[] }) {

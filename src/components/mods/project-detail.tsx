@@ -1,4 +1,4 @@
-import { BadgeCheck, ChevronRight, Info, MousePointerClick } from "lucide-react";
+import { BadgeCheck, ChevronRight, Info, MousePointerClick, ShoppingCart } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 
@@ -132,6 +132,7 @@ export async function ProjectDetailView({
         <header className="mb-8">
           <div className="mb-3 flex flex-wrap gap-2">
             <Badge tone="accent">{categoryName}</Badge>
+            {project.pricing === "PAYWARE" ? <Badge tone="warning">{common("payware")}</Badge> : null}
             {project.isSample ? <Badge tone="warning">{common("sample")}</Badge> : null}
           </div>
           <h1 lang={contentLang} className="text-3xl font-bold tracking-tight text-fg sm:text-5xl">
@@ -242,10 +243,16 @@ export async function ProjectDetailView({
                 {currentVersion ? <Badge>v{currentVersion.version}</Badge> : null}
               </div>
               {currentVersion && currentVersion.links.length > 0 ? (
-                <ExternalLinkList links={currentVersion.links} preview={preview} />
+                <ExternalLinkList links={currentVersion.links} preview={preview} paid={project.pricing === "PAYWARE"} />
               ) : (
                 <p className="text-sm text-muted">{t("noLinks")}</p>
               )}
+              {project.pricing === "PAYWARE" ? (
+                <p className="mt-4 flex gap-2 text-xs text-warning">
+                  <ShoppingCart aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+                  {t("paywareNotice")}
+                </p>
+              ) : null}
               <p className="mt-4 flex gap-2 text-xs text-subtle">
                 <Info aria-hidden className="mt-0.5 size-3.5 shrink-0" />
                 {t("downloadIntro")}

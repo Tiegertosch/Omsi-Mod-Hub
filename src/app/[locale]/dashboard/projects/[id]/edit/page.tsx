@@ -115,6 +115,7 @@ async function EditorContent({ params }: Pick<Props, "params">) {
                     license: project.license,
                     sourceUrl: project.sourceUrl ?? "",
                     gameCompatibility: project.gameCompatibility ?? "",
+                    pricing: project.pricing,
                     translations,
                     tags: project.tags.map(({ tag }) => tag.slug),
                     contributors: project.contributors.map((c) => ({ name: c.name, role: c.role ?? "" })),

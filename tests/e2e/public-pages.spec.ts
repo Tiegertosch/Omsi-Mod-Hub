@@ -50,6 +50,38 @@ test("Katalog: Tag-Filter und Sortierung stehen in der URL", async ({ page }) =>
   await expect(page).toHaveURL(/sort=updated/);
 });
 
+test("Katalog: Preisfilter trennt Freeware und Payware, Payware ist gekennzeichnet", async ({ page }) => {
+  await page.goto("/de/mods/busse");
+  const main = page.getByRole("main");
+  const paid = main.getByRole("link", { name: "Gelenkbus GL18 (fiktives Modell)" });
+  const free = main.getByRole("link", { name: "Solobus SL12 (fiktives Modell)" });
+  await expect(paid).toBeVisible();
+  await expect(free).toBeVisible();
+  // Nur Payware trägt ein Badge
+  await expect(main.locator("article", { hasText: "Gelenkbus GL18 (fiktives Modell)" }).getByText("Payware", { exact: true })).toBeVisible();
+  await expect(main.locator("article", { hasText: "Solobus SL12 (fiktives Modell)" }).getByText("Payware", { exact: true })).toHaveCount(0);
+
+  await main.getByRole("link", { name: "Payware", exact: true }).click();
+  await expect(page).toHaveURL(/\/de\/mods\/busse\?price=paid$/);
+  await expect(paid).toBeVisible();
+  await expect(free).toHaveCount(0);
+
+  await main.getByRole("link", { name: "Freeware", exact: true }).click();
+  await expect(page).toHaveURL(/price=free/);
+  await expect(paid).toHaveCount(0);
+  await expect(free).toBeVisible();
+
+  // Zurücksetzen entfernt auch den Preisfilter
+  await main.getByRole("link", { name: "Filter zurücksetzen" }).click();
+  await expect(page).toHaveURL(/\/de\/mods\/busse$/);
+
+  // Detailseite: Downloadbutton „Zum Shop“ und Hinweis
+  await page.goto("/de/mods/gelenkbus-gl18");
+  const downloadBox = page.getByRole("region", { name: "Download", exact: true });
+  await expect(downloadBox.getByRole("link", { name: /^Zum Shop/ })).toHaveAttribute("href", /^\/go\/[a-z0-9]+$/);
+  await expect(downloadBox.getByText(/^Kostenpflichtig – Kauf und Bezahlung/)).toBeVisible();
+});
+
 test("Detailseite kennzeichnet externe Downloads", async ({ page }) => {
   await page.goto("/de/mods/neustadt-am-kanal");
   const download = page.getByRole("link", { name: /Projektseite öffnen/ });

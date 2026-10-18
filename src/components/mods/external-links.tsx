@@ -18,8 +18,25 @@ export type ExternalLinkItem = {
  * Externe Downloads. Links führen über /go/[id], damit Aufrufe gezählt werden
  * können; das Ziel wird immer sichtbar angegeben.
  */
-export function ExternalLinkList({ links, preview = false }: { links: ExternalLinkItem[]; preview?: boolean }) {
+export function ExternalLinkList({
+  links,
+  preview = false,
+  paid = false,
+}: {
+  links: ExternalLinkItem[];
+  preview?: boolean;
+  /** Payware-Projekt: Links führen zu einem Shop */
+  paid?: boolean;
+}) {
   const t = useTranslations("ExternalLink");
+  const label = (link: { label: string | null }) =>
+    paid
+      ? link.label
+        ? t("shopNamed", { label: link.label })
+        : t("shop")
+      : link.label
+        ? t("openNamed", { label: link.label })
+        : t("open");
 
   const visible = links
     .map((link) => ({ ...link, host: externalHost(link.url) }))
@@ -34,7 +51,7 @@ export function ExternalLinkList({ links, preview = false }: { links: ExternalLi
           {preview ? (
             // Vorschau: /go leitet nur bei veröffentlichten Projekten weiter.
             <span className="flex w-full items-center justify-between gap-3 rounded-lg border border-dashed border-border-strong px-4 py-3 font-semibold text-muted">
-              {link.label ? t("openNamed", { label: link.label }) : t("open")}
+              {label(link)}
               <ExternalLinkIcon aria-hidden className="size-4 shrink-0" />
             </span>
           ) : (
@@ -50,7 +67,7 @@ export function ExternalLinkList({ links, preview = false }: { links: ExternalLi
               )}
             >
               <span>
-                {link.label ? t("openNamed", { label: link.label }) : t("open")}
+                {label(link)}
                 <span className="sr-only"> {t("opensInNewTab")}</span>
               </span>
               <ExternalLinkIcon aria-hidden className="size-4 shrink-0" />

@@ -4,21 +4,25 @@ import { catalogQuery, MAX_TAG_FILTERS, parseCatalogParams, toggleTag } from "@/
 
 describe("parseCatalogParams", () => {
   it("liefert Standardwerte bei leeren Parametern", () => {
-    expect(parseCatalogParams({})).toEqual({ q: "", tags: [], sort: "newest", page: 1 });
+    expect(parseCatalogParams({})).toEqual({ q: "", tags: [], sort: "newest", price: "all", page: 1 });
   });
 
   it("liest gültige Werte", () => {
-    expect(parseCatalogParams({ q: "  Gelenkbus ", tag: ["diesel", "solobus"], sort: "popular", page: "3" })).toEqual({
+    expect(
+      parseCatalogParams({ q: "  Gelenkbus ", tag: ["diesel", "solobus"], sort: "popular", price: "paid", page: "3" }),
+    ).toEqual({
       q: "Gelenkbus",
       tags: ["diesel", "solobus"],
       sort: "popular",
+      price: "paid",
       page: 3,
     });
   });
 
   it("fällt bei ungültigen Werten auf sichere Standards zurück", () => {
-    const params = parseCatalogParams({ sort: "DROP TABLE", page: "-4", tag: ["../etc", "ok-tag", "Ok-Tag"] });
+    const params = parseCatalogParams({ sort: "DROP TABLE", price: "gratis", page: "-4", tag: ["../etc", "ok-tag", "Ok-Tag"] });
     expect(params.sort).toBe("newest");
+    expect(params.price).toBe("all");
     expect(params.page).toBe(1);
     expect(params.tags).toEqual(["ok-tag"]);
   });
@@ -48,14 +52,15 @@ describe("parseCatalogParams", () => {
 
 describe("catalogQuery", () => {
   it("lässt Standardwerte weg", () => {
-    expect(catalogQuery({ q: "", tags: [], sort: "newest", page: 1 })).toEqual({});
+    expect(catalogQuery({ q: "", tags: [], sort: "newest", price: "all", page: 1 })).toEqual({});
   });
 
   it("serialisiert gesetzte Werte", () => {
-    expect(catalogQuery({ q: "bus", tags: ["diesel"], sort: "updated", page: 2 })).toEqual({
+    expect(catalogQuery({ q: "bus", tags: ["diesel"], sort: "updated", price: "free", page: 2 })).toEqual({
       q: "bus",
       tag: ["diesel"],
       sort: "updated",
+      price: "free",
       page: "2",
     });
   });

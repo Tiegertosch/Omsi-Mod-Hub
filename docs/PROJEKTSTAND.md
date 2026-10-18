@@ -35,6 +35,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
   - Titelbild und Screenshots, Versionen mit Links
   - Textformatierung in Beschreibung und Installationsanleitung: Werkzeugleiste (fett, kursiv, unterstrichen, zwei Überschriftenebenen, Punkt- und Nummernlisten, Strg+B/I/U) mit Vorschau. Gespeichert wird Text mit Markdown-ähnlichen Zeichen (`**`, `*`, `++`, `##`, `-`, `1.`); bestehende Beschreibungen bleiben unverändert gültig. Links bewusst nicht. Changelogs sind weiterhin reiner Text.
   - Voraussetzungen & benötigte Add-ons als Liste (`ProjectRequirement`: Name, optionaler Link, `FREEWARE`/`PAYWARE`); das frühere Freitextfeld ist mit der Migration `project_requirements` entfallen. Namen fließen in die Suchspalte ein.
+  - Projekte als Freeware oder Payware (`Project.pricing`, Enum `RequirementPricing`, Migration `project_pricing`): Auswahl im Editor-Tab „Allgemein“, Badge nur bei Payware (Karten, Projektseite, Freigabeliste), Downloadbuttons „Zum Shop“ mit Hinweis zum Kauf beim Anbieter, Preisfilter `?price=free|paid` im Katalog. Auch Voraussetzungen heißen bei Payware „Zum Shop“. Die Nutzungsbedingungen nennen die Kennzeichnung nur als Beispiel; bei der nächsten Fassung auf das Merkmal verweisen.
   - Statusablauf DRAFT → PENDING_REVIEW → PUBLISHED/REJECTED, dazu ARCHIVED; HIDDEN setzt nur die Moderation
 - **Admin (`/admin/*`):**
   - Freigeben, Zurückweisen und Ausblenden mit Begründung
@@ -78,7 +79,6 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
 2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Technisch fehlt dafür noch: E-Mail an gesperrte Nutzer mit Begründung, ein Beschwerdeweg gegen Moderationsentscheidungen, Linkstatus „gesperrt“ im Adminbereich setzen.
-3. **Payware kennzeichnen:** Projekte brauchen ein Merkmal „kostenpflichtig“ mit Badge (wie bei den Voraussetzungen); bis dahin verlangen die Nutzungsbedingungen die Angabe in Kurzbeschreibung und Lizenz.
-4. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
-5. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
-6. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
+3. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
+4. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
+5. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.

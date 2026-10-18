@@ -3,6 +3,7 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 
 import type { Prisma } from "@/generated/prisma/client";
+import type { RequirementPricing } from "@/generated/prisma/enums";
 import { CATALOG_PAGE_SIZE, type CatalogParams } from "@/lib/catalog-params";
 import { db } from "@/lib/db";
 import { tokenizeQuery } from "@/lib/search-text";
@@ -37,6 +38,7 @@ export type ProjectCard = {
   publishedAt: Date | null;
   lastReleaseAt: Date | null;
   tags: TagView[];
+  pricing: RequirementPricing;
   isSample: boolean;
 };
 
@@ -57,6 +59,7 @@ function toCard(row: CardRow, locale: string): ProjectCard {
     publishedAt: row.publishedAt,
     lastReleaseAt: row.lastReleaseAt,
     tags: row.tags.map(({ tag }) => toTagView(tag, locale)),
+    pricing: row.pricing,
     isSample: row.isSample,
   };
 }
@@ -70,6 +73,7 @@ const ORDER_BY: Record<CatalogParams["sort"], Prisma.ProjectOrderByWithRelationI
 export function buildCatalogWhere(options: {
   q?: string;
   tags?: readonly string[];
+  price?: CatalogParams["price"];
   categoryId?: string;
   creatorId?: string;
 }): Prisma.ProjectWhereInput {
@@ -92,6 +96,7 @@ export function buildCatalogWhere(options: {
   return {
     status: PUBLISHED,
     ...(options.categoryId ? { categoryId: options.categoryId } : {}),
+    ...(options.price === "free" ? { pricing: "FREEWARE" as const } : options.price === "paid" ? { pricing: "PAYWARE" as const } : {}),
     ...(options.creatorId ? { creatorId: options.creatorId } : {}),
     ...(and.length > 0 ? { AND: and } : {}),
   };
@@ -112,7 +117,7 @@ export async function searchProjects(
   "use cache";
   cacheLife("minutes");
   cacheTag(CACHE_TAGS.lists);
-  const where = buildCatalogWhere({ q: params.q, tags: params.tags, categoryId: options.categoryId });
+  const where = buildCatalogWhere({ q: params.q, tags: params.tags, price: params.price, categoryId: options.categoryId });
 
   const total = await db.project.count({ where });
   const pageCount = Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE));

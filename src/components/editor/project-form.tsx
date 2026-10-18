@@ -29,6 +29,7 @@ export type ProjectFormValues = {
   license: string;
   sourceUrl: string;
   gameCompatibility: string;
+  pricing: RequirementPricing;
   translations: Record<
     AppLocale,
     { title: string; summary: string; description: string; installation: string }
@@ -155,6 +156,29 @@ export function ProjectForm({ values, options }: { values: ProjectFormValues; op
             hint={t("licenseHint")}
             error={fieldError("license")}
           />
+          <fieldset aria-describedby="project-pricing-hint">
+            <legend className="mb-1.5 text-sm font-medium text-fg">{t("projectPricing")}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {(["FREEWARE", "PAYWARE"] as const).map((option) => (
+                <label
+                  key={option}
+                  className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-fg transition-colors hover:border-border-strong has-[:checked]:border-accent"
+                >
+                  <input
+                    type="radio"
+                    name="pricing"
+                    value={option}
+                    defaultChecked={values.pricing === option}
+                    className="size-4 accent-[var(--color-accent)]"
+                  />
+                  {t(`projectPricingOption.${option}`)}
+                </label>
+              ))}
+            </div>
+            <p id="project-pricing-hint" className="mt-1.5 text-xs text-subtle">
+              {t("projectPricingHint")}
+            </p>
+          </fieldset>
           <div className="grid gap-5 sm:grid-cols-2">
             <TextField
               id="project-source"

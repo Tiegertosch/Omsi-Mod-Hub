@@ -157,6 +157,8 @@ type SampleProject = {
   defaultLocale: Locale;
   license: string;
   gameCompatibility?: string;
+  /** Standard Freeware; Payware-Beispiele verlinken ebenfalls nur auf example.com */
+  pricing?: RequirementPricing;
   cover: string;
   coverAlt: string;
   screenshots?: { file: string; alt: string }[];
@@ -296,7 +298,8 @@ const PROJECTS: SampleProject[] = [
     creator: "elbtal-busworks",
     category: "busse",
     defaultLocale: "de",
-    license: "Private Nutzung erlaubt.",
+    license: "Kostenpflichtig, Einzelplatzlizenz (fiktiv). Private Nutzung erlaubt.",
+    pricing: "PAYWARE",
     gameCompatibility: "OMSI 2.3.004",
     cover: "/samples/bus-night.svg",
     coverAlt: "Beleuchteter Gelenkbus bei Nacht",
@@ -625,6 +628,7 @@ async function seedSamples() {
         license: project.license,
         sourceUrl: `https://example.com/projects/${project.slug}`,
         gameCompatibility: project.gameCompatibility,
+        pricing: project.pricing ?? "FREEWARE",
         coverImageUrl: project.cover,
         coverImageAlt: project.coverAlt,
         isSample: true,

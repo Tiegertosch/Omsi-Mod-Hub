@@ -5,6 +5,7 @@
     "description": "Der zentrale Katalog für OMSI-2-Mods: Busse, Karten, Repaints, Objekte, Sounds und Tools – mit Voraussetzungen, Versionen und Links zu den Originalquellen."
   },
   "Common": {
+    "payware": "Payware",
     "sample": "Beispieldaten",
     "sampleHint": "Dieser Eintrag ist ein Entwicklungsbeispiel. Er beschreibt kein echtes Projekt, und die Links führen auf example.com.",
     "byCreator": "von {name}",
@@ -75,6 +76,10 @@
     "allCategories": "Alle",
     "filtersLabel": "Filter",
     "searchLabel": "Im Katalog suchen",
+    "priceLabel": "Preis",
+    "priceAll": "Alle",
+    "priceFree": "Freeware",
+    "pricePaid": "Payware",
     "sortLabel": "Sortierung",
     "sortNewest": "Neueste",
     "sortUpdated": "Zuletzt aktualisiert",
@@ -96,6 +101,7 @@
     "page": "Seite {page} von {total}"
   },
   "Project": {
+    "paywareNotice": "Kostenpflichtig – Kauf und Bezahlung erfolgen beim Anbieter, nicht auf OMSI Mod Hub.",
     "breadcrumb": "Brotkrumen-Navigation",
     "by": "von",
     "downloadTitle": "Download",
@@ -137,9 +143,11 @@
       "PAYWARE": "Payware"
     },
     "requirementDownload": "Download",
-    "requirementBuy": "Jetzt kaufen"
+    "requirementBuy": "Zum Shop"
   },
   "ExternalLink": {
+    "shop": "Zum Shop",
+    "shopNamed": "Zum Shop: {label}",
     "open": "Externe Downloadseite öffnen",
     "openNamed": "{label} öffnen",
     "externalTarget": "Externes Ziel: {host}",
@@ -596,6 +604,12 @@
     "manage": "Projekte verwalten"
   },
   "Editor": {
+    "projectPricing": "Preismodell",
+    "projectPricingOption": {
+      "FREEWARE": "Kostenlos (Freeware)",
+      "PAYWARE": "Kostenpflichtig (Payware)"
+    },
+    "projectPricingHint": "Bei Payware heißen die Downloadlinks „Zum Shop“ und das Projekt wird als kostenpflichtig gekennzeichnet. Verlinke nur offizielle Verkaufsseiten.",
     "newTitle": "Neues Projekt",
     "newIntro": "Fülle zuerst die Grunddaten aus. Bilder, Versionen und Downloadlinks ergänzt du im nächsten Schritt.",
     "editTitle": "Projekt bearbeiten",

@@ -42,6 +42,7 @@ async function NewProjectContent() {
             license: "",
             sourceUrl: "",
             gameCompatibility: "",
+            pricing: "FREEWARE",
             translations: Object.fromEntries(routing.locales.map((l) => [l, emptyTranslation])) as Record<
               (typeof routing.locales)[number],
               typeof emptyTranslation

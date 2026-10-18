@@ -5,6 +5,7 @@
     "description": "The central catalogue for OMSI 2 mods: buses, maps, repaints, objects, sounds and tools – with requirements, versions and links to the original sources."
   },
   "Common": {
+    "payware": "Payware",
     "sample": "Sample data",
     "sampleHint": "This entry is a development sample. It does not describe a real project, and its links point to example.com.",
     "byCreator": "by {name}",
@@ -75,6 +76,10 @@
     "allCategories": "All",
     "filtersLabel": "Filters",
     "searchLabel": "Search the catalogue",
+    "priceLabel": "Price",
+    "priceAll": "All",
+    "priceFree": "Freeware",
+    "pricePaid": "Payware",
     "sortLabel": "Sort by",
     "sortNewest": "Newest",
     "sortUpdated": "Recently updated",
@@ -96,6 +101,7 @@
     "page": "Page {page} of {total}"
   },
   "Project": {
+    "paywareNotice": "Paid – purchase and payment take place at the provider, not on OMSI Mod Hub.",
     "breadcrumb": "Breadcrumb",
     "by": "by",
     "downloadTitle": "Download",
@@ -137,9 +143,11 @@
       "PAYWARE": "Payware"
     },
     "requirementDownload": "Download",
-    "requirementBuy": "Buy now"
+    "requirementBuy": "Visit shop"
   },
   "ExternalLink": {
+    "shop": "Visit shop",
+    "shopNamed": "Visit shop: {label}",
     "open": "Open external download page",
     "openNamed": "Open {label}",
     "externalTarget": "External destination: {host}",
@@ -596,6 +604,12 @@
     "manage": "Manage projects"
   },
   "Editor": {
+    "projectPricing": "Pricing",
+    "projectPricingOption": {
+      "FREEWARE": "Free (freeware)",
+      "PAYWARE": "Paid (payware)"
+    },
+    "projectPricingHint": "For payware, download links are labelled “Visit shop” and the project is marked as paid. Only link to official sales pages.",
     "newTitle": "New project",
     "newIntro": "Fill in the basic information first. You will add images, versions and download links in the next step.",
     "editTitle": "Edit project",

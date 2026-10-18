@@ -92,6 +92,8 @@ export const projectFormSchema = z
     license: text(PROJECT_LIMITS.license).min(1, { message: "required" }),
     sourceUrl: optionalUrl,
     gameCompatibility: optionalText(PROJECT_LIMITS.gameCompatibility),
+    // Unbekannte Werte gelten als Freeware; Payware muss ausdrücklich gewählt werden.
+    pricing: z.enum(RequirementPricing).catch("FREEWARE"),
     translations: z.object(
       Object.fromEntries(routing.locales.map((l) => [l, translationSchema])) as Record<
         AppLocale,
@@ -163,6 +165,7 @@ export function readProjectForm(formData: FormData) {
     license: str(formData, "license"),
     sourceUrl: str(formData, "sourceUrl"),
     gameCompatibility: str(formData, "gameCompatibility"),
+    pricing: str(formData, "pricing"),
     translations: Object.fromEntries(
       routing.locales.map((l) => [
         l,

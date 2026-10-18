@@ -20,6 +20,7 @@ export async function getReviewQueue(status: ProjectStatus, locale: string) {
       submittedAt: true,
       updatedAt: true,
       isSample: true,
+      pricing: true,
       moderationNote: true,
       creator: { select: { username: true } },
       translations: { select: { locale: true, title: true, summary: true } },

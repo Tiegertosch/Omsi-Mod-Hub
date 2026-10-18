@@ -5,7 +5,7 @@ import Form from "next/form";
 import { buttonStyles } from "@/components/ui/button";
 import { Skeleton, EmptyState } from "@/components/ui/state";
 import { getPathname, Link } from "@/i18n/navigation";
-import { catalogQuery, CATALOG_SORTS, toggleTag, type CatalogParams } from "@/lib/catalog-params";
+import { catalogQuery, CATALOG_PRICES, CATALOG_SORTS, toggleTag, type CatalogParams } from "@/lib/catalog-params";
 import { cn } from "@/lib/utils";
 import type { CategorySummary } from "@/server/data/categories";
 import { searchProjects } from "@/server/data/projects";
@@ -19,6 +19,21 @@ const SORT_LABEL_KEYS = {
   updated: "sortUpdated",
   popular: "sortPopular",
 } as const;
+
+const PRICE_LABEL_KEYS = {
+  all: "priceAll",
+  free: "priceFree",
+  paid: "pricePaid",
+} as const;
+
+const segmentClass = (active: boolean) =>
+  cn(
+    "block h-full rounded-md px-3 py-1.5 text-center text-sm font-medium transition-colors",
+    active ? "bg-surface-3 text-fg" : "text-muted hover:text-fg",
+  );
+// Auf schmalen Bildschirmen steht die Beschriftung über den Optionen, die sich die volle Breite teilen.
+const segmentGroupClass = "flex w-full flex-col items-start gap-1.5 sm:w-auto sm:flex-row sm:items-center sm:gap-2";
+const segmentListClass = "flex w-full rounded-lg border border-border bg-surface-2 p-0.5 sm:w-auto";
 
 function pillClass(active: boolean) {
   return cn(
@@ -88,7 +103,7 @@ export async function CatalogResults({
 
   const tagName = new Map([...popularTags, ...selectedTags].map((tag) => [tag.slug, tag.name]));
   const visibleTags = popularTags.filter((tag) => !params.tags.includes(tag.slug));
-  const hasFilters = params.q.length > 0 || params.tags.length > 0;
+  const hasFilters = params.q.length > 0 || params.tags.length > 0 || params.price !== "all";
   const baseQuery = catalogQuery({ ...params, page: 1 });
 
   return (
@@ -111,34 +126,55 @@ export async function CatalogResults({
             <input key={tag} type="hidden" name="tag" value={tag} />
           ))}
           {params.sort !== "newest" ? <input type="hidden" name="sort" value={params.sort} /> : null}
+          {params.price !== "all" ? <input type="hidden" name="price" value={params.price} /> : null}
           <button type="submit" className={buttonStyles({ variant: "secondary" })}>
             {t("apply")}
           </button>
         </Form>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium tracking-wide text-subtle uppercase" id="sort-label">
-            {t("sortLabel")}
-          </span>
-          <ul aria-labelledby="sort-label" className="flex rounded-lg border border-border bg-surface-2 p-0.5">
-            {CATALOG_SORTS.map((sort) => {
-              const active = params.sort === sort;
-              return (
-                <li key={sort}>
-                  <Link
-                    href={{ pathname, query: catalogQuery({ ...params, sort, page: 1 }) }}
-                    aria-current={active ? "true" : undefined}
-                    className={cn(
-                      "block rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                      active ? "bg-surface-3 text-fg" : "text-muted hover:text-fg",
-                    )}
-                  >
-                    {t(SORT_LABEL_KEYS[sort])}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <div className={segmentGroupClass}>
+            <span className="text-xs font-medium tracking-wide text-subtle uppercase" id="sort-label">
+              {t("sortLabel")}
+            </span>
+            <ul aria-labelledby="sort-label" className={segmentListClass}>
+              {CATALOG_SORTS.map((sort) => {
+                const active = params.sort === sort;
+                return (
+                  <li key={sort} className="flex-1 sm:flex-none">
+                    <Link
+                      href={{ pathname, query: catalogQuery({ ...params, sort, page: 1 }) }}
+                      aria-current={active ? "true" : undefined}
+                      className={segmentClass(active)}
+                    >
+                      {t(SORT_LABEL_KEYS[sort])}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div className={segmentGroupClass}>
+            <span className="text-xs font-medium tracking-wide text-subtle uppercase" id="price-label">
+              {t("priceLabel")}
+            </span>
+            <ul aria-labelledby="price-label" className={segmentListClass}>
+              {CATALOG_PRICES.map((price) => {
+                const active = params.price === price;
+                return (
+                  <li key={price} className="flex-1 sm:flex-none">
+                    <Link
+                      href={{ pathname, query: catalogQuery({ ...params, price, page: 1 }) }}
+                      aria-current={active ? "true" : undefined}
+                      className={segmentClass(active)}
+                    >
+                      {t(PRICE_LABEL_KEYS[price])}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
       </div>
 

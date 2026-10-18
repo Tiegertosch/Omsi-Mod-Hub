@@ -24,9 +24,10 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | --- | --- |
 | Home page with categories, new, updated and popular projects, creators | ✅ from the database |
 | Mod catalogue `/mods` and categories `/mods/busse`, `/mods/karten`, … | ✅ |
-| Server-side search, tag filters (AND), sorting, pagination, shareable URLs | ✅ |
+| Server-side search, tag filters (AND), price filter (freeware/payware), sorting, pagination, shareable URLs | ✅ |
 | Project detail page with versions, changelog, installation, requirements, licence, contributors | ✅ |
-| Requirements & add-ons as a list: name, optional link, freeware ("Download") or payware ("Buy now") | ✅ |
+| Requirements & add-ons as a list: name, optional link, freeware ("Download") or payware ("Visit shop") | ✅ |
+| Projects as freeware or payware: payware gets a badge on cards and the project page, download buttons read "Visit shop" | ✅ |
 | External download links with labelling, click counting via `/go/[id]` | ✅ |
 | Report function (Server Action, rate limit, honeypot) | ✅ handled under `/admin/reports` |
 | Creator directory and profiles | ✅ |

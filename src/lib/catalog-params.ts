@@ -5,6 +5,10 @@ import { MAX_QUERY_LENGTH } from "./search-text";
 export const CATALOG_SORTS = ["newest", "updated", "popular"] as const;
 export type CatalogSort = (typeof CATALOG_SORTS)[number];
 
+/** Preisfilter: alle, nur Freeware oder nur Payware (URL `?price=free|paid`). */
+export const CATALOG_PRICES = ["all", "free", "paid"] as const;
+export type CatalogPrice = (typeof CATALOG_PRICES)[number];
+
 export const CATALOG_PAGE_SIZE = 12;
 export const MAX_CATALOG_PAGE = 500;
 export const MAX_TAG_FILTERS = 5;
@@ -15,6 +19,7 @@ export type CatalogParams = {
   q: string;
   tags: string[];
   sort: CatalogSort;
+  price: CatalogPrice;
   page: number;
 };
 
@@ -29,6 +34,7 @@ const querySchema = z
   .transform((value) => value.trim().slice(0, MAX_QUERY_LENGTH))
   .catch("");
 const sortSchema = z.enum(CATALOG_SORTS).catch("newest");
+const priceSchema = z.enum(CATALOG_PRICES).catch("all");
 const pageSchema = z.coerce.number().int().min(1).max(MAX_CATALOG_PAGE).catch(1);
 
 /**
@@ -45,6 +51,7 @@ export function parseCatalogParams(searchParams: RawSearchParams): CatalogParams
     q: querySchema.parse(first(searchParams.q) ?? ""),
     tags: Array.from(new Set(tags)).slice(0, MAX_TAG_FILTERS),
     sort: sortSchema.parse(first(searchParams.sort)),
+    price: priceSchema.parse(first(searchParams.price)),
     page: pageSchema.parse(first(searchParams.page) ?? 1),
   };
 }
@@ -55,6 +62,7 @@ export function catalogQuery(params: Partial<CatalogParams>): Record<string, str
   if (params.q) query.q = params.q;
   if (params.tags && params.tags.length > 0) query.tag = params.tags;
   if (params.sort && params.sort !== "newest") query.sort = params.sort;
+  if (params.price && params.price !== "all") query.price = params.price;
   if (params.page && params.page > 1) query.page = String(params.page);
   return query;
 }

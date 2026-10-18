@@ -23,6 +23,11 @@ export function ProjectCard({ project, priority }: { project: ProjectCardData; p
         />
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
           <Badge className="border-black/20 bg-bg/80 text-fg backdrop-blur">{project.categoryName}</Badge>
+          {project.pricing === "PAYWARE" ? (
+            <Badge tone="warning" className="bg-bg/80 backdrop-blur">
+              {t("payware")}
+            </Badge>
+          ) : null}
           {project.isSample ? (
             <Badge tone="warning" className="bg-bg/80 backdrop-blur">
               {t("sample")}

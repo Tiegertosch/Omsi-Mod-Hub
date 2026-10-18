@@ -120,10 +120,20 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
   await rows.nth(1).getByLabel("Art").selectOption("PAYWARE");
   await rows.nth(2).getByLabel("Name").fill("Alter Patch");
 
+  // Projekt als Payware kennzeichnen
+  await openEditorTab(page, "Allgemein");
+  await page.getByRole("radio", { name: "Kostenpflichtig (Payware)" }).check();
+
   await page.getByRole("button", { name: "Speichern", exact: true }).click();
   await expect(page.getByText("Änderungen gespeichert.").first()).toBeVisible();
   await page.goto(`/de/mods/${project.slug}`);
   await expect(page.getByText("Neue Kurzbeschreibung nach der Freigabe.").first()).toBeVisible();
+
+  // Payware: Badge im Kopf, Downloadbutton „Zum Shop“, Hinweis zum Kauf beim Anbieter
+  await expect(page.locator("main header").getByText("Payware", { exact: true })).toBeVisible();
+  const downloadBox = page.getByRole("region", { name: "Download", exact: true });
+  await expect(downloadBox.getByRole("link", { name: /^Zum Shop/ })).toHaveAttribute("href", /^\/go\//);
+  await expect(downloadBox.getByText(/^Kostenpflichtig – Kauf und Bezahlung erfolgen beim Anbieter/)).toBeVisible();
 
   // Formatierte Beschreibung; eingegebenes HTML bleibt sichtbarer Text
   const publicDescription = page.getByRole("region", { name: "Beschreibung" });
@@ -138,7 +148,7 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
   await expect(download).toHaveAttribute("href", "https://example.com/baukasten");
   await expect(download).toHaveAttribute("target", "_blank");
   await expect(download).toHaveAttribute("rel", /noopener.*nofollow/);
-  await expect(requirements.getByRole("link", { name: /^Jetzt kaufen.*Sound-Paket/ })).toHaveAttribute(
+  await expect(requirements.getByRole("link", { name: /^Zum Shop.*Sound-Paket/ })).toHaveAttribute(
     "href",
     "https://shop.example.com/sound",
   );

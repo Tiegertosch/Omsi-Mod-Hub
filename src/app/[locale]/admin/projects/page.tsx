@@ -70,6 +70,7 @@ async function ReviewContent({ searchParams }: Pick<Props, "searchParams">) {
                   <h2 className="font-semibold text-fg">{project.title}</h2>
                   <Badge tone={STATUS_TONES[project.status]}>{statusT(project.status)}</Badge>
                   {project.categoryName ? <Badge>{project.categoryName}</Badge> : null}
+                  {project.pricing === "PAYWARE" ? <Badge tone="warning">{common("payware")}</Badge> : null}
                   {project.isSample ? <Badge tone="warning">{common("sample")}</Badge> : null}
                   {project.openReports > 0 ? (
                     <Badge tone="danger">{t("openReports", { count: project.openReports })}</Badge>

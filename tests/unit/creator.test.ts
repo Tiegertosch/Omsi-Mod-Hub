@@ -155,6 +155,17 @@ describe("Projektformular", () => {
     expect(paths).toContain("translations.en.description");
   });
 
+  it("liest das Preismodell; ohne oder mit unbekanntem Wert gilt Freeware", () => {
+    const pricing = (value?: string) => {
+      const parsed = projectFormSchema.safeParse(readProjectForm(formData(value === undefined ? base : [...base, ["pricing", value]])));
+      return parsed.success ? parsed.data.pricing : null;
+    };
+    expect(pricing("PAYWARE")).toBe("PAYWARE");
+    expect(pricing("FREEWARE")).toBe("FREEWARE");
+    expect(pricing()).toBe("FREEWARE");
+    expect(pricing("GRATIS")).toBe("FREEWARE");
+  });
+
   it("lehnt unsichere Quell-URLs ab", () => {
     const parsed = projectFormSchema.safeParse(readProjectForm(formData([...base, ["sourceUrl", "javascript:alert(1)"]])));
     expect(parsed.success).toBe(false);

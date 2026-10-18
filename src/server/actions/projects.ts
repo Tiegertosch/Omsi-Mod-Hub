@@ -141,6 +141,7 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
     license: data.license,
     sourceUrl: data.sourceUrl,
     gameCompatibility: data.gameCompatibility,
+    pricing: data.pricing,
   };
 
   const id = await db.$transaction(async (tx) => {
