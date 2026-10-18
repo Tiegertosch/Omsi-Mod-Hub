@@ -201,10 +201,14 @@
         },
         {
           "heading": "Contact",
-          "body": "Email and second contact channel:",
+          "body": "Reachable via:",
           "links": [
             {
-              "label": "kontakt@omsi-modhub.de",
+              "label": "Phone: +49 4743 9501413",
+              "href": "tel:+4947439501413"
+            },
+            {
+              "label": "Email: kontakt@omsi-modhub.de",
               "href": "mailto:kontakt@omsi-modhub.de"
             },
             {

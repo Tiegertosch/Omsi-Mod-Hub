@@ -43,8 +43,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 type LegalLink = { label: string; href: string };
 type LegalSection = { heading: string; body: string; links?: LegalLink[] };
 
-/** Links stammen aus den eigenen Übersetzungsdateien; trotzdem nur mailto: und https: zulassen. */
-const isAllowedHref = (href: string) => href.startsWith("mailto:") || href.startsWith("https://");
+/** Links stammen aus den eigenen Übersetzungsdateien; trotzdem nur tel:, mailto: und https: zulassen. */
+const isAllowedHref = (href: string) => /^(tel:|mailto:|https:\/\/)/.test(href);
 
 /** Liest `params` hinter <Suspense>, damit die Navigation sofort die Seitenhülle zeigt. */
 async function LegalContent({ params }: Pick<Props, "params">) {

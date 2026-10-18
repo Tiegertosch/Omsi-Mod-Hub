@@ -201,10 +201,14 @@
         },
         {
           "heading": "Kontakt",
-          "body": "E-Mail und zweiter Kontaktweg:",
+          "body": "Erreichbar über:",
           "links": [
             {
-              "label": "kontakt@omsi-modhub.de",
+              "label": "Telefon: 04743/9501413",
+              "href": "tel:+4947439501413"
+            },
+            {
+              "label": "E-Mail: kontakt@omsi-modhub.de",
               "href": "mailto:kontakt@omsi-modhub.de"
             },
             {

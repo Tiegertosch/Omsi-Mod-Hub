@@ -90,6 +90,7 @@ test("Impressum zeigt die Betreiberangaben, Entwürfe bleiben gekennzeichnet", a
   await page.goto("/de/legal/imprint");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Impressum");
   await expect(page.getByText("omsi-modhub – Tobias Schmidt")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Telefon: 04743/9501413" })).toHaveAttribute("href", "tel:+4947439501413");
   await expect(page.getByRole("link", { name: "kontakt@omsi-modhub.de" })).toHaveAttribute(
     "href",
     "mailto:kontakt@omsi-modhub.de",
