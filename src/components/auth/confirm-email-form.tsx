@@ -3,7 +3,8 @@
 import { useLocale } from "next-intl";
 import { useActionState } from "react";
 
-import { FormAlert, TextField } from "@/components/ui/form";
+import { AutoDismissAlert } from "@/components/ui/auto-dismiss-alert";
+import { TextField } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Link } from "@/i18n/navigation";
 import { VERIFICATION_CODE_LENGTH, VERIFICATION_CODE_MINUTES } from "@/lib/auth-rules";
@@ -30,10 +31,21 @@ export function ConfirmEmailForm({ email, next }: { email: string | null; next: 
     <form action={verifyAction} className="space-y-6" noValidate>
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="next" value={next} />
-      {formError ? <FormAlert tone="error">{formError}</FormAlert> : null}
-      {resend.formError ? <FormAlert tone="error">{resend.formError}</FormAlert> : null}
+      {/* Hinweise blenden sich nach 15 Sekunden aus; ein neues Ergebnis zeigt sie wieder. */}
+      {formError ? (
+        <AutoDismissAlert tone="error" resetKey={state}>
+          {formError}
+        </AutoDismissAlert>
+      ) : null}
+      {resend.formError ? (
+        <AutoDismissAlert tone="error" resetKey={resendState}>
+          {resend.formError}
+        </AutoDismissAlert>
+      ) : null}
       {resendState.status === "success" ? (
-        <FormAlert tone="success">{t("codeResent", { email: resendState.message ?? "" })}</FormAlert>
+        <AutoDismissAlert tone="success" resetKey={resendState}>
+          {t("codeResent", { email: resendState.message ?? "" })}
+        </AutoDismissAlert>
       ) : null}
 
       {email ? (

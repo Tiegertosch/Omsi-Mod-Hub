@@ -62,6 +62,16 @@
   }
 }
 
+/* Countdown-Ring der selbst schließenden Hinweise (AutoDismissAlert), Kreis mit pathLength=100. */
+@keyframes countdown-ring {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

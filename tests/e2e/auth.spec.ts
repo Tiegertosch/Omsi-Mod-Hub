@@ -346,3 +346,38 @@ test("Code-Seite auf einem anderen Gerät: Adresse eingeben", async ({ page, bro
   await expect(otherPage).toHaveURL(/\/de\/dashboard$/);
   await other.close();
 });
+
+test("Hinweise auf der Code-Seite blenden sich nach 15 Sekunden aus, beim Darüberfahren erst später", async ({ page }) => {
+  // Uhr der Seite steuern statt 15 Sekunden zu warten.
+  await page.clock.install();
+  const user = uniqueUser();
+  const since = Date.now() - 1000;
+  await register(page, user);
+  const code = await waitForMailCode(user.email, since);
+
+  await enterCode(page, code === "000000" ? "111111" : "000000");
+  const wrong = page.getByRole("alert").filter({ hasText: "Der Code ist falsch" });
+  await expect(wrong).toBeVisible();
+  await page.clock.fastForward(10_000);
+  await expect(wrong).toBeVisible();
+
+  // Maus darauf: Countdown steht
+  await wrong.hover();
+  await page.clock.fastForward(10_000);
+  await expect(wrong).toBeVisible();
+  await page.mouse.move(0, 0);
+  await page.clock.fastForward(6_000);
+  await expect(wrong).toHaveCount(0);
+
+  // Neuer Code: Erfolgshinweis erscheint und verschwindet ebenso, der alte Fehler bleibt weg
+  await page.getByRole("button", { name: "Code erneut senden" }).click();
+  const resent = page.getByRole("status").filter({ hasText: "neuen Code geschickt" });
+  await expect(resent).toBeVisible();
+  await expect(wrong).toHaveCount(0);
+  await page.clock.fastForward(16_000);
+  await expect(resent).toHaveCount(0);
+
+  // Erneut falscher Code: Der Fehler erscheint wieder
+  await enterCode(page, code === "000000" ? "111111" : "000000");
+  await expect(wrong).toBeVisible();
+});

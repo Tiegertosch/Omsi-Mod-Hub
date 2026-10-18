@@ -127,7 +127,15 @@ export function SelectField({
 }
 
 /** Rückmeldung zu einem Formular (Fehler oder Erfolg). */
-export function FormAlert({ tone, children }: { tone: "error" | "success"; children: ReactNode }) {
+export function FormAlert({
+  tone,
+  className,
+  children,
+}: {
+  tone: "error" | "success";
+  className?: string;
+  children: ReactNode;
+}) {
   const Icon = tone === "error" ? CircleAlert : CircleCheck;
   return (
     <div
@@ -135,6 +143,7 @@ export function FormAlert({ tone, children }: { tone: "error" | "success"; child
       className={cn(
         "flex gap-2.5 rounded-lg border px-3.5 py-3 text-sm",
         tone === "error" ? "border-danger/40 bg-danger/10 text-fg" : "border-success/40 bg-success/10 text-fg",
+        className,
       )}
     >
       <Icon aria-hidden className={cn("mt-0.5 size-4 shrink-0", tone === "error" ? "text-danger" : "text-success")} />
