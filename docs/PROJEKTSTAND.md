@@ -44,6 +44,7 @@ Stand: **17.10.2026**, `main` inklusive Konto-Funktionen (E-Mail ändern, Gerät
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
   - Editor in Tabs: Allgemein (inkl. Tags), Beschreibung, Add-ons & Mitwirkende, Bilder, Downloads. Neue Projekte zeigen nur die ersten drei und landen nach dem Anlegen im Tab Bilder. Fehlerhafte Tabs werden markiert und geöffnet, offene Checklistenpunkte führen zum passenden Tab, der Tab steht im Anker der Adresse (`#media`).
   - Titelbild und Screenshots, Versionen mit Links
+  - Textformatierung in Beschreibung und Installationsanleitung: Werkzeugleiste (fett, kursiv, unterstrichen, zwei Überschriftenebenen, Punkt- und Nummernlisten, Strg+B/I/U) mit Vorschau. Gespeichert wird Text mit Markdown-ähnlichen Zeichen (`**`, `*`, `++`, `##`, `-`, `1.`); bestehende Beschreibungen bleiben unverändert gültig. Links bewusst nicht. Changelogs sind weiterhin reiner Text.
   - Voraussetzungen & benötigte Add-ons als Liste (`ProjectRequirement`: Name, optionaler Link, `FREEWARE`/`PAYWARE`); das frühere Freitextfeld ist mit der Migration `project_requirements` entfallen. Namen fließen in die Suchspalte ein.
   - Statusablauf DRAFT → PENDING_REVIEW → PUBLISHED/REJECTED, dazu ARCHIVED; HIDDEN setzt nur die Moderation
 - **Admin (`/admin/*`):**

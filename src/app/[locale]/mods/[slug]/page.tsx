@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/state";
 import { parseCatalogParams } from "@/lib/catalog-params";
 import { isSafeImageSrc } from "@/lib/external-url";
 import { localizedAlternates, truncateDescription } from "@/lib/metadata";
+import { richTextToPlain } from "@/lib/rich-text";
 import { pickTranslation } from "@/lib/translation";
 import { getCategories, type CategorySummary } from "@/server/data/categories";
 import { getCreatorProjects, getPublishedProject } from "@/server/data/projects";
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const text = pickTranslation(project.translations, locale, project.defaultLocale)?.translation;
   const title = text?.title ?? project.slug;
-  const description = truncateDescription(text?.summary ?? text?.description ?? "");
+  const description = truncateDescription(text?.summary || richTextToPlain(text?.description ?? ""));
   const image = isSafeImageSrc(project.coverImageUrl) ? project.coverImageUrl : undefined;
 
   return {

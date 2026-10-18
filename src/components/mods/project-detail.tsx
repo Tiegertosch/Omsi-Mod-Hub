@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
+import { RichText } from "@/components/ui/rich-text";
 import { Notice } from "@/components/ui/state";
 import { Link } from "@/i18n/navigation";
 import { externalHost, isSafeImageSrc } from "@/lib/external-url";
@@ -191,7 +192,7 @@ export async function ProjectDetailView({
 
             {text?.description ? (
               <Section id="description" title={t("description")}>
-                <TextBlock text={text.description} lang={contentLang} />
+                <RichText text={text.description} lang={contentLang} />
               </Section>
             ) : null}
 
@@ -203,7 +204,7 @@ export async function ProjectDetailView({
 
             {text?.installation ? (
               <Section id="installation" title={t("installation")}>
-                <TextBlock text={text.installation} lang={contentLang} />
+                <RichText text={text.installation} lang={contentLang} />
               </Section>
             ) : null}
 

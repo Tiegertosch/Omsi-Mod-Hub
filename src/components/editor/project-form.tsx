@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import { useEffect, useEffectEvent, useId, useState, type ReactNode } from "react";
 
 import { buttonStyles } from "@/components/ui/button";
-import { FormAlert, SelectField, TextAreaField, TextField } from "@/components/ui/form";
+import { FormAlert, SelectField, TextField } from "@/components/ui/form";
 import { PendingButton } from "@/components/ui/pending-button";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { PROJECT_FORM_TABS, tabsWithErrors } from "@/lib/editor-tabs";
@@ -17,6 +17,7 @@ import type { RequirementPricing } from "@/generated/prisma/enums";
 import { saveProjectAction } from "@/server/actions/projects";
 
 import { EditorTabPanel, useEditorTabs } from "./editor-tabs";
+import { RichTextField } from "./rich-text-field";
 import { useEditorForm, type EditorState } from "./use-editor-form";
 
 export type ProjectFormValues = {
@@ -251,17 +252,16 @@ export function ProjectForm({ values, options }: { values: ProjectFormValues; op
                   hint={t("summaryHint")}
                   error={f("summary")}
                 />
-                <TextAreaField
+                <RichTextField
                   id={`t-${l}-description`}
                   name={`translations.${l}.description`}
                   label={t("description")}
                   defaultValue={v.description}
                   rows={10}
                   maxLength={PROJECT_LIMITS.description}
-                  hint={t("textHint")}
                   error={f("description")}
                 />
-                <TextAreaField
+                <RichTextField
                   id={`t-${l}-installation`}
                   name={`translations.${l}.installation`}
                   label={<>{t("installation")} <span className="text-xs font-normal text-subtle">({t("optional")})</span></>}

@@ -72,6 +72,40 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
   await openEditorTab(page, "Beschreibung");
   await germanTexts(page).getByLabel("Kurzbeschreibung").fill("Neue Kurzbeschreibung nach der Freigabe.");
 
+  // Formatierung über Werkzeugleiste und Tastenkürzel
+  const descriptionField = germanTexts(page).getByRole("group", { name: "Beschreibung", exact: true });
+  const description = descriptionField.getByRole("textbox");
+  const select = (from: string, to?: string) =>
+    description.evaluate(
+      (el: HTMLTextAreaElement, [a, b]) => {
+        el.focus();
+        const start = el.value.indexOf(a);
+        el.setSelectionRange(start, b ? el.value.indexOf(b) + b.length : start + a.length);
+      },
+      [from, to ?? ""] as const,
+    );
+  await description.fill("Features\nSound\nLicht\n\nDas ist wichtig <b>roh</b>");
+  await select("Features");
+  await descriptionField.getByRole("button", { name: "Überschrift", exact: true }).click();
+  await select("Sound", "Licht");
+  await descriptionField.getByRole("button", { name: "Aufzählung" }).click();
+  await select("wichtig");
+  await descriptionField.getByRole("button", { name: "Fett" }).click();
+  await select("Das");
+  await page.keyboard.press("Control+i");
+  await expect(description).toHaveValue("## Features\n- Sound\n- Licht\n\n*Das* ist **wichtig** <b>roh</b>");
+  // Erneut anwenden nimmt die Formatierung zurück
+  await select("Das");
+  await descriptionField.getByRole("button", { name: "Kursiv" }).click();
+  await expect(description).toHaveValue("## Features\n- Sound\n- Licht\n\nDas ist **wichtig** <b>roh</b>");
+
+  await descriptionField.getByRole("button", { name: "Vorschau" }).click();
+  await expect(descriptionField.getByRole("heading", { name: "Features" })).toBeVisible();
+  await expect(descriptionField.getByRole("listitem")).toHaveText(["Sound", "Licht"]);
+  await expect(descriptionField.getByRole("button", { name: "Fett" })).toBeDisabled();
+  await descriptionField.getByRole("button", { name: "Schreiben" }).click();
+  await expect(description).toBeFocused();
+
   // Voraussetzungen: Freeware mit Link, Payware mit Link, eine ohne Link
   await openEditorTab(page, "Add-ons & Mitwirkende");
   const editorRequirements = page.getByRole("region", { name: "Voraussetzungen & benötigte Add-ons" });
@@ -90,6 +124,14 @@ test("Creator-Ablauf: Profil, Projekt, Bilder, Version, Einreichung, Freigabe", 
   await expect(page.getByText("Änderungen gespeichert.").first()).toBeVisible();
   await page.goto(`/de/mods/${project.slug}`);
   await expect(page.getByText("Neue Kurzbeschreibung nach der Freigabe.").first()).toBeVisible();
+
+  // Formatierte Beschreibung; eingegebenes HTML bleibt sichtbarer Text
+  const publicDescription = page.getByRole("region", { name: "Beschreibung" });
+  await expect(publicDescription.getByRole("heading", { level: 3, name: "Features" })).toBeVisible();
+  await expect(publicDescription.getByRole("listitem")).toHaveText(["Sound", "Licht"]);
+  await expect(publicDescription.locator("strong")).toHaveText("wichtig");
+  await expect(publicDescription.getByText("<b>roh</b>")).toBeVisible();
+  await expect(publicDescription.locator("b")).toHaveCount(0);
 
   const requirements = page.getByRole("region", { name: "Voraussetzungen & benötigte Add-ons" });
   const download = requirements.getByRole("link", { name: /^Download.*Haltestellen-Baukasten/ });

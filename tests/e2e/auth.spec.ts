@@ -263,7 +263,9 @@ test("Registrierung mit vergebener Adresse sieht gleich aus, verschickt aber kei
 
   const other = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
   const otherPage = await other.newPage();
-  const since = Date.now() - 500;
+  // Ohne Puffer: Die Code-Mail der ersten Registrierung ist sicher älter (registerAndVerify wartet auf das
+  // Dashboard). Mit Puffer wurde sie bei schnellem Durchlauf mitgezählt.
+  const since = Date.now();
   await register(otherPage, { ...uniqueUser(), email: user.email });
   await expect(otherPage.getByText(user.email, { exact: true })).toBeVisible();
   await expect(waitForMail(user.email, /Bestätigungscode/, since, 3_000)).rejects.toThrow();

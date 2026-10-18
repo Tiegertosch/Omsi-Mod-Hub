@@ -8,6 +8,8 @@
  * PostgreSQL-Volltextsuche (tsvector) bzw. ein pg_trgm-Index vorgesehen.
  */
 
+import { richTextToPlain } from "@/lib/rich-text";
+
 export const MAX_QUERY_LENGTH = 100;
 export const MAX_QUERY_TERMS = 6;
 
@@ -23,7 +25,7 @@ export function buildSearchText(parts: {
   extra?: readonly (string | null | undefined)[];
 }): string {
   return normalizeSearchText(
-    [parts.title, parts.summary, parts.description, ...(parts.tags ?? []), ...(parts.extra ?? [])]
+    [parts.title, parts.summary, richTextToPlain(parts.description), ...(parts.tags ?? []), ...(parts.extra ?? [])]
       .filter(Boolean)
       .join(" "),
   );

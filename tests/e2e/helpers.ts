@@ -135,7 +135,7 @@ export async function createSubmittableProject(page: Page, title: string) {
   await openEditorTab(page, "Beschreibung");
   await germanTexts(page).getByLabel("Titel", { exact: true }).fill(title);
   await germanTexts(page).getByLabel("Kurzbeschreibung").fill("Ein Testbus aus dem E2E-Test.");
-  await germanTexts(page).getByLabel("Beschreibung", { exact: true }).fill("Ausführliche Beschreibung.\n\nZweiter Absatz.");
+  await germanTexts(page).getByRole("textbox", { name: "Beschreibung", exact: true }).fill("Ausführliche Beschreibung.\n\nZweiter Absatz.");
   await page.getByRole("button", { name: "Projekt anlegen" }).click();
   // Nach dem Anlegen geht es direkt im Tab „Bilder“ weiter.
   await expect(page).toHaveURL(/\/de\/dashboard\/projects\/[a-z0-9]+\/edit#media$/);
