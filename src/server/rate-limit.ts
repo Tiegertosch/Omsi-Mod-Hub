@@ -30,6 +30,17 @@ export async function consumeRateLimit(key: string, limit: number, windowMs: num
   return true;
 }
 
+/**
+ * Zeitpunkt (Unix-ms), ab dem das Limit wieder frei ist – `null`, wenn es
+ * gerade nicht ausgeschöpft ist. Zählt selbst nichts.
+ */
+export async function rateLimitResetAt(key: string, limit: number, windowMs: number): Promise<number | null> {
+  const row = await db.rateLimit.findUnique({ where: { key: `app:${key}` } });
+  if (!row || row.count < limit) return null;
+  const resetAt = Number(row.lastRequest) + windowMs;
+  return resetAt > Date.now() ? resetAt : null;
+}
+
 /** Prüft mehrere Limits; alle müssen eingehalten werden. */
 export async function consumeRateLimits(rules: { key: string; limit: number; windowMs: number }[]) {
   let allowed = true;

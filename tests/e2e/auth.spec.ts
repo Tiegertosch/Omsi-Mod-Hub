@@ -210,7 +210,9 @@ test("Einstellungen: Anzeigename, Sprache und Passwort", async ({ page }) => {
   await expect(passwordSection.getByRole("status")).toContainText("Your password has been changed");
 });
 
-test("Bestätigungscode erneut senden: neuer Code ersetzt den alten, Wartezeit dazwischen", async ({ page }) => {
+test("Bestätigungscode erneut senden: neuer Code ersetzt den alten, danach 5 Minuten Sperre", async ({ page, browser }) => {
+  // Uhr der Seite steuern, um das Ende der Sperre zu prüfen (der Server rechnet mit echter Zeit).
+  await page.clock.install();
   const user = uniqueUser();
   const since = Date.now() - 1000;
   await register(page, user);
@@ -221,9 +223,33 @@ test("Bestätigungscode erneut senden: neuer Code ersetzt den alten, Wartezeit d
   await expect(page.getByRole("status").filter({ hasText: "neuen Code geschickt" })).toBeVisible();
   const secondCode = await waitForMailCode(user.email, beforeResend);
 
-  // Sofort noch einmal: Wartezeit
-  await page.getByRole("button", { name: "Code erneut senden" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Bitte warte eine Minute" })).toBeVisible();
+  // Statt des Buttons läuft ein Countdown
+  const resendButton = page.getByRole("button", { name: "Code erneut senden" });
+  await expect(resendButton).toHaveCount(0);
+  await expect(page.getByText(/^Neuer Code verfügbar in [45]:\d\d$/)).toBeVisible();
+  await page.clock.fastForward(60_000);
+  await expect(page.getByText(/^Neuer Code verfügbar in [34]:\d\d$/)).toBeVisible();
+
+  // Auch nach dem Neuladen gesperrt (die Restzeit kommt vom Server)
+  await page.reload();
+  await expect(page.getByText(/^Neuer Code verfügbar in [345]:\d\d$/)).toBeVisible();
+  await expect(resendButton).toHaveCount(0);
+
+  // Serverseitige Sperre: anderes Gerät, Adresse von Hand eingegeben – keine weitere Mail
+  const other = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
+  const otherPage = await other.newPage();
+  await otherPage.goto("/de/confirm-email");
+  await otherPage.getByLabel("E-Mail-Adresse").fill(user.email);
+  const beforeBlocked = Date.now();
+  await otherPage.getByRole("button", { name: "Code erneut senden" }).click();
+  await expect(otherPage.getByRole("alert").filter({ hasText: "Bitte warte, bis du einen neuen Code anfordern kannst." })).toBeVisible();
+  await expect(otherPage.getByText(/^Neuer Code verfügbar in [345]:\d\d$/)).toBeVisible();
+  await expect(waitForMail(user.email, /Bestätigungscode/, beforeBlocked, 2_000)).rejects.toThrow();
+  await other.close();
+
+  // Nach Ablauf der 5 Minuten ist der Button wieder da
+  await page.clock.fastForward(5 * 60_000);
+  await expect(resendButton).toBeVisible();
 
   if (firstCode !== secondCode) {
     await enterCode(page, firstCode);

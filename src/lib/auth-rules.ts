@@ -14,3 +14,5 @@ export const VERIFICATION_CODE_LENGTH = 6;
 export const VERIFICATION_CODE_MINUTES = 15;
 /** Falsche Eingaben pro Code, danach muss ein neuer angefordert werden */
 export const VERIFICATION_CODE_ATTEMPTS = 5;
+/** Wartezeit, bis nach einem neuen Code der nächste angefordert werden kann (gegen Mail-Spam) */
+export const RESEND_COOLDOWN_MINUTES = 5;

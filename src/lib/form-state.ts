@@ -35,10 +35,16 @@ export type FieldErrorCode =
 
 export type FormState<E extends string = FormErrorCode, F extends string = FieldErrorCode> =
   | { status: "idle" }
-  | { status: "success"; message?: string }
+  | {
+      status: "success";
+      message?: string;
+      /** Ab wann (Unix-ms, Serverzeit) die Aktion wieder möglich ist, z. B. „Code erneut senden“ */
+      retryAt?: number;
+    }
   | {
       status: "error";
       code: E;
+      retryAt?: number;
       /** Schlüssel ist der Feldpfad, z. B. "email" oder "translations.de.title" */
       fieldErrors?: Record<string, F>;
       /** zuvor eingegebene Werte (niemals Passwörter) */

@@ -294,7 +294,7 @@
       "code_invalid": "The code is incorrect or no longer valid.",
       "code_expired": "The code has expired. Please request a new one.",
       "code_attempts": "Too many incorrect attempts. Please request a new code.",
-      "resend_cooldown": "Please wait a minute before requesting a new code.",
+      "resend_cooldown": "Please wait until you can request a new code.",
       "terms_required": "Please accept the current terms of use first. Reload the page to see them."
     },
     "fieldErrors": {
@@ -319,6 +319,7 @@
     "submitCode": "Confirm",
     "noCode": "Didn't get an email?",
     "resendCode": "Send code again",
+    "resendAvailableIn": "New code available in {time}",
     "codeResent": "If an unconfirmed account belongs to {email}, we sent a new code. Older codes are no longer valid.",
     "codeExistingAccount": "Already confirmed your account? Then <login>sign in</login> or <reset>reset your password</reset>.",
     "stepsLabel": "Registration progress",

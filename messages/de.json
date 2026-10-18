@@ -294,7 +294,7 @@
       "code_invalid": "Der Code ist falsch oder nicht mehr gültig.",
       "code_expired": "Der Code ist abgelaufen. Fordere bitte einen neuen an.",
       "code_attempts": "Zu viele falsche Eingaben. Fordere bitte einen neuen Code an.",
-      "resend_cooldown": "Bitte warte eine Minute, bevor du einen neuen Code anforderst.",
+      "resend_cooldown": "Bitte warte, bis du einen neuen Code anfordern kannst.",
       "terms_required": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen."
     },
     "fieldErrors": {
@@ -319,6 +319,7 @@
     "submitCode": "Bestätigen",
     "noCode": "Keine E-Mail bekommen?",
     "resendCode": "Code erneut senden",
+    "resendAvailableIn": "Neuer Code verfügbar in {time}",
     "codeResent": "Wenn zu {email} ein unbestätigtes Konto gehört, haben wir einen neuen Code geschickt. Ältere Codes gelten damit nicht mehr.",
     "codeExistingAccount": "Dein Konto ist schon bestätigt? Dann <login>melde dich an</login> oder <reset>setze dein Passwort zurück</reset>.",
     "stepsLabel": "Fortschritt der Registrierung",

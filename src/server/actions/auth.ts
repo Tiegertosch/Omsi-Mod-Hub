@@ -24,6 +24,7 @@ import {
   rememberPendingRegistration,
 } from "@/server/pending-verification";
 import { clientKey, consumeRateLimits, hashKey } from "@/server/rate-limit";
+import { resendRetryAt, startResendCooldown } from "@/server/resend-cooldown";
 import { changeUnverifiedEmail } from "@/server/unverified-account";
 
 const MINUTE = 60 * 1000;
@@ -136,10 +137,6 @@ async function sendVerificationCode(email: string): Promise<void> {
 }
 
 /** Höchstens ein neuer Code pro Minute und Adresse (auch über die Anmeldung). */
-async function resendAllowed(email: string): Promise<boolean> {
-  return consumeRateLimits([{ key: `verify-resend:id:${hashKey(email)}`, limit: 1, windowMs: MINUTE }]);
-}
-
 const codeSchema = z.object({
   email: emailSchema,
   code: z
@@ -191,17 +188,26 @@ export async function resendVerificationCodeAction(_prev: FormState, formData: F
     return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom(parsed.error), values };
   }
 
+  const { email } = parsed.data;
+
+  // Sperre läuft noch: nichts zählen, nur die Restzeit für die Anzeige mitgeben.
+  const waitUntil = await resendRetryAt(email);
+  if (waitUntil) return { status: "error", code: "resend_cooldown", values, retryAt: waitUntil };
+
   const allowed = await consumeRateLimits([
     { key: await clientKey("verify-resend"), limit: 10, windowMs: HOUR },
-    { key: `verify-resend:hour:${hashKey(parsed.data.email)}`, limit: 5, windowMs: HOUR },
+    { key: `verify-resend:hour:${hashKey(email)}`, limit: 5, windowMs: HOUR },
   ]);
   if (!allowed) return { status: "error", code: "rate_limit", values };
-  if (!(await resendAllowed(parsed.data.email))) return { status: "error", code: "resend_cooldown", values };
+  // Zwei gleichzeitige Anfragen: nur die erste startet die Sperre und sendet.
+  if (!(await startResendCooldown(email))) {
+    return { status: "error", code: "resend_cooldown", values, retryAt: (await resendRetryAt(email)) ?? undefined };
+  }
 
-  await sendVerificationCode(parsed.data.email);
+  await sendVerificationCode(email);
   const pending = await readPendingRegistration();
-  if (pending?.email !== parsed.data.email) await rememberPendingRegistration({ email: parsed.data.email, username: "" });
-  return { status: "success", message: parsed.data.email };
+  if (pending?.email !== email) await rememberPendingRegistration({ email, username: "" });
+  return { status: "success", message: email, retryAt: (await resendRetryAt(email)) ?? undefined };
 }
 
 // ---------------------------------------------------------------------------
@@ -246,13 +252,13 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     const code = mapAuthError(error);
     if (code !== "email_not_verified") return { status: "error", code, values };
     // Better Auth meldet das erst nach korrektem Passwort: Die Adresse darf
-    // also angezeigt werden. Höchstens ein neuer Code pro Minute.
+    // also angezeigt werden. Neuer Code nur, wenn die Sperre zwischen zwei Codes abgelaufen ist.
     const account = await db.user.findUnique({
       where: identifier.includes("@") ? { email: identifier } : { username: identifier },
       select: { email: true, username: true },
     });
     if (!account) return { status: "error", code: "generic", values };
-    if (await resendAllowed(account.email)) await sendVerificationCode(account.email);
+    if (await startResendCooldown(account.email)) await sendVerificationCode(account.email);
     await rememberPendingRegistration(account);
     const next = safeRedirectPath(text(formData, "next"), "");
     redirect(`/${locale}/confirm-email?unverified=1${next ? `&next=${encodeURIComponent(next)}` : ""}`);
