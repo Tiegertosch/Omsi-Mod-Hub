@@ -52,6 +52,8 @@ function Inline({ content }: { content: LegalInline[] }) {
       <strong key={index} className="font-semibold text-fg">
         {part.text}
       </strong>
+    ) : part.type === "break" ? (
+      <br key={index} />
     ) : part.type === "code" ? (
       <code key={index} className="rounded bg-surface-3 px-1 py-0.5 font-mono text-[0.85em] [overflow-wrap:anywhere] text-fg">
         {part.text}

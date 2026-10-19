@@ -179,11 +179,13 @@ test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) =>
   await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
   await expect(page.getByText("**")).toHaveCount(0);
 
-  // Englische Seite: gleicher deutscher Text mit Hinweis
+  // Englische Seite: eigene Fassung, kein Hinweis „nur Deutsch“
   await page.goto("/en/legal/privacy");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
-  await expect(page.getByText("This text is currently only available in German.")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "1. Definitionen" })).toBeVisible();
+  await expect(page.getByText("This text is currently only available in German.")).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(25);
+  await expect(page.getByRole("heading", { level: 3, name: "a) Personal data" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("table").getByRole("columnheader")).toHaveText(["Cookie", "Purpose", "Duration"]);
 });
 
 test("Fallback-Hinweis bei fehlender Übersetzung", async ({ page }) => {

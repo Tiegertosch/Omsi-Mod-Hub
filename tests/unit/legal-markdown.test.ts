@@ -103,6 +103,36 @@ describe("parseLegalMarkdown", () => {
     expect(parseLegalMarkdown("Text\n- kein Punkt")[0]?.type).toBe("paragraph");
   });
 
+  it("hat in beiden Fassungen der Datenschutzerklärung dieselben Abschnitte", () => {
+    const parse = (locale: string) =>
+      parseLegalMarkdown(readFileSync(path.join(process.cwd(), "content", "legal", `privacy.${locale}.md`), "utf8"));
+    const numbers = (blocks: ReturnType<typeof parse>) =>
+      blocks.filter((b) => b.type === "heading" && b.level === 2).map((b) => (b.type === "heading" ? b.text.split(".")[0] : ""));
+    const de = parse("de");
+    const en = parse("en");
+    expect(numbers(en)).toEqual(numbers(de));
+    expect(numbers(en)).toHaveLength(25);
+
+    // Fett gesetzte Unterpunkte („**a) Personal data**“) werden zu Zwischenüberschriften.
+    expect(en).toContainEqual({ type: "heading", level: 3, text: "a) Personal data" });
+    // Adressblock mit Markdown-Zeilenumbrüchen
+    expect(en).toContainEqual({
+      type: "paragraph",
+      content: [
+        { type: "strong", text: "Hetzner Online GmbH" },
+        { type: "break", text: "\n" },
+        { type: "text", text: "Industriestr. 25" },
+        { type: "break", text: "\n" },
+        { type: "text", text: "91710 Gunzenhausen" },
+        { type: "break", text: "\n" },
+        { type: "text", text: "Germany" },
+      ],
+    });
+    const text = JSON.stringify(en);
+    expect(text).not.toContain("**");
+    expect(text).not.toContain("`");
+  });
+
   it("hat in beiden Fassungen der Nutzungsbedingungen dieselben Abschnitte", () => {
     const headings = (locale: string) =>
       parseLegalMarkdown(readFileSync(path.join(process.cwd(), "content", "legal", "terms", `${TERMS_VERSION}.${locale}.md`), "utf8"))

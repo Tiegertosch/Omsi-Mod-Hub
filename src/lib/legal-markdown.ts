@@ -10,6 +10,7 @@ export type LegalInline =
   | { type: "text"; text: string }
   | { type: "strong"; text: string }
   | { type: "code"; text: string }
+  | { type: "break"; text: "\n" }
   | { type: "link"; text: string; href: string };
 
 export type LegalBlock =
@@ -56,6 +57,29 @@ export function parseInline(text: string): LegalInline[] {
   return result;
 }
 
+/**
+ * Zeilen eines Absatzes werden zu einem Fließtext verbunden. Endet eine Zeile
+ * mit zwei Leerzeichen (Markdown-Zeilenumbruch, z. B. in Adressblöcken), bleibt
+ * der Umbruch erhalten.
+ */
+function paragraphContent(chunk: string): LegalInline[] {
+  const lines = chunk.split("\n");
+  // Ohne Zeilenumbruch wie bisher als Ganzes, damit Fettdruck über Zeilen hinweg erhalten bleibt.
+  if (!lines.slice(0, -1).some((line) => / {2,}$/.test(line))) return parseInline(chunk.replace(/\s*\n\s*/g, " "));
+  const content: LegalInline[] = [];
+  lines.forEach((line, index) => {
+    content.push(...parseInline(line.trim()));
+    if (index < lines.length - 1) content.push(/ {2,}$/.test(line) ? { type: "break", text: "\n" } : { type: "text", text: " " });
+  });
+  // Benachbarte Textteile zusammenfassen, damit das Ergebnis wie ein einzeiliger Absatz aussieht.
+  return content.reduce<LegalInline[]>((merged, part) => {
+    const previous = merged.at(-1);
+    if (part.type === "text" && previous?.type === "text") previous.text += part.text;
+    else merged.push({ ...part });
+    return merged;
+  }, []);
+}
+
 /** Zerlegt den Text in Blöcke; die Hauptüberschrift (`# …`) entfällt, die Seite setzt den Titel selbst. */
 export function parseLegalMarkdown(source: string): LegalBlock[] {
   const blocks: LegalBlock[] = [];
@@ -91,10 +115,11 @@ export function parseLegalMarkdown(source: string): LegalBlock[] {
       const previous = blocks.at(-1);
       if (previous?.type === "list") previous.items.push(item);
       else blocks.push({ type: "list", items: [item] });
-    } else if (SUBHEADING.test(text)) {
-      blocks.push({ type: "heading", level: 3, text: typography(text) });
+    } else if (SUBHEADING.test(stripStrong(text))) {
+      // Unterpunkte auch fett gesetzt („**a) Personal data**“, englische Fassung).
+      blocks.push({ type: "heading", level: 3, text: typography(stripStrong(text)) });
     } else {
-      blocks.push({ type: "paragraph", content: parseInline(text) });
+      blocks.push({ type: "paragraph", content: paragraphContent(chunk) });
     }
   }
   return blocks;
