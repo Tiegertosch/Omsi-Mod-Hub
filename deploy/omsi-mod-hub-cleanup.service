@@ -1,0 +1,23 @@
+# Löscht Betriebsdaten nach den Fristen in src/lib/retention.ts (alte
+# Rate-Limit-Einträge mit IP-Adressen, abgelaufene Sitzungen und Codes, nie
+# bestätigte Konten). Ausgelöst durch omsi-mod-hub-cleanup.timer.
+# Kopieren nach /etc/systemd/system/ (zusammen mit dem Timer).
+
+[Unit]
+Description=OMSI Mod Hub Datenbereinigung (Löschfristen)
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=oneshot
+User=omsi
+Group=omsi
+WorkingDirectory=/opt/omsi-mod-hub/current
+EnvironmentFile=/etc/omsi-mod-hub/env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node node_modules/tsx/dist/cli.mjs scripts/cleanup-data.ts
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true

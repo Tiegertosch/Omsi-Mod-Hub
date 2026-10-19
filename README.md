@@ -130,6 +130,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm db:studio` | Prisma Studio öffnen |
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Rolle eines bestätigten Kontos setzen (lokales CLI, mit Audit-Log) |
 | `pnpm mail:test <email>` | SMTP-Konfiguration prüfen und eine Testmail senden |
+| `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen und Codes, nach 7 Tagen unbestätigte Konten (auf dem Server täglich per Timer) |
 
 **Beispieldaten:** Alle Creator und Projekte aus dem Seed sind fiktiv, mit `isSample = true` markiert, in der Oberfläche als „Beispieldaten“ gekennzeichnet, per `noindex` von Suchmaschinen ausgeschlossen und verlinken nur auf `example.com`. Die Illustrationen unter `public/samples/` wurden eigens erstellt. Der Seed legt **keine Admin-Konten und keine Passwörter** an.
 
@@ -155,6 +156,7 @@ Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy
 
 - `deploy.sh`: Deployment mit Release-Ordnern, Health-Check und automatischem Rollback
 - `backup.sh`: tägliches Backup von Datenbank und Bildern
+- `omsi-mod-hub-cleanup.timer`: tägliche Datenbereinigung nach den Löschfristen
 - systemd-Units, `Caddyfile.example`, `env.production.example`
 
 `GET /api/health` meldet, ob die App und die Datenbank erreichbar sind; der Endpunkt ist für das Monitoring gedacht.

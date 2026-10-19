@@ -1,0 +1,14 @@
+# Tägliche Datenbereinigung um 04:15 Uhr (Serverzeit). Aktivieren mit:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now omsi-mod-hub-cleanup.timer
+
+[Unit]
+Description=Tägliche Datenbereinigung von OMSI Mod Hub
+
+[Timer]
+OnCalendar=*-*-* 04:15:00
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -215,10 +215,12 @@ Bei einer späteren Änderung am Caddyfile genügt `sudo systemctl reload caddy`
 ```bash
 sudo cp /tmp/omsi-setup/deploy/omsi-mod-hub.service \
         /tmp/omsi-setup/deploy/omsi-mod-hub-backup.service \
-        /tmp/omsi-setup/deploy/omsi-mod-hub-backup.timer /etc/systemd/system/
+        /tmp/omsi-setup/deploy/omsi-mod-hub-backup.timer \
+        /tmp/omsi-setup/deploy/omsi-mod-hub-cleanup.service \
+        /tmp/omsi-setup/deploy/omsi-mod-hub-cleanup.timer /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable omsi-mod-hub
-sudo systemctl enable --now omsi-mod-hub-backup.timer
+sudo systemctl enable --now omsi-mod-hub-backup.timer omsi-mod-hub-cleanup.timer
 ```
 
 ## 7. Erstes Deployment
@@ -278,7 +280,23 @@ sudo systemctl restart omsi-mod-hub
 ```bash
 journalctl -u omsi-mod-hub -f            # App
 sudo tail -f /var/log/caddy/omsi-mod-hub.log
-systemctl list-timers omsi-mod-hub-backup.timer
+systemctl list-timers 'omsi-mod-hub-*'
+journalctl -u omsi-mod-hub-cleanup        # Ergebnis der Datenbereinigung
+```
+
+**Löschfristen:** Der Timer `omsi-mod-hub-cleanup` löscht täglich um 04:15 Uhr alte Rate-Limit-Einträge (enthalten IP-Adressen, nach 24 Stunden), abgelaufene Sitzungen, Codes und Links sowie Konten, die nach 7 Tagen noch nicht bestätigt sind (`src/lib/retention.ts`). Caddy bewahrt Zugriffslogs höchstens 14 Tage auf (`roll_keep_for` im Caddyfile). Manuell: `sudo systemctl start omsi-mod-hub-cleanup`.
+
+**Löschfristen auf einer bestehenden Beta nachrüsten** (einmalig, nach dem Deploy dieser Version):
+
+```bash
+sudo cp /opt/omsi-mod-hub/current/deploy/omsi-mod-hub-cleanup.service \
+        /opt/omsi-mod-hub/current/deploy/omsi-mod-hub-cleanup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now omsi-mod-hub-cleanup.timer
+sudo systemctl start omsi-mod-hub-cleanup && journalctl -u omsi-mod-hub-cleanup -n 5 --no-pager
+# Im Caddyfile im log-Block die Zeile `roll_keep_for 336h` ergänzen (siehe deploy/Caddyfile.example):
+sudo nano /etc/caddy/Caddyfile
+sudo systemctl reload caddy
 ```
 
 **Backups:** täglich um 03:30 Uhr nach `/var/lib/omsi-mod-hub/backups` (14 Tage). Manuell: `sudo -iu omsi /opt/omsi-mod-hub/backup.sh`. Wiederherstellen steht im Kopf von `deploy/backup.sh`.

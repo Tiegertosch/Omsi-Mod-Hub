@@ -42,6 +42,9 @@ BETA.EXAMPLE.COM {
 		output file /var/log/caddy/omsi-mod-hub.log {
 			roll_size 20MiB
 			roll_keep 5
+			# Zugriffslogs enthalten IP-Adressen: höchstens 14 Tage aufbewahren
+			# (Caddy-Standard wären 90 Tage). Frist steht in der Datenschutzerklärung.
+			roll_keep_for 336h
 		}
 	}
 }

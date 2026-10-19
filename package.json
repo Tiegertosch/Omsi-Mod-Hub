@@ -24,7 +24,8 @@
     "db:clear-samples": "tsx prisma/seed.ts --clear-samples",
     "db:studio": "prisma studio",
     "user:set-role": "tsx scripts/set-role.ts",
-    "mail:test": "tsx scripts/send-test-mail.ts"
+    "mail:test": "tsx scripts/send-test-mail.ts",
+    "data:cleanup": "tsx scripts/cleanup-data.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

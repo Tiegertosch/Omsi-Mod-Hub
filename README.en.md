@@ -132,6 +132,7 @@ Template: [.env.example](.env.example). Real credentials never belong in the rep
 | `pnpm db:studio` | Open Prisma Studio |
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Set the role of a confirmed account (local CLI, with audit log) |
 | `pnpm mail:test <email>` | Check the SMTP configuration and send a test email |
+| `pnpm data:cleanup` | Apply retention periods: old rate-limit entries, expired sessions and codes, accounts unconfirmed after 7 days (daily via timer on the server) |
 
 **Sample data:** All creators and projects from the seed are fictional, marked with `isSample = true`, labelled as "Sample data" in the interface, excluded from search engines via `noindex` and only link to `example.com`. The illustrations under `public/samples/` were made specifically for this project. The seed creates **no admin accounts and no passwords**.
 
@@ -157,6 +158,7 @@ The first beta runs on its own Linux server (Node.js with systemd, Caddy as HTTP
 
 - `deploy.sh`: deployment with release folders, health check and automatic rollback
 - `backup.sh`: daily backup of database and images
+- `omsi-mod-hub-cleanup.timer`: daily data cleanup according to the retention periods
 - systemd units, `Caddyfile.example`, `env.production.example`
 
 `GET /api/health` reports whether the app and the database are reachable; the endpoint is intended for monitoring.
