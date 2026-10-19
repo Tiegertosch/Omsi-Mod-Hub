@@ -340,7 +340,7 @@ Danach wie in Abschnitt 8 neu registrieren und die Admin-Rolle setzen, dann ein 
 - [x] Nutzungsbedingungen rechtlich geprüft, Entwurfshinweis entfernt
 - [ ] Datenschutzerklärung um E-Mail-Versand (dogado) und Cookies ergänzt; Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
 - [ ] Basic Auth und `X-Robots-Tag` im Caddyfile entfernen; `robots.txt` und Sitemap prüfen
-- [ ] Content-Security-Policy ergänzen
+- [x] Content-Security-Policy ergänzen
 - [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen
 - [ ] Backup außerhalb des Servers eingerichtet und Wiederherstellung getestet
 - [ ] Bei Wachstum: Objektspeicher für Bilder, gemeinsamer Cache-Handler, ggf. verwaltete Datenbank (siehe ARCHITECTURE.md)

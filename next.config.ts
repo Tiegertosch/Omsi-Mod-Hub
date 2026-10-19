@@ -3,7 +3,31 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+/**
+ * Content-Security-Policy ohne Nonces (Next.js-Leitfaden „Without Nonces“):
+ * Nonces erzwingen dynamisches Rendern jeder Seite und vertragen sich nicht
+ * mit Partial Prerendering. Inline-Skripte bleiben daher erlaubt (Next.js
+ * braucht sie für die Hydration); alles andere ist auf die eigene Herkunft
+ * beschränkt – keine fremden Skripte, Verbindungen, Frames, Plugins oder
+ * Formularziele. Schriften liefert next/font selbst aus, Bilder kommen aus
+ * /_next/image, /media und /samples. 'unsafe-eval' nur für `next dev`.
+ */
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "frame-src 'none'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },

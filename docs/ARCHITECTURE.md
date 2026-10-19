@@ -144,7 +144,7 @@ Auth.js v5 ist seit Jahren im Beta-Stadium, die stabile v4 ist nicht für den Ap
 - Datenbankzugriff nur über Prisma bzw. parametrisierte Tagged Templates → kein SQL-Injection-Risiko.
 - Server Actions prüfen den Origin (CSRF-Schutz von Next.js). Meldungen: Zod, Honeypot, Rate-Limit (5 pro 10 Minuten). Rate-Limit-Zähler liegen in der Tabelle `RateLimit`; IP-Adressen werden dort nur als Hash gespeichert.
 - Fehlerseiten zeigen keine internen Details; Server-Logs enthalten keine personenbezogenen Daten.
-- Header: `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, kein `X-Powered-By`. **Offen:** Content-Security-Policy (mit Nonces, kompatibel zu PPR).
+- Header: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, kein `X-Powered-By`. Die CSP kommt ohne Nonces aus (Next.js-Leitfaden „Without Nonces“): Nonces erzwingen dynamisches Rendern und sind mit Partial Prerendering unvereinbar, das experimentelle SRI deckt die Inline-Skripte der Hydration nicht ab. Deshalb `script-src 'self' 'unsafe-inline'` (`'unsafe-eval'` nur in `next dev`), sonst alles `'self'`, `object-src`/`frame-src`/`frame-ancestors 'none'`. Schutz vor eingeschleustem Markup bleibt Aufgabe der Darstellung: React escaped, der Formatierungs-Parser erzeugt kein HTML. `tests/e2e/csp.spec.ts` prüft zentrale Seiten auf Verstöße und dass fremde Skripte blockiert werden. Lokale Werbeblocker (z. B. AdGuard) ergänzen die Richtlinie im Browser um eigene Quellen – das ist kein Fehler der Seite.
 
 ### UI
 

@@ -75,7 +75,6 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
 1. **Vor einem öffentlichen Start:**
    - Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
    - Basic Auth und noindex entfernen
-   - Content-Security-Policy ergänzen
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
 2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Technisch fehlt dafür noch: E-Mail an gesperrte Nutzer mit Begründung, ein Beschwerdeweg gegen Moderationsentscheidungen, Linkstatus „gesperrt“ im Adminbereich setzen.

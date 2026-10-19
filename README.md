@@ -214,7 +214,7 @@ tests/
 - **Linkaufrufe** werden ohne Bot-Erkennung über die User-Agent-Heuristik hinaus gezählt und sind daher eine Näherung.
 - **Nur Dark Mode**; ein helles Theme ist nicht geplant, solange es keinen Bedarf gibt.
 - **Rechtstexte:** Das Impressum enthält die Angaben aus dem Impressums-Service (online-impressum.de). Die Datenschutzerklärung stammt aus dem Generator von WBS Legal und liegt unverändert als `content/legal/privacy.de.md` (neue Fassung: Datei ersetzen; die englische Seite zeigt den deutschen Text mit Hinweis). Die Nutzungsbedingungen liegen versioniert unter `content/legal/terms/<fassung>.de.md` (maßgeblich) und `.en.md` (Lesefassung); eine neue Fassung wird in `src/lib/legal.ts` eingetragen, angemeldete Nutzer müssen ihr dann per Popup zustimmen oder ihr Konto schließen. Die Bedingungen sind rechtlich geprüft. Registrierung ab 16 Jahren (Bestätigung per Checkbox).
-- Content-Security-Policy ist noch nicht gesetzt (andere Sicherheits-Header schon).
+- **Content-Security-Policy ohne Nonces:** Nonces würden jede Seite dynamisch rendern und vertragen sich nicht mit Partial Prerendering. Inline-Skripte sind deshalb erlaubt; Skripte, Verbindungen, Frames, Plugins und Formularziele sind auf die eigene Herkunft beschränkt (`next.config.ts`).
 
 ## Nächste Schritte
 

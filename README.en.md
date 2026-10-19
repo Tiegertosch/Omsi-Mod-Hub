@@ -216,7 +216,7 @@ tests/
 - **Link clicks** are counted without bot detection beyond a user-agent heuristic and are therefore an approximation.
 - **Dark mode only**; a light theme is not planned as long as there is no demand.
 - **Legal texts:** The imprint contains the details from the imprint service (online-impressum.de). The privacy policy comes from the WBS Legal generator and is stored unchanged as `content/legal/privacy.de.md` (new version: replace the file; the English page shows the German text with a notice). The terms of use are versioned under `content/legal/terms/<version>.de.md` (binding) and `.en.md` (reading version); a new version is registered in `src/lib/legal.ts`, and signed-in users must then accept it via a popup or close their account. The terms have been legally reviewed. Registration from age 16 (confirmed via checkbox).
-- A Content Security Policy is not set yet (other security headers are).
+- **Content Security Policy without nonces:** nonces would render every page dynamically and are incompatible with Partial Prerendering. Inline scripts are therefore allowed; scripts, connections, frames, plugins and form targets are restricted to the site's own origin (`next.config.ts`).
 
 ## Next steps
 
