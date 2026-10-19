@@ -130,7 +130,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm db:studio` | Prisma Studio öffnen |
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Rolle eines bestätigten Kontos setzen (lokales CLI, mit Audit-Log) |
 | `pnpm mail:test <email>` | SMTP-Konfiguration prüfen und eine Testmail senden |
-| `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen und Codes, nach 7 Tagen unbestätigte Konten (auf dem Server täglich per Timer) |
+| `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen und Codes, nach 7 Tagen unbestätigte Konten, abgeschlossene Meldungen nach 6 und Protokolleinträge nach 12 Monaten (auf dem Server täglich per Timer) |
 
 **Beispieldaten:** Alle Creator und Projekte aus dem Seed sind fiktiv, mit `isSample = true` markiert, in der Oberfläche als „Beispieldaten“ gekennzeichnet, per `noindex` von Suchmaschinen ausgeschlossen und verlinken nur auf `example.com`. Die Illustrationen unter `public/samples/` wurden eigens erstellt. Der Seed legt **keine Admin-Konten und keine Passwörter** an.
 
@@ -148,7 +148,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm build` / `pnpm start` | Produktionsbuild / -server |
 | `pnpm test:e2e` | Playwright-Tests gegen den Produktionsbuild (vorher `pnpm build`, DB geseedet) |
 
-Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests starten einen eigenen Server auf Port 3000 (muss zu `BETTER_AUTH_URL` passen; ein schon laufender Server, z. B. `pnpm dev`, wird nicht mitbenutzt – der Lauf bricht dann ab). Der Testserver schreibt Mails in einen eigenen Ordner `.e2e-mail/`, `.dev-mail/` bleibt unberührt. Läuft gerade `pnpm dev` auf Port 3000, auf einen anderen Port ausweichen: `E2E_PORT=3001 BETTER_AUTH_URL=http://localhost:3001 pnpm test:e2e`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt; der Meldungstest auf der öffentlichen Seite legt einen Report an einem Beispielprojekt an, `pnpm db:seed` setzt die Beispieldaten zurück.
+Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright install chromium`. Die Tests starten einen eigenen Server auf Port 3000 (muss zu `BETTER_AUTH_URL` passen; ein schon laufender Server, z. B. `pnpm dev`, wird nicht mitbenutzt – der Lauf bricht dann ab). Der Testserver schreibt Mails in einen eigenen Ordner `.e2e-mail/`, `.dev-mail/` bleibt unberührt. Läuft gerade `pnpm dev` auf Port 3000, auf einen anderen Port ausweichen: `E2E_PORT=3001 BETTER_AUTH_URL=http://localhost:3001 pnpm test:e2e`. Angelegte Testkonten (`@e2e.example.com`) samt Projekten, Meldungen, Protokolleinträgen und Test-Mails sowie Test-Kategorien/-Tags (`e2e-…`) werden danach automatisch entfernt, ebenso Gast-Meldungen aus Tests (Text beginnt mit „E2E“).
 
 ## Betrieb / Deployment
 

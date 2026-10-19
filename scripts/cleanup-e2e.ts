@@ -67,7 +67,11 @@ async function main() {
     for (const key of keys) await unlink(path.join(UPLOAD_DIR, key)).catch(() => undefined);
 
     const projectIds = projects.map((p) => p.id);
-    const reports = await db.report.findMany({ where: { projectId: { in: projectIds } }, select: { id: true } });
+    // Meldungen an Testprojekten sowie Gast-Meldungen aus Tests (Text beginnt mit „E2E“, z. B. an Beispielprojekten).
+    const reports = await db.report.findMany({
+      where: { OR: [{ projectId: { in: projectIds } }, { description: { startsWith: "E2E" } }] },
+      select: { id: true },
+    });
     // Nur leere Test-Kategorien; Kategorien mit Projekten löscht die Datenbank nicht (Restrict).
     const categories = await db.category.findMany({
       where: { slug: { startsWith: E2E_SLUG_PREFIX }, projects: { none: {} } },
@@ -86,6 +90,7 @@ async function main() {
         ],
       },
     });
+    await db.report.deleteMany({ where: { id: { in: reports.map((r) => r.id) } } });
     await db.project.deleteMany({ where: { id: { in: projectIds } } });
     await db.category.deleteMany({ where: { id: { in: categories.map((c) => c.id) } } });
     await db.tag.deleteMany({ where: { id: { in: tags.map((t) => t.id) } } });
@@ -95,7 +100,7 @@ async function main() {
     const mails = await removeTestMails();
     console.log(
       `E2E-Aufräumen: ${count} Testkonten, ${projects.length} Projekte, ${keys.length} Bilder, ` +
-        `${categories.length} Kategorien, ${tags.length} Tags und ${mails} Test-Mails entfernt.`,
+        `${reports.length} Meldungen, ${categories.length} Kategorien, ${tags.length} Tags und ${mails} Test-Mails entfernt.`,
     );
   } finally {
     await db.$disconnect();

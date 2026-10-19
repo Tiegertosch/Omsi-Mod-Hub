@@ -284,7 +284,7 @@ systemctl list-timers 'omsi-mod-hub-*'
 journalctl -u omsi-mod-hub-cleanup        # Ergebnis der Datenbereinigung
 ```
 
-**Löschfristen:** Der Timer `omsi-mod-hub-cleanup` löscht täglich um 04:15 Uhr alte Rate-Limit-Einträge (enthalten IP-Adressen, nach 24 Stunden), abgelaufene Sitzungen, Codes und Links sowie Konten, die nach 7 Tagen noch nicht bestätigt sind (`src/lib/retention.ts`). Caddy bewahrt Zugriffslogs höchstens 14 Tage auf (`roll_keep_for` im Caddyfile). Manuell: `sudo systemctl start omsi-mod-hub-cleanup`.
+**Löschfristen:** Der Timer `omsi-mod-hub-cleanup` löscht täglich um 04:15 Uhr alte Rate-Limit-Einträge (enthalten IP-Adressen, nach 24 Stunden), abgelaufene Sitzungen, Codes und Links Konten, die nach 7 Tagen noch nicht bestätigt sind, abgeschlossene Meldungen 6 Monate nach dem Abschluss und Protokolleinträge nach 12 Monaten (`src/lib/retention.ts`). Caddy bewahrt Zugriffslogs höchstens 14 Tage auf (`roll_keep_for` im Caddyfile). Manuell: `sudo systemctl start omsi-mod-hub-cleanup`.
 
 **Löschfristen auf einer bestehenden Beta nachrüsten** (einmalig, nach dem Deploy dieser Version):
 
