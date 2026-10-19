@@ -1,5 +1,7 @@
 # **Privacy Policy**
 
+**This English version is provided for your convenience. Only the German version is legally binding.**
+
 We are pleased that you are interested in OMSI Mod Hub. Protecting personal data is important to us. You can generally visit our website without actively providing personal data. However, when you use specific features of OMSI Mod Hub, we may need to process personal data required to provide those features. We obtain consent where consent is required for the relevant processing. The website currently uses only technically necessary cookies; no cookie banner for analytics or advertising purposes is used.
 
 We handle personal data in accordance with applicable data protection laws. This Privacy Policy explains what data we process, why we process it, how long we retain it, and what rights you have.
