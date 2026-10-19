@@ -356,7 +356,8 @@ Danach wie in Abschnitt 8 neu registrieren und die Admin-Rolle setzen, dann ein 
 ## Vor dem öffentlichen Start
 
 - [x] Nutzungsbedingungen rechtlich geprüft, Entwurfshinweis entfernt
-- [ ] Datenschutzerklärung um E-Mail-Versand (checkdomain) und Cookies ergänzt; Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
+- [x] Datenschutzerklärung um E-Mail-Versand (checkdomain), Cookies und Löschfristen ergänzt
+- [ ] Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
 - [ ] Basic Auth und `X-Robots-Tag` im Caddyfile entfernen; `robots.txt` und Sitemap prüfen
 - [x] Content-Security-Policy ergänzen
 - [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen

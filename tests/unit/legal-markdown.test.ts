@@ -49,20 +49,32 @@ describe("parseLegalMarkdown", () => {
     const source = readFileSync(path.join(process.cwd(), "content", "legal", "privacy.de.md"), "utf8");
     const blocks = parseLegalMarkdown(source);
     const sections = blocks.filter((b) => b.type === "heading" && b.level === 2).map((b) => b.type === "heading" && b.text);
-    expect(sections).toHaveLength(16);
+    expect(sections).toHaveLength(25);
     expect(sections[0]).toBe("1. Definitionen");
     expect(sections[15]).toBe("16. Datenschutzbestimmungen zu Einsatz und Verwendung von Hetzner");
+    expect(sections[24]).toBe("25. Keine Drittanbieter-Inhalte im Browser");
     // Kein Markdown bleibt als Text stehen.
     const text = JSON.stringify(blocks);
     expect(text).not.toContain("**");
     expect(text).not.toContain("](");
     expect(text).not.toContain(" -- ");
+    expect(text).not.toContain("`");
+    expect(text).not.toContain("| ---");
 
-    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit vier Punkten.
+    // Cookie-Tabelle in Abschnitt 20: drei Cookies, Namen als Code
+    const table = blocks.find((b) => b.type === "table");
+    expect(table?.type === "table" && table.header.map((cell) => cell[0]?.text)).toEqual(["Cookie", "Zweck", "Dauer"]);
+    expect(table?.type === "table" && table.rows.map((row) => row[0]?.[0])).toEqual([
+      { type: "code", text: "better-auth.session_token" },
+      { type: "code", text: "omh-pending-registration" },
+      { type: "code", text: "NEXT_LOCALE" },
+    ]);
+
+    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit neun Punkten.
     const retention = blocks.find(
       (b) => b.type === "list" && b.items.some((item) => item.some((part) => part.text === "Zugriffslogs:")),
     );
-    expect(retention?.type === "list" && retention.items).toHaveLength(4);
+    expect(retention?.type === "list" && retention.items).toHaveLength(9);
   });
 
   it("erkennt Markdown-Listen mit „- “ in aufeinanderfolgenden Zeilen", () => {
@@ -79,6 +91,13 @@ describe("parseLegalMarkdown", () => {
         ],
       },
       { type: "paragraph", content: [{ type: "text", text: "Schluss." }] },
+    ]);
+    expect(parseLegalMarkdown("| A | B |\n| --- | --- |\n| `x` | **y** |")).toEqual([
+      {
+        type: "table",
+        header: [[{ type: "text", text: "A" }], [{ type: "text", text: "B" }]],
+        rows: [[[{ type: "code", text: "x" }], [{ type: "strong", text: "y" }]]],
+      },
     ]);
     // Ein Gedankenstrich mitten im Absatz bleibt Text.
     expect(parseLegalMarkdown("Text\n- kein Punkt")[0]?.type).toBe("paragraph");

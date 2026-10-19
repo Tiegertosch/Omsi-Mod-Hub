@@ -52,6 +52,10 @@ function Inline({ content }: { content: LegalInline[] }) {
       <strong key={index} className="font-semibold text-fg">
         {part.text}
       </strong>
+    ) : part.type === "code" ? (
+      <code key={index} className="rounded bg-surface-3 px-1 py-0.5 font-mono text-[0.85em] [overflow-wrap:anywhere] text-fg">
+        {part.text}
+      </code>
     ) : (
       part.text
     ),
@@ -81,6 +85,32 @@ function LegalDocumentView({ blocks, lang }: { blocks: LegalBlock[]; lang: strin
               </li>
             ))}
           </ul>
+        ) : block.type === "table" ? (
+          // Auf schmalen Bildschirmen scrollt nur die Tabelle, nicht die Seite.
+          <div key={index} className="overflow-x-auto">
+            <table className="w-full min-w-[34rem] border-collapse text-left text-sm">
+              <thead>
+                <tr>
+                  {block.header.map((cell, cellIndex) => (
+                    <th key={cellIndex} scope="col" className="border-b border-border-strong px-3 py-2 font-semibold text-fg">
+                      <Inline content={cell} />
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {block.rows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {row.map((cell, cellIndex) => (
+                      <td key={cellIndex} className="border-b border-border px-3 py-2 align-top">
+                        <Inline content={cell} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p key={index}>
             <Inline content={block.content} />

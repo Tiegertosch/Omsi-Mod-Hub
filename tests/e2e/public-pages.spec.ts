@@ -23,7 +23,10 @@ test("Kategorie-Kachel führt in den gefilterten Katalog", async ({ page }) => {
 
 test("Sprachumschaltung behält Pfad und Suchparameter", async ({ page }) => {
   await page.goto("/de/mods/busse?sort=updated");
-  await page.getByRole("banner").getByRole("link", { name: "English" }).click();
+  const english = page.getByRole("banner").getByRole("link", { name: "English" });
+  // Bis zur Hydration zeigt der statische Rahmen auf die Startseite; danach auf denselben Pfad.
+  await expect(english).toHaveAttribute("href", "/en/mods/busse?sort=updated");
+  await english.click();
   await expect(page).toHaveURL(/\/en\/mods\/busse\?sort=updated$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Buses & vehicles");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -159,13 +162,18 @@ test("Nutzungsbedingungen: geprüfte deutsche Fassung ohne Entwurfshinweis, engl
 test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) => {
   await page.goto("/de/legal/privacy");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Datenschutzerklärung");
-  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(16);
+  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(25);
   await expect(page.getByRole("heading", { name: "2. Name und Anschrift des Verantwortlichen" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "b) Recht auf Auskunft" })).toBeVisible();
   await expect(page.getByText("omsi-modhub – Tobias Schmidt")).toBeVisible();
   await expect(page.getByText("c/o Online-Impressum 11973")).toBeVisible();
   // Konkrete Löschfristen als Liste
-  await expect(page.getByRole("listitem").filter({ hasText: "Zugriffslogs: werden spätestens nach 14 Tagen gelöscht." })).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: "Zugriffslogs: spätestens nach 14 Tagen." })).toBeVisible();
+  // Cookie-Tabelle mit drei Zeilen
+  const cookies = page.getByRole("main").getByRole("table");
+  await expect(cookies.getByRole("columnheader")).toHaveText(["Cookie", "Zweck", "Dauer"]);
+  await expect(cookies.getByRole("row")).toHaveCount(4);
+  await expect(cookies.getByRole("cell", { name: "NEXT_LOCALE" })).toBeVisible();
   await expect(page.getByRole("listitem").filter({ hasText: /^Nicht bestätigte Konten:/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Fachanwälten für Internetrecht" })).toHaveAttribute("href", "https://www.wbs.legal/");
   await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);

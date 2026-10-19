@@ -1,6 +1,6 @@
 # **Datenschutzerklärung**
 
-Es freut uns sehr, dass Sie sich für unsere Organisation interessieren. Der Schutz Ihrer personenbezogenen Daten ist unserer Geschäftsleitung besonders wichtig. Sie können unsere Webseiten nutzen, ohne uns dabei personenbezogene Daten preiszugeben. Sofern Sie jedoch speziellere Dienste über unsere Webseiten, andere Internetauftritte, Applikationen und Social Media Seiten von uns eingeschlossen, in Anspruch nehmen möchten, müssen wir gegebenenfalls Ihre personenbezogenen Daten verarbeiten. Sofern wir Daten über Sie verarbeiten möchten und wir uns auf keine andere Rechtsgrundlage berufen können, fragen wir Sie immer zuerst nach Ihrer Einwilligung (z.B. über einem Cookie-Banner).
+Es freut uns sehr, dass Sie sich für unsere Organisation interessieren. Der Schutz Ihrer personenbezogenen Daten ist unserer Geschäftsleitung besonders wichtig. Sie können unsere Webseiten nutzen, ohne uns dabei personenbezogene Daten preiszugeben. Sofern Sie Funktionen von OMSI Mod Hub nutzen, verarbeiten wir die dafür erforderlichen personenbezogenen Daten. Eine Einwilligung holen wir ein, wenn sie für die jeweilige Verarbeitung erforderlich ist. Die Website verwendet nach aktuellem Stand ausschließlich technisch notwendige Cookies; ein Cookie-Banner für Analyse- oder Werbezwecke wird daher nicht eingesetzt.
 
 Wir halten uns beim Umgang mit Ihren personenbezogenen Daten (wie Name, Adresse, E-Mail oder Telefonnummer) stets an die geltenden Datenschutzgesetze. Mit dieser Datenschutzerklärung informieren wir Sie darüber, welche Daten wir verarbeiten. Außerdem erfahren Sie in dieser Datenschutzerklärung, welche Betroffenenrechte Sie haben.
 
@@ -86,13 +86,13 @@ Website: www.omsi-modhub.de
 
 Unsere Webseiten erfassen mit jedem Aufruf der Webseiten durch eine betroffene Person oder ein automatisiertes System eine Reihe von allgemeinen Daten und Informationen. Diese allgemeinen Daten und Informationen werden in den Logfiles des jeweiligen Servers gespeichert. Erfasst werden können unter anderem die (1) verwendeten Browsertypen und Versionen, (2) das vom zugreifenden System verwendete Betriebssystem, (3) die Webseite, von welcher ein zugreifendes System auf unsere Webseiten gelangt (sogenannte Referrer), (4) die Unterwebseiten, welche über ein zugreifendes System auf unseren Webseiten angesteuert werden, (5) das Datum und die Uhrzeit eines Zugriffs auf die Webseite, (6) eine Internet-Protokoll-Adresse (IP-Adresse), (7) der Internet-Service-Provider des zugreifenden Systems und (8) sonstige ähnliche Daten und Informationen, die der Gefahrenabwehr im Falle von Angriffen auf unsere informationstechnologischen Systeme dienen.
 
-Bei der Nutzung dieser allgemeinen Daten und Informationen ziehen wir keine Rückschlüsse auf die betroffene Person. Diese Informationen werden vielmehr benötigt, um (1) die Inhalte unserer Webseiten korrekt auszuliefern, (2) die Inhalte unserer Webseiten sowie die Werbung für diese zu optimieren, (3) die dauerhafte Funktionsfähigkeit unserer informationstechnologischen Systeme und der Technik unserer Webseiten zu gewährleisten sowie (4) um Strafverfolgungsbehörden im Falle eines Cyberangriffes die zur Strafverfolgung notwendigen Informationen bereitzustellen. Diese anonym erhobenen Daten und Informationen werden durch uns daher einerseits statistisch und ferner mit dem Ziel ausgewertet, den Datenschutz und die Datensicherheit in unserem Unternehmen zu erhöhen, um letztlich ein optimales Schutzniveau für die von uns verarbeiteten personenbezogenen Daten sicherzustellen. Die Daten der Server-Logfiles werden getrennt von allen durch eine betroffene Person angegebenen personenbezogenen Daten gespeichert.
+Bei der Nutzung dieser allgemeinen Daten und Informationen ziehen wir grundsätzlich keine Rückschlüsse auf die betroffene Person. Diese Informationen dienen dazu, die Website technisch bereitzustellen, die Stabilität und Sicherheit der informationstechnischen Systeme zu gewährleisten und Sicherheitsvorfälle zu untersuchen. Diese anonym erhobenen Daten und Informationen werden durch uns daher einerseits statistisch und ferner mit dem Ziel ausgewertet, den Datenschutz und die Datensicherheit in unserem Unternehmen zu erhöhen, um letztlich ein optimales Schutzniveau für die von uns verarbeiteten personenbezogenen Daten sicherzustellen. Die Daten der Server-Logfiles werden getrennt von allen durch eine betroffene Person angegebenen personenbezogenen Daten gespeichert.
 
 Zweck der Verarbeitung ist die Gefahrenabwehr und die Gewährleistung der IT-Sicherheit, sowie die vorerwähnten Zwecke. Rechtsgrundlage ist Art. 6 (1) (f) DS-GVO. Unser berechtigtes Interesse ist insbesondere der Schutz unserer informationstechnologischen Systeme. Die Zugriffslogs werden spätestens nach 14 Tagen gelöscht, sofern sie nicht ausnahmsweise zur Aufklärung eines konkreten Sicherheitsvorfalls oder aufgrund gesetzlicher Pflichten länger benötigt werden.
 
 ## **4. Kontaktmöglichkeit über die Webseite und andere Datenübermittlungen und Ihre Einwilligung**
 
-Unsere Webseiten enthalten Angaben, die eine schnelle elektronische Kontaktaufnahme zu unserem Unternehmen sowie eine unmittelbare Kommunikation mit uns ermöglichen, was ebenfalls eine allgemeine Adresse der sogenannten elektronischen Post (E-Mail-Adresse) und ggf. eine Telefonnummer umfasst. Sofern eine betroffene Person per E-Mail, über ein Kontaktformular, über ein Eingabeformular oder anderweitig mit uns Kontakt aufnimmt, werden die von der betroffenen Person übermittelten personenbezogenen Daten automatisch gespeichert. Solche auf freiwilliger Basis von einer betroffenen Person an uns übermittelten personenbezogenen Daten werden für Zwecke der Bearbeitung oder der Kontaktaufnahme zur betroffenen Person verarbeitet.
+Wenn Sie uns per E-Mail oder über eine auf der Website bereitgestellte Kontaktmöglichkeit kontaktieren, verarbeiten wir die von Ihnen übermittelten Angaben ausschließlich zur Bearbeitung Ihrer Anfrage und für etwaige Rückfragen.
 
 Für die Übermittlung, Speicherung und Verarbeitung Ihrer Kontaktdaten und Anfragen und die Kontaktaufnahme holen wir Ihre Einwilligung nach Art. 6 (1) (a) DS-GVO und Art. 49 (1) (1) (a) DS-GVO wie folgt ein:
 
@@ -214,7 +214,7 @@ Möchte eine betroffene Person dieses Recht in Anspruch nehmen, kann sie sich hi
 
 Allgemeiner Zweck der Verarbeitung personenbezogener Daten ist die Abwicklung sämtlicher Vorgänge, die den Verantwortlichen, Kunden, Interessenten, Geschäftspartner oder sonstige vertragliche oder vorvertragliche Beziehungen zwischen den genannten Gruppen (im weitesten Sinne) oder gesetzliche Pflichten des Verantwortlichen betreffen. Dieser allgemeine Zweck gilt, wenn keine spezifischeren Zwecke für eine konkrete Verarbeitung angegeben sind.
 
-Die Kategorien personenbezogener Daten, die von uns verarbeitet werden, sind Kundendaten, Interessentendaten, Beschäftigtendaten (inkl. Bewerberdaten) und Lieferantendaten. Die Kategorien von Empfängern der personenbezogenen Daten sind öffentliche Stellen, externe Stellen, interne Verarbeitung, konzerninterne Verarbeitung und sonstige Stellen.
+Je nach Nutzung von OMSI Mod Hub verarbeiten wir insbesondere Kontodaten, Profildaten, von Creatorn veröffentlichte Inhalte, Sitzungs- und Sicherheitsdaten, Meldungs- und Moderationsdaten sowie Kommunikationsdaten. Empfänger können technische Dienstleister sein, die wir zur Bereitstellung und zum sicheren Betrieb der Website einsetzen, sowie Behörden, sofern eine gesetzliche Verpflichtung besteht.
 
 Eine Liste unserer Auftragsverarbeiter und der Datenempfänger in Drittländer sowie ggf. der internationalen Organisationen ist entweder auf unserer Webseite veröffentlicht oder kann kostenfrei bei uns angefordert werden.
 
@@ -228,26 +228,29 @@ Wenn die Verarbeitung für die Wahrnehmung einer Aufgabe erforderlich ist, die i
 
 Letztlich könnten Verarbeitungsvorgänge auf Art. 6 (1) (f) DS-GVO beruhen. Auf dieser Rechtsgrundlage basieren Verarbeitungsvorgänge, die von keiner der vorgenannten Rechtsgrundlagen erfasst werden, wenn die Verarbeitung zur Wahrung eines berechtigten Interesses unseres Unternehmens oder eines Dritten erforderlich ist, sofern die Interessen, Grundrechte und Grundfreiheiten der betroffenen Person nicht überwiegen. Solche Verarbeitungsvorgänge sind uns insbesondere deshalb gestattet, weil sie durch den Europäischen Gesetzgeber besonders erwähnt wurden. Er vertrat insoweit die Auffassung, dass ein berechtigtes Interesse beispielsweise anzunehmen sein könnte, wenn die betroffene Person ein Kunde des Verantwortlichen ist (Erwägungsgrund 47 Satz 2 DS-GVO).
 
-## **9. Berechtigte Interessen an der Verarbeitung, die von dem Verantwortlichen oder einem Dritten verfolgt werden und Direktwerbung**
+## **9. Berechtigte Interessen an der Verarbeitung**
 
-Basiert die Verarbeitung personenbezogener Daten auf Art. 6 (1) (f) DS-GVO, und sind keine spezifischeren berechtigten Interessen angegeben, ist unser berechtigtes Interesse die Durchführung unserer Geschäftstätigkeit zugunsten des Wohlergehens unseres Personals und unserer Anteilseigner.
+Soweit wir personenbezogene Daten auf Grundlage von Art. 6 Abs. 1 lit. f DS-GVO verarbeiten, besteht unser berechtigtes Interesse insbesondere darin, OMSI Mod Hub sicher und funktionsfähig zu betreiben, Missbrauch zu verhindern, Meldungen zu bearbeiten und die Einhaltung der Plattformregeln zu gewährleisten.
 
-Wir können Ihnen Direktwerbung über eigene Waren oder Dienstleistungen zusenden, die den von Ihnen angefragten, beauftragten oder erworbenen Waren oder Dienstleistungen ähnlich sind. Sie dürfen der Direktwerbung jederzeit widersprechen (z.B. per E-Mail). Dabei entstehen Ihnen keine anderen Kosten als die Übermittlungskosten nach den Basistarifen. Die Verarbeitung personenbezogener Daten zu Zwecken der Direktwerbung basiert auf Art. 6 (1) (f) DS-GVO. Berechtigtes Interesse ist die Direktwerbung.
-
-Bei unseren Nachrichten und Newslettern kann es sich zudem um Kommunikation zu Zwecken der Direktwerbung im Sinne von Art. 13 Abs. 2 der EU-Richtlinie 2002/58 (Datenschutzrichtlinie für elektronische Kommunikation) und dem aus der Richtlinie resultierendem nationalen Recht handeln, sofern wir Ihre elektronischen und sonstigen Kontaktinformationen im Zusammenhang mit dem Verkauf einer Dienstleistung oder eines Produkts erhalten haben, was die Erstellung eines kostenfreien Nutzerkontos einschließt, durch welches Ihnen unter anderem gestattet ist, auf kostenfreie Inhalte auf unseren Webseiten und auf Publikationen (Newsletter etc.) zuzugreifen, sofern wir mit der Direktwerbung ähnliche Produkte oder Dienstleistungen bewerben, sodass die Direktwerbung auch ohne Einwilligung zulässig ist (vgl. EuGH, Urt. v. 13.11.2025, Rs. C 654/23). Die Verwendung der Kontaktinformationen können Sie in solchen Fällen jederzeit gebührenfrei ablehnen.
+OMSI Mod Hub versendet keine Newsletter und keine Direktwerbung. E-Mails werden ausschließlich anlassbezogen versendet, beispielsweise für die Kontobestätigung, das Zurücksetzen eines Passworts, Änderungen am Konto, die Bestätigung einer Kontolöschung oder Moderationsentscheidungen.
 
 ## **10. Dauer, für die die personenbezogenen Daten gespeichert werden**
 
-Das Kriterium für die Dauer der Speicherung von personenbezogenen Daten ist die jeweilige gesetzliche Aufbewahrungsfrist. Sofern keine gesetzliche Aufbewahrungsfrist besteht, ist das Kriterium die vertragliche oder interne Aufbewahrungsfrist. Nach Ablauf der Frist werden die entsprechenden Daten routinemäßig gelöscht, sofern sie nicht mehr zur Vertragserfüllung oder Vertragsanbahnung erforderlich sind. Dies gilt insbesondere für alle Verarbeitungen, bei denen keine spezifischeren Kriterien festgelegt wurden.
+Das Kriterium für die Dauer der Speicherung personenbezogener Daten ist die jeweilige gesetzliche Aufbewahrungsfrist oder, soweit keine solche besteht, die für den jeweiligen Zweck erforderliche Dauer. Nach Wegfall des Zwecks und Ablauf etwaiger gesetzlicher Aufbewahrungsfristen werden die Daten gelöscht, sofern keine andere rechtmäßige Grundlage für eine weitere Speicherung besteht.
 
-Für die Nutzung von OMSI Mod Hub gelten ergänzend folgende konkrete Löschfristen:
+Für OMSI Mod Hub gelten folgende vorgesehene Löschfristen:
 
-- **Zugriffslogs:** werden spätestens nach 14 Tagen gelöscht.
-- **Rate-Limit-Daten mit IP-Adressen:** werden nach 24 Stunden gelöscht.
-- **Sitzungsdaten:** werden bei der Abmeldung gelöscht und spätestens nach 30 Tagen entfernt.
-- **Nicht bestätigte Konten:** werden 7 Tage nach der Registrierung gelöscht, wenn die erforderliche Kontobestätigung bis dahin nicht erfolgt ist.
+- **Zugriffslogs:** spätestens nach 14 Tagen.
+- **Rate-Limit-Daten:** nach 24 Stunden. Die von OMSI Mod Hub selbst geführten Rate-Limit-Daten enthalten gehashte IP-Adressen. Das eingesetzte Anmeldesystem kann IP-Adressen für Sicherheits- und Missbrauchsschutz auch im Klartext verarbeiten.
+- **Sitzungsdaten und Einträge zu angemeldeten Geräten:** bei Abmeldung beziehungsweise spätestens nach 30 Tagen.
+- **Nicht bestätigte Konten:** 7 Tage nach der Registrierung, wenn die E-Mail-Adresse bis dahin nicht bestätigt wurde.
+- **Bestätigungs-, Passwortzurücksetzungs- und E-Mail-Änderungscodes beziehungsweise -Links:** sobald sie abgelaufen sind.
+- **Abgeschlossene Meldungen:** 6 Monate nach Abschluss. Offene Meldungen werden bis zur Bearbeitung gespeichert.
+- **Protokolleinträge zu Moderations- und Verwaltungsaktionen:** 12 Monate.
+- **Benutzerkonten und zugehörige Inhalte:** bis zur Löschung des Kontos durch den Nutzer, vorbehaltlich einer erforderlichen weiteren Speicherung aufgrund gesetzlicher Pflichten oder zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen.
+- **Backups:** Gelöschte Daten können noch bis zu 14 Tage in täglichen Backups enthalten sein. Sofern zusätzliche Server-Backups von Hetzner aktiviert sind, können Daten dort bis zu weitere 7 Tage enthalten sein.
 
-Soweit Daten im Einzelfall aufgrund gesetzlicher Pflichten oder zur Aufklärung eines konkreten Sicherheitsvorfalls länger aufbewahrt werden müssen, erfolgt dies nur im erforderlichen Umfang und für die dafür notwendige Dauer.
+Diese Fristen beschreiben die vorgesehene reguläre Speicherung. Soweit Daten im Einzelfall aufgrund gesetzlicher Pflichten oder zur Aufklärung eines konkreten Sicherheitsvorfalls länger benötigt werden, werden sie nur im erforderlichen Umfang und für die notwendige Dauer aufbewahrt.
 
 ## **11. Gesetzliche oder vertragliche Vorschriften zur Bereitstellung der personenbezogenen Daten; Erforderlichkeit für den Vertragsabschluss; Verpflichtung der betroffenen Person, die personenbezogenen Daten bereitzustellen; mögliche Folgen der Nichtbereitstellung**
 
@@ -279,17 +282,15 @@ Jede betroffene Person kann eine Kopie der Rahmenwerke von uns erhalten. Zudem s
 
 Als Verantwortlicher sind wir verpflichtet, dem Betroffenen das Bestehen eines Beschwerderechts bei einer Aufsichtsbehörde mitzuteilen. Das Beschwerderecht wird in Art. 77 (1) DS-GVO geregelt. Nach dieser Vorschrift hat jede betroffene Person unbeschadet eines anderweitigen verwaltungsrechtlichen oder gerichtlichen Rechtsbehelfs das Recht auf Beschwerde bei einer Aufsichtsbehörde, insbesondere in dem Mitgliedstaat ihres Aufenthaltsorts, ihres Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes, wenn die betroffene Person der Ansicht ist, dass die Verarbeitung der sie betreffenden personenbezogenen Daten gegen die Datenschutz-Grundverordnung verstößt. Das Beschwerderecht wurde durch den unionalen Gesetzgeber ausschließlich dahingehend beschränkt, dass es nur gegenüber einer einzigen Aufsichtsbehörde ausgeübt werden kann (Erwägungsgrund 141 Satz 1 DS-GVO). Diese Regelung soll Doppelbeschwerden in gleicher Sache durch die gleiche betroffene Person vermeiden. Sofern sich eine betroffene Person über uns beschweren möchte, wird deshalb darum gebeten, dass nur eine einzige Aufsichtsbehörde kontaktiert wird.
 
-## **15. Registrierung oder Ausfüllen von Eingabemasken auf unserer Webseite und Ihre Einwilligung**
+## **15. Registrierung und Eingabemasken auf unserer Webseite**
 
-Sie haben die Möglichkeit, sich auf unseren Webseiten unter Angabe von personenbezogenen Daten zu registrieren und/oder Eingabemasken auszufüllen. Welche personenbezogenen Daten dabei an uns übermittelt werden, ergibt sich aus der jeweiligen Eingabemaske, die für die Registrierung oder Eingabe verwendet wird. Die von Ihnen eingegebenen personenbezogenen Daten werden ausschließlich für die interne Verwendung bei uns und für eigene Zwecke verarbeitet. Wir können Ihre personenbezogenen Daten jedoch an einen oder mehrere Auftragsverarbeiter weitergeben, beispielsweise an Paketdienstleister, die Ihre personenbezogenen Daten ebenfalls ausschließlich für Zwecke nutzen, die uns als Verantwortlichen zuzurechnen sind. Eine Weitergabe kann auch stattfinden, wenn Sie die Weitergabe bei uns beauftragt haben, Rechtsgrundlage ist dann Art. 6 (1) (b) DS-GVO.
+Sie können sich auf OMSI Mod Hub registrieren und die dafür vorgesehenen Eingabemasken verwenden. Welche Daten dabei verarbeitet werden, ergibt sich aus den jeweiligen Eingabefeldern und den in dieser Datenschutzerklärung beschriebenen Funktionen. Die Daten werden zur Einrichtung und Verwaltung des Benutzerkontos, zur Bereitstellung der angeforderten Funktionen und zum Schutz vor Missbrauch verarbeitet.
 
-Durch eine Registrierung oder Eingabe auf unserer Webseite kann zudem die von Ihrem Internet-Service-Provider (ISP) vergebene IP-Adresse, das Datum sowie die Uhrzeit der Registrierung oder Eingabe gespeichert werden. Die Speicherung dieser Daten erfolgt vor dem Hintergrund, dass nur so der Missbrauch unserer Dienste verhindert werden kann, und diese Daten im Bedarfsfall ermöglichen, begangene Straftaten aufzuklären. Insofern ist die Speicherung dieser Daten zu unserer Absicherung erforderlich. Zweck dieser Verarbeitung ist die Gefahrenabwehr und Aufdeckung von Missbrauch und die Aufklärung von Straftaten, sowie die vorerwähnten Zwecke. Rechtsgrundlage ist Art. 6 (1) (f) DS-GVO. Unser berechtigtes Interesse ist insbesondere der Schutz unserer informationstechnologischen Systeme und die Aufklärung von Straftaten. Eine Weitergabe dieser Daten an Dritte erfolgt grundsätzlich nicht, sofern keine gesetzliche Pflicht zur Weitergabe besteht oder die Weitergabe der Strafverfolgung dient.
+Im Zusammenhang mit der Registrierung und Nutzung können außerdem IP-Adresse, Datum und Uhrzeit sowie weitere technische Sicherheitsdaten verarbeitet werden. Dies dient dem Schutz der informationstechnischen Systeme und der Verhinderung von Missbrauch. Soweit erforderlich, können Daten aufgrund gesetzlicher Pflichten an zuständige Stellen übermittelt werden.
 
-Die Registrierung, Eingabe und Übermittlung Ihrer personenbezogenen Daten dient uns auch dazu, Ihnen Inhalte oder Leistungen anzubieten, die aufgrund der Natur der Sache nur registrierten oder uns bekannten Personen angeboten werden können. Ihnen steht die Möglichkeit frei, die bei der Registrierung angegebenen personenbezogenen Daten jederzeit abändern oder vollständig aus unserem Datenbestand löschen zu lassen. Zwecke der Verarbeitung sind der Datenempfang durch uns und die Nutzung Ihrer Daten zu Weiterverarbeitung, zur Kommunikation mit Ihnen und die Abbildung oder Umsetzung der Registrierung oder der Eingabezwecke. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 (1) (a) DS-GVO und/oder Art. 49 (1) (1) (a) DS-GVO.
+Nutzer können ihr Konto selbst löschen. Die Löschung und die damit verbundenen Datenkategorien richten sich nach Abschnitt 17 sowie den Löschfristen in Abschnitt 10. Eine weitere Speicherung kann erforderlich sein, wenn gesetzliche Pflichten bestehen oder Daten zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen benötigt werden.
 
-**Mit der Eingabe und Übermittlung Ihrer Daten willigen Sie freiwillig in die Verarbeitung Ihrer eingegebenen personenbezogenen Daten ein. Indem Sie Ihre Daten eingeben und an uns übermitteln, erteilen Sie auch freiwillig eine ausdrückliche Einwilligung gem. Art. 49 (1) (1) (a) DS-GVO in Datenübermittlungen an Drittländer zu den und durch die in dieser Datenschutzerklärung genannten Unternehmen und die genannten Zwecke, insbesondere für solche Übermittlungen an Drittländer für die ein oder kein Angemessenheitsbeschluss der EU/EWR vorliegt sowie an Unternehmen oder sonstige Stellen, die einem bestehenden Angemessenheitsbeschluss nicht aufgrund einer Selbstzertifizierung oder anderer Beitrittskriterien unterfallen, und in denen oder für die erhebliche Risiken und keine geeigneten Garantien für den Schutz Ihrer personenbezogenen Daten bestehen (z.B. wegen § 702 FISA, Executive Order EO12333 und dem CloudAct in den USA). Bei Abgabe Ihrer freiwilligen und ausdrücklichen Einwilligung war Ihnen bekannt, dass in Drittländern unter Umständen kein angemessenes Datenschutzniveau gegeben ist und das Ihre Betroffenenrechte gegebenenfalls nicht durchgesetzt werden können. Sie können Ihre datenschutzrechtliche Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen. Durch den Widerruf der Einwilligung wird die Rechtmäßigkeit der aufgrund der Einwilligung bis zum Widerruf erfolgten Verarbeitung nicht berührt. Mit einer einzelnen Handlung (der Eingabe und Übermittlung), erteilen Sie mehrere Einwilligungen. Dabei handelt es sich sowohl um Einwilligungen nach dem EU/EWR-Datenschutzrecht als auch um die des CCPA/CPRA, ePrivacy und Telemedienrechts, und anderer internationaler Rechtsvorschriften, die unter anderem als Rechtsgrundlage für eine geplante weitere Verarbeitung Ihrer personenbezogenen Daten erforderlich sind. Mit Ihrer Handlung bestätigen Sie ebenfalls, diese Datenschutzerklärung gelesen und zur Kenntnis genommen zu haben.**
-
-Wir erteilen jeder betroffenen Person jederzeit auf Anfrage Auskunft darüber, welche personenbezogenen Daten über die betroffene Person gespeichert sind. Ferner berichtigen oder löschen wir personenbezogene Daten auf Wunsch oder Hinweis der betroffenen Person, soweit dem keine gesetzlichen Aufbewahrungspflichten oder andere eine Verarbeitung rechtfertigende Gründe entgegenstehen. All unsere Mitarbeiter stehen Ihnen in diesem Zusammenhang gerne als Ansprechpartner zur Verfügung.
+Sie können Auskunft über Ihre gespeicherten personenbezogenen Daten verlangen und unrichtige Daten berichtigen lassen. Daten werden auf Wunsch gelöscht, soweit keine gesetzlichen Pflichten oder andere rechtmäßige Gründe einer sofortigen Löschung entgegenstehen.
 
 ## **16. Datenschutzbestimmungen zu Einsatz und Verwendung von Hetzner**
 
@@ -306,3 +307,69 @@ Die Kriterien für die Festlegung der Dauer, für die die personenbezogenen Date
 Weitere Informationen und die geltenden Datenschutzbestimmungen von Hetzner können unter [https://www.hetzner.com](https://www.hetzner.com) eingesehen werden.
 
 Diese Datenschutzerklärung wurde durch die Nutzung eines Generators erstellt, der gemeinsam von [Fachanwälten für Internetrecht](https://www.wbs.legal/), [Datenschutzexperten](https://dg-datenschutz.de/) und der [ISO 22301 Zertifizierungsstelle](https://cert-authority.com/) entwickelt wurde.
+
+## **17. Benutzerkonto**
+
+Bei der Erstellung und Nutzung eines Benutzerkontos auf OMSI Mod Hub verarbeiten wir folgende Daten:
+
+- **Benutzername:** öffentlich sichtbar und nach der Registrierung nicht änderbar.
+- **Anzeigename:** kann im Rahmen des Kontos verwendet und im Creator-Profil öffentlich angezeigt werden.
+- **E-Mail-Adresse:** insbesondere zur Kontobestätigung und für kontobezogene Nachrichten.
+- **Passwort:** wird ausschließlich in gehashter Form gespeichert und nicht im Klartext abgelegt.
+- **Bevorzugte Sprache:** zur Anzeige der Website in der gewählten Sprache.
+- **Nutzungsbedingungen:** wir speichern, welcher Fassung der Nutzungsbedingungen zugestimmt wurde und wann die Zustimmung erfolgt ist.
+
+Die E-Mail-Adresse wird während der Registrierung durch einen sechsstelligen Bestätigungscode verifiziert. Dieser Code ist 15 Minuten gültig. Ein Benutzerkonto darf ab einem Alter von 16 Jahren erstellt werden.
+
+Nutzer können ihr Konto selbst löschen. Im Rahmen der Kontolöschung werden auch das Creator-Profil, Projekte, Bilder und Sitzungen entfernt, vorbehaltlich der unter Abschnitt 10 beschriebenen Backup-Fristen sowie etwaiger gesetzlicher Aufbewahrungspflichten.
+
+## **18. Öffentliche Inhalte von Creatorn**
+
+Creator können ein öffentlich sichtbares Profil mit Anzeigename, Beschreibung und Website sowie Projekte mit Texten, Bildern, Angaben zu Mitwirkenden, Versionen und Downloadlinks veröffentlichen. Diese Inhalte sind für Besucher der Website öffentlich zugänglich und können von Dritten eingesehen, kopiert oder weiterverbreitet werden.
+
+Hochgeladene Bilder werden vor der Bereitstellung neu kodiert. Dabei werden Bildmetadaten, insbesondere GPS- beziehungsweise Standortdaten, entfernt.
+
+## **19. E-Mail-Versand über checkdomain**
+
+Für den Versand von E-Mails nutzen wir ein SMTP-Postfach der **checkdomain GmbH, Lübeck**. Im Rahmen des E-Mail-Versands können die E-Mail-Adresse sowie der Anzeigename beziehungsweise Benutzername des Empfängers und der Inhalt der jeweiligen Nachricht verarbeitet beziehungsweise an den E-Mail-Dienstleister übermittelt werden.
+
+Es werden keine Newsletter und keine Werbe-E-Mails versendet. E-Mails werden nur durch konkrete Aktionen ausgelöst und können insbesondere folgende Nachrichten umfassen:
+
+- Bestätigungscode bei der Registrierung,
+- Hinweis, dass bereits ein Konto besteht,
+- Zurücksetzen des Passworts,
+- Mitteilung über eine Änderung der E-Mail-Adresse an die alte und die neue Adresse,
+- Bestätigung der Kontolöschung,
+- Mitteilungen über Moderationsentscheidungen an Creator.
+
+## **20. Technisch notwendige Cookies**
+
+OMSI Mod Hub verwendet nach aktuellem Stand ausschließlich technisch notwendige Cookies beziehungsweise browserseitige Speicherwerte für Anmeldung, Registrierung und Spracheinstellungen. Es werden keine Cookies zu Analyse- oder Werbezwecken eingesetzt.
+
+| Cookie | Zweck | Dauer |
+| --- | --- | --- |
+| `better-auth.session_token` beziehungsweise unter HTTPS `__Secure-better-auth.session_token` | Aufrechterhaltung der Anmeldung | 30 Tage; die Laufzeit verlängert sich bei Nutzung |
+| `omh-pending-registration` | Zwischenspeicherung von E-Mail-Adresse und Benutzername zwischen den beiden Registrierungsschritten | 24 Stunden; wird nach der Bestätigung gelöscht |
+| `NEXT_LOCALE` | Speicherung der gewählten Sprache | Bis der Browser geschlossen wird |
+
+## **21. Angemeldete Geräte und Sitzungen**
+
+Für jede Anmeldung können die IP-Adresse und die Browser-Kennung (User-Agent) gespeichert werden, um Sitzungen zu verwalten und die Sicherheit des Kontos zu unterstützen. Nutzer können die gespeicherten Einträge unter „Angemeldete Geräte" einsehen und einzelne Geräte beziehungsweise Sitzungen abmelden. Die Einträge werden bei Abmeldung gelöscht beziehungsweise spätestens nach 30 Tagen entfernt.
+
+## **22. Schutz vor Missbrauch und Rate-Limits**
+
+Zum Schutz vor automatisierten Anfragen und Missbrauch begrenzen wir Anfragen je nach Funktion pro IP-Adresse und/oder Benutzerkonto. Die von OMSI Mod Hub selbst geführten Rate-Limit-Daten speichern IP-Adressen nur gehasht. Das Anmeldesystem kann IP-Adressen im Rahmen seiner Sicherheitsfunktionen auch im Klartext verarbeiten. Die entsprechenden Rate-Limit-Daten werden nach 24 Stunden gelöscht.
+
+## **23. Meldungen, Moderation und Verwaltungsprotokolle**
+
+Besucher können Projekte auch ohne Benutzerkonto melden. Dabei werden ein Meldegrund und optional ein Freitext verarbeitet. Wenn eine Meldung von einem angemeldeten Nutzer abgegeben wird, kann sie dessen Konto zugeordnet werden. Moderatoren können interne Notizen zu Meldungen anlegen.
+
+Bei gesperrten Konten können der Sperrgrund und das Ablaufdatum der Sperre gespeichert werden. Außerdem wird protokolliert, welches Konto eine Moderations- oder Verwaltungsaktion ausgeführt hat; die Protokolleinträge enthalten dazu die jeweiligen Konto-IDs. Die Löschfristen für Meldungen und Protokolleinträge sind in Abschnitt 10 beschrieben.
+
+## **24. Externe Downloadlinks**
+
+Bei Klicks auf externe Downloadlinks wird ausschließlich die Anzahl der Klicks gezählt. Diese Zählung erfolgt ohne Speicherung der IP-Adresse und ohne Zuordnung zu einzelnen Personen. Nach dem Klick werden Nutzer zur Website des jeweiligen externen Anbieters weitergeleitet. Für die dortige Verarbeitung personenbezogener Daten ist die Datenschutzerklärung des jeweiligen Anbieters maßgeblich.
+
+## **25. Keine Drittanbieter-Inhalte im Browser**
+
+Schriften werden von unserem eigenen Server ausgeliefert. Nach aktuellem Stand verwenden wir keine Analyse-Werkzeuge und binden keine fremden Inhalte wie externe Videos oder vergleichbare Drittanbieter-Inhalte direkt in die Website ein.
