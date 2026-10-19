@@ -200,8 +200,6 @@
     "notFoundText": "This profile does not exist or is not public."
   },
   "Legal": {
-    "draftTitle": "Draft – not legally reviewed",
-    "draftText": "This text is a draft and has not yet been legally reviewed.",
     "imprint": {
       "title": "Imprint",
       "sections": [

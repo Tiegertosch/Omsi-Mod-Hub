@@ -200,8 +200,6 @@
     "notFoundText": "Dieses Profil existiert nicht oder ist nicht öffentlich."
   },
   "Legal": {
-    "draftTitle": "Entwurf – rechtlich nicht geprüft",
-    "draftText": "Dieser Text ist ein Entwurf und wurde noch nicht rechtlich geprüft.",
     "imprint": {
       "title": "Impressum",
       "sections": [

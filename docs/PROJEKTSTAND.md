@@ -27,7 +27,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
   - Meldeformular
   - Download-Links über `/go/[linkId]` mit Klickzähler (Raw SQL, verändert `updatedAt` nicht)
   - Projektseite: Titelbild und Screenshots in einem Karussell (`src/components/mods/media-carousel.tsx`, CSS-Scroll-Snapping, ohne Bibliothek); Karten zeigen nur das Titelbild
-  - Rechtsseiten: Impressum mit den echten Angaben (Adresse über online-impressum.de, `kontakt@omsi-modhub.de`); Datenschutzerklärung aus dem WBS-Generator als Datei `content/legal/privacy.de.md` (eigener kleiner Markdown-Parser `src/lib/legal-markdown.ts`, englische Seite mit Hinweis „nur Deutsch“); Nutzungsbedingungen als versionierte Dateien unter `content/legal/terms/` (Regeln: Konto ab 16, fremde Projekte nur mit Erlaubnis, Payware gekennzeichnet, Haftung und Rechtswahl nach Vorgabe des Betreibers), noch als **Entwurf** gekennzeichnet bis zur Rechtsprüfung. SEO, Sitemap, Dark Mode
+  - Rechtsseiten: Impressum mit den echten Angaben (Adresse über online-impressum.de, `kontakt@omsi-modhub.de`); Datenschutzerklärung aus dem WBS-Generator als Datei `content/legal/privacy.de.md` (eigener kleiner Markdown-Parser `src/lib/legal-markdown.ts`, englische Seite mit Hinweis „nur Deutsch“); Nutzungsbedingungen als versionierte Dateien unter `content/legal/terms/` (Regeln: Konto ab 16, fremde Projekte nur mit Erlaubnis, Payware gekennzeichnet, Haftung und Rechtswahl nach Vorgabe des Betreibers), rechtlich geprüft (19.10.2026), ohne Entwurfshinweis. SEO, Sitemap, Dark Mode
 - **Konten:** Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code (Seite `/confirm-email`, eine Box pro Ziffer, Code erneut senden – danach 5 Minuten Sperre mit Countdown „Neuer Code verfügbar in m:ss“, serverseitig erzwungen (`src/server/resend-cooldown.ts`), Adresse über Schritt 1 korrigieren); Hinweise dort blenden sich nach 5 Sekunden aus, mit Countdown-Ring, Pause bei Maus/Fokus – `AutoDismissAlert`, Registrierung mit schon vergebener Adresse: gleiche Oberfläche, aber Hinweis-Mail „Du hast bereits ein Konto“ an den Inhaber statt eines Codes. Login per E-Mail oder Benutzername, Passwort vergessen, Einstellungen. Dazu E-Mail ändern (Link an alte, dann an neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto löschen (mit allen Projekten und Bildern; Admins ausgenommen).
 - **Creator-Dashboard:**
   - Creator-Profil anlegen, Projekt-Editor zweisprachig
@@ -73,7 +73,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
 ## Offene Punkte
 
 1. **Vor einem öffentlichen Start:**
-   - Nutzungsbedingungen rechtlich prüfen lassen, danach `terms` aus `DRAFT_PAGES` entfernen; Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
+   - Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
    - Basic Auth und noindex entfernen
    - Content-Security-Policy ergänzen
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen

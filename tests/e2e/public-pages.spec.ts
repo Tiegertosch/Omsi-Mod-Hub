@@ -137,15 +137,14 @@ test("Impressum zeigt die Betreiberangaben, Entwürfe bleiben gekennzeichnet", a
     "https://mein.online-impressum.de/omsi-modhub/#zweiterkontaktweg",
   );
   await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
-
-  await page.goto("/de/legal/terms");
-  await expect(page.getByText("Entwurf", { exact: false }).first()).toBeVisible();
 });
 
-test("Nutzungsbedingungen: deutsche Fassung als Entwurf, englische Lesefassung", async ({ page }) => {
+test("Nutzungsbedingungen: geprüfte deutsche Fassung ohne Entwurfshinweis, englische Lesefassung", async ({ page }) => {
   await page.goto("/de/legal/terms");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Nutzungsbedingungen");
-  await expect(page.getByText("Dieser Text ist ein Entwurf und wurde noch nicht rechtlich geprüft.")).toBeVisible();
+  await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
+  // Kein „noindex“ mehr für die Nutzungsbedingungen
+  await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
   await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(10);
   await expect(page.getByRole("heading", { name: "9. Haftung und externe Seiten" })).toBeVisible();
   await expect(page.getByText("Ein Konto darfst du ab 16 Jahren anlegen.")).toBeVisible();

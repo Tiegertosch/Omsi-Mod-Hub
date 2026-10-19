@@ -48,7 +48,7 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Admin: search accounts and ban them temporarily/permanently (ends sessions, optionally hides projects) `/admin/users` | ✅ |
 | Admin: create, edit, delete categories and tags `/admin/categories`, `/admin/tags`; audit log `/admin/audit` | ✅ |
 | Emails to creators on approval, rejection, hiding and unhiding | ✅ |
-| Legal pages: imprint, privacy policy, versioned terms of use with consent to new versions | ✅ terms still marked as draft |
+| Legal pages: imprint, privacy policy, versioned terms of use with consent to new versions | ✅ |
 
 ## Technology
 
@@ -215,7 +215,7 @@ tests/
 - **Search:** Substring search over a normalised search column – sufficient for the MVP, but without relevance ranking and slow with many thousands of projects. Planned: PostgreSQL full-text search or `pg_trgm`.
 - **Link clicks** are counted without bot detection beyond a user-agent heuristic and are therefore an approximation.
 - **Dark mode only**; a light theme is not planned as long as there is no demand.
-- **Legal texts:** The imprint contains the details from the imprint service (online-impressum.de). The privacy policy comes from the WBS Legal generator and is stored unchanged as `content/legal/privacy.de.md` (new version: replace the file; the English page shows the German text with a notice). The terms of use are versioned under `content/legal/terms/<version>.de.md` (binding) and `.en.md` (reading version); a new version is registered in `src/lib/legal.ts`, and signed-in users must then accept it via a popup or close their account. The terms have not been legally reviewed yet and are therefore marked as "draft" and not indexed. Registration from age 16 (confirmed via checkbox).
+- **Legal texts:** The imprint contains the details from the imprint service (online-impressum.de). The privacy policy comes from the WBS Legal generator and is stored unchanged as `content/legal/privacy.de.md` (new version: replace the file; the English page shows the German text with a notice). The terms of use are versioned under `content/legal/terms/<version>.de.md` (binding) and `.en.md` (reading version); a new version is registered in `src/lib/legal.ts`, and signed-in users must then accept it via a popup or close their account. The terms have been legally reviewed. Registration from age 16 (confirmed via checkbox).
 - A Content Security Policy is not set yet (other security headers are).
 
 ## Next steps

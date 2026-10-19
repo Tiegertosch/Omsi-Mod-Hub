@@ -16,14 +16,6 @@ import { LEGAL_PAGES } from "@/server/route-existence";
 
 type LegalPage = (typeof LEGAL_PAGES)[number];
 
-/**
- * Seiten mit ungeprüften Vorlagentexten: mit Hinweis „Entwurf“ und nicht
- * indexiert. Impressum (Angaben von online-impressum.de) und Datenschutz-
- * erklärung (Generator von WBS Legal, content/legal/privacy.de.md) sind echt;
- * die Nutzungsbedingungen (content/legal/terms/<fassung>.*.md) sind noch nicht geprüft.
- */
-const DRAFT_PAGES: ReadonlySet<LegalPage> = new Set(["terms"]);
-
 type Props = PageProps<"/[locale]/legal/[page]">;
 
 function isLegalPage(value: string): value is LegalPage {
@@ -41,8 +33,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t(`${page}.title`),
     alternates: localizedAlternates(locale, `/legal/${page}`),
-    // Entwürfe nicht indexieren, bis die Inhalte geprüft sind.
-    robots: DRAFT_PAGES.has(page) ? { index: false, follow: true } : undefined,
   };
 }
 
@@ -155,11 +145,6 @@ async function LegalContent({ params, searchParams }: Pick<Props, "params" | "se
   return (
     <>
       <h1 className="text-3xl font-bold tracking-tight text-fg sm:text-4xl">{t(`${page}.title`)}</h1>
-      {DRAFT_PAGES.has(page) ? (
-        <Notice title={t("draftTitle")} className="mt-6">
-          {t("draftText")}
-        </Notice>
-      ) : null}
       {terms ? <TermsVersionNotice terms={terms} /> : null}
       {document && document.locale !== locale ? (
         <Notice tone="info" className="mt-6">
