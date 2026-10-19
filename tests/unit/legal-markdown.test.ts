@@ -57,6 +57,31 @@ describe("parseLegalMarkdown", () => {
     expect(text).not.toContain("**");
     expect(text).not.toContain("](");
     expect(text).not.toContain(" -- ");
+
+    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit vier Punkten.
+    const retention = blocks.find(
+      (b) => b.type === "list" && b.items.some((item) => item.some((part) => part.text === "Zugriffslogs:")),
+    );
+    expect(retention?.type === "list" && retention.items).toHaveLength(4);
+  });
+
+  it("erkennt Markdown-Listen mit „- “ in aufeinanderfolgenden Zeilen", () => {
+    expect(parseLegalMarkdown("Einleitung:\n\n- **A:** eins\n- zwei\n\nSchluss.")).toEqual([
+      { type: "paragraph", content: [{ type: "text", text: "Einleitung:" }] },
+      {
+        type: "list",
+        items: [
+          [
+            { type: "strong", text: "A:" },
+            { type: "text", text: " eins" },
+          ],
+          [{ type: "text", text: "zwei" }],
+        ],
+      },
+      { type: "paragraph", content: [{ type: "text", text: "Schluss." }] },
+    ]);
+    // Ein Gedankenstrich mitten im Absatz bleibt Text.
+    expect(parseLegalMarkdown("Text\n- kein Punkt")[0]?.type).toBe("paragraph");
   });
 
   it("hat in beiden Fassungen der Nutzungsbedingungen dieselben Abschnitte", () => {

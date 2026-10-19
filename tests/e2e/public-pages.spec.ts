@@ -164,6 +164,9 @@ test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) =>
   await expect(page.getByRole("heading", { name: "b) Recht auf Auskunft" })).toBeVisible();
   await expect(page.getByText("omsi-modhub – Tobias Schmidt")).toBeVisible();
   await expect(page.getByText("c/o Online-Impressum 11973")).toBeVisible();
+  // Konkrete Löschfristen als Liste
+  await expect(page.getByRole("listitem").filter({ hasText: "Zugriffslogs: werden spätestens nach 14 Tagen gelöscht." })).toBeVisible();
+  await expect(page.getByRole("listitem").filter({ hasText: /^Nicht bestätigte Konten:/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Fachanwälten für Internetrecht" })).toHaveAttribute("href", "https://www.wbs.legal/");
   await expect(page.getByText("Entwurf", { exact: false })).toHaveCount(0);
   await expect(page.getByText("**")).toHaveCount(0);

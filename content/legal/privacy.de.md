@@ -88,7 +88,7 @@ Unsere Webseiten erfassen mit jedem Aufruf der Webseiten durch eine betroffene P
 
 Bei der Nutzung dieser allgemeinen Daten und Informationen ziehen wir keine Rückschlüsse auf die betroffene Person. Diese Informationen werden vielmehr benötigt, um (1) die Inhalte unserer Webseiten korrekt auszuliefern, (2) die Inhalte unserer Webseiten sowie die Werbung für diese zu optimieren, (3) die dauerhafte Funktionsfähigkeit unserer informationstechnologischen Systeme und der Technik unserer Webseiten zu gewährleisten sowie (4) um Strafverfolgungsbehörden im Falle eines Cyberangriffes die zur Strafverfolgung notwendigen Informationen bereitzustellen. Diese anonym erhobenen Daten und Informationen werden durch uns daher einerseits statistisch und ferner mit dem Ziel ausgewertet, den Datenschutz und die Datensicherheit in unserem Unternehmen zu erhöhen, um letztlich ein optimales Schutzniveau für die von uns verarbeiteten personenbezogenen Daten sicherzustellen. Die Daten der Server-Logfiles werden getrennt von allen durch eine betroffene Person angegebenen personenbezogenen Daten gespeichert.
 
-Zweck der Verarbeitung ist die Gefahrenabwehr und die Gewährleistung der IT-Sicherheit, sowie die vorerwähnten Zwecke. Rechtsgrundlage ist Art. 6 (1) (f) DS-GVO. Unser berechtigtes Interesse ist insbesondere der Schutz unserer informationstechnologischen Systeme. Die Löschung der Logfiles erfolgt, nachdem die angegebenen Zwecke erreicht wurden.
+Zweck der Verarbeitung ist die Gefahrenabwehr und die Gewährleistung der IT-Sicherheit, sowie die vorerwähnten Zwecke. Rechtsgrundlage ist Art. 6 (1) (f) DS-GVO. Unser berechtigtes Interesse ist insbesondere der Schutz unserer informationstechnologischen Systeme. Die Zugriffslogs werden spätestens nach 14 Tagen gelöscht, sofern sie nicht ausnahmsweise zur Aufklärung eines konkreten Sicherheitsvorfalls oder aufgrund gesetzlicher Pflichten länger benötigt werden.
 
 ## **4. Kontaktmöglichkeit über die Webseite und andere Datenübermittlungen und Ihre Einwilligung**
 
@@ -239,6 +239,15 @@ Bei unseren Nachrichten und Newslettern kann es sich zudem um Kommunikation zu Z
 ## **10. Dauer, für die die personenbezogenen Daten gespeichert werden**
 
 Das Kriterium für die Dauer der Speicherung von personenbezogenen Daten ist die jeweilige gesetzliche Aufbewahrungsfrist. Sofern keine gesetzliche Aufbewahrungsfrist besteht, ist das Kriterium die vertragliche oder interne Aufbewahrungsfrist. Nach Ablauf der Frist werden die entsprechenden Daten routinemäßig gelöscht, sofern sie nicht mehr zur Vertragserfüllung oder Vertragsanbahnung erforderlich sind. Dies gilt insbesondere für alle Verarbeitungen, bei denen keine spezifischeren Kriterien festgelegt wurden.
+
+Für die Nutzung von OMSI Mod Hub gelten ergänzend folgende konkrete Löschfristen:
+
+- **Zugriffslogs:** werden spätestens nach 14 Tagen gelöscht.
+- **Rate-Limit-Daten mit IP-Adressen:** werden nach 24 Stunden gelöscht.
+- **Sitzungsdaten:** werden bei der Abmeldung gelöscht und spätestens nach 30 Tagen entfernt.
+- **Nicht bestätigte Konten:** werden 7 Tage nach der Registrierung gelöscht, wenn die erforderliche Kontobestätigung bis dahin nicht erfolgt ist.
+
+Soweit Daten im Einzelfall aufgrund gesetzlicher Pflichten oder zur Aufklärung eines konkreten Sicherheitsvorfalls länger aufbewahrt werden müssen, erfolgt dies nur im erforderlichen Umfang und für die dafür notwendige Dauer.
 
 ## **11. Gesetzliche oder vertragliche Vorschriften zur Bereitstellung der personenbezogenen Daten; Erforderlichkeit für den Vertragsabschluss; Verpflichtung der betroffenen Person, die personenbezogenen Daten bereitzustellen; mögliche Folgen der Nichtbereitstellung**
 

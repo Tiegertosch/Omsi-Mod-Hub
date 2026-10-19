@@ -1,7 +1,8 @@
 /**
  * Minimaler Parser für Rechtstexte aus Generatoren (Markdown-Export), damit
  * sie unverändert als Datei abgelegt werden können. Unterstützt nur, was
- * diese Texte brauchen: Überschriften, Absätze, Aufzählungen mit „•“,
+ * diese Texte brauchen: Überschriften, Absätze, Aufzählungen mit „•“ (je
+ * Punkt ein Absatz) oder „- “ (Punkte in aufeinanderfolgenden Zeilen),
  * Fettdruck und Links (nur https). Es entsteht kein HTML – die Ausgabe sind
  * Datenstrukturen, die React als Text rendert.
  */
@@ -51,6 +52,15 @@ export function parseLegalMarkdown(source: string): LegalBlock[] {
     .filter(Boolean);
 
   for (const chunk of chunks) {
+    // Markdown-Liste: jede Zeile des Absatzes beginnt mit „- “ oder „• “.
+    const lines = chunk.split("\n").map((line) => line.trim());
+    if (lines.every((line) => /^[-•] /.test(line))) {
+      const items = lines.map((line) => parseInline(line.slice(2)));
+      const previous = blocks.at(-1);
+      if (previous?.type === "list") previous.items.push(...items);
+      else blocks.push({ type: "list", items });
+      continue;
+    }
     const text = chunk.replace(/\s*\n\s*/g, " ");
     if (text.startsWith("# ")) continue;
     if (text.startsWith("### ")) {
