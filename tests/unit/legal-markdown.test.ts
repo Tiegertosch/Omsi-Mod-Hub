@@ -49,10 +49,12 @@ describe("parseLegalMarkdown", () => {
     const source = readFileSync(path.join(process.cwd(), "content", "legal", "privacy.de.md"), "utf8");
     const blocks = parseLegalMarkdown(source);
     const sections = blocks.filter((b) => b.type === "heading" && b.level === 2).map((b) => b.type === "heading" && b.text);
-    expect(sections).toHaveLength(25);
+    expect(sections).toHaveLength(27);
     expect(sections[0]).toBe("1. Definitionen");
     expect(sections[15]).toBe("16. Datenschutzbestimmungen zu Einsatz und Verwendung von Hetzner");
     expect(sections[24]).toBe("25. Keine Drittanbieter-Inhalte im Browser");
+    expect(sections[25]).toBe("26. Cap-CAPTCHA zum Schutz vor automatisierten Anfragen");
+    expect(sections[26]).toBe("27. Widerspruch gegen Projektmoderationsentscheidungen");
     // Kein Markdown bleibt als Text stehen.
     const text = JSON.stringify(blocks);
     expect(text).not.toContain("**");
@@ -70,11 +72,11 @@ describe("parseLegalMarkdown", () => {
       { type: "code", text: "NEXT_LOCALE" },
     ]);
 
-    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit neun Punkten.
+    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit zwölf Punkten.
     const retention = blocks.find(
       (b) => b.type === "list" && b.items.some((item) => item.some((part) => part.text === "Zugriffslogs:")),
     );
-    expect(retention?.type === "list" && retention.items).toHaveLength(9);
+    expect(retention?.type === "list" && retention.items).toHaveLength(12);
   });
 
   it("erkennt Markdown-Listen mit „- “ in aufeinanderfolgenden Zeilen", () => {
@@ -111,7 +113,7 @@ describe("parseLegalMarkdown", () => {
     const de = parse("de");
     const en = parse("en");
     expect(numbers(en)).toEqual(numbers(de));
-    expect(numbers(en)).toHaveLength(25);
+    expect(numbers(en)).toHaveLength(27);
 
     // Fett gesetzte Unterpunkte („**a) Personal data**“) werden zu Zwischenüberschriften.
     expect(en).toContainEqual({ type: "heading", level: 3, text: "a) Personal data" });

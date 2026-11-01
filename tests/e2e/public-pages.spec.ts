@@ -162,7 +162,7 @@ test("Nutzungsbedingungen: geprüfte deutsche Fassung ohne Entwurfshinweis, engl
 test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) => {
   await page.goto("/de/legal/privacy");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Datenschutzerklärung");
-  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(25);
+  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(27);
   await expect(page.getByRole("heading", { name: "2. Name und Anschrift des Verantwortlichen" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "b) Recht auf Auskunft" })).toBeVisible();
   await expect(page.getByText("omsi-modhub – Tobias Schmidt")).toBeVisible();
@@ -184,7 +184,7 @@ test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) =>
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
   await expect(page.getByText("This text is currently only available in German.")).toHaveCount(0);
   await expect(page.getByText("Only the German version is legally binding.")).toBeVisible();
-  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(25);
+  await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveCount(27);
   await expect(page.getByRole("heading", { level: 3, name: "a) Personal data" })).toBeVisible();
   await expect(page.getByRole("main").getByRole("table").getByRole("columnheader")).toHaveText(["Cookie", "Purpose", "Duration"]);
 });

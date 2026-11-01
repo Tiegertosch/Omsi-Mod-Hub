@@ -163,12 +163,15 @@ Personal data is retained for the applicable statutory retention period or, wher
 The following retention periods apply to OMSI Mod Hub:
 
 - **Access logs:** deleted no later than 14 days after collection.
-- **Rate-limit data:** deleted after 24 hours. Rate-limit data maintained by OMSI Mod Hub itself stores IP addresses in hashed form. The authentication system may also process IP addresses in plain text for security and abuse prevention.
+- **Cap CAPTCHA:** Redeemed challenges expire within 10 minutes and are removed during the next daily cleanup, no later than approximately 24 hours. Used one-time tokens are deleted immediately; unused tokens expire after 5 minutes and are removed no later than approximately 24 hours. The IP-based request counter is deleted after 24 hours.
+- **Rate-limit data:** deleted after 24 hours; the keys used are described in Section 22. The authentication system may also process IP addresses in plain text for security and abuse prevention.
 - **Session data and logged-in device entries:** deleted upon logout or no later than 30 days.
 - **Unconfirmed accounts:** deleted 7 days after registration if the email address has not been confirmed.
 - **Verification, password-reset and email-change codes or links:** deleted or invalidated as soon as they expire.
 - **Closed reports:** retained for 6 months after closure. Open reports remain stored until they have been processed.
-- **Moderation and administration log entries:** retained for 12 months.
+- **Appeals against project moderation:** If no appeal is submitted, the data is deleted during the next daily cleanup after the six-month appeal period expires. Resolved appeals are deleted six months after the appeal decision; pending appeals are retained until a decision is made. Related appeal data is deleted immediately from the active system when the project or account is deleted. Backup retention is described below.
+- **Download-link moderation:** The status and reason are generally retained for as long as the link exists. The reason is removed when an admin re-enables the link, or, for a broken link, when the creator enters a new URL.
+- **Moderation and administration logs, including appeals, link-status changes and category changes:** retained for 12 months.
 - **User accounts and associated content:** retained until the user deletes the account, subject to any further retention required by law or necessary for the establishment, exercise or defence of legal claims.
 - **Backups:** deleted data may remain in daily backups for up to 14 days. If additional server backups operated by Hetzner are enabled, data may remain there for up to a further 7 days.
 
@@ -247,7 +250,10 @@ We do not send newsletters or marketing emails. Emails are triggered only by spe
 - Password-reset messages.
 - Email-address change notifications sent to both the old and the new address.
 - Account-deletion confirmation.
-- Moderation decisions sent to creators.
+- Moderation decisions sent to creators; for hidden or rejected projects, these include a secret appeal link and the six-month deadline.
+- Suspension notifications sent to every suspended account, stating the reason, duration and number of projects hidden as part of the suspension.
+- Notifications to creators when download links are blocked or marked as broken, including the reason.
+- Appeal outcome notifications to creators, including the reason.
 
 ## **20. Technically necessary cookies**
 
@@ -265,13 +271,21 @@ For each login, the IP address and browser identifier (User-Agent) may be stored
 
 ## **22. Abuse prevention and rate limits**
 
-To protect against automated requests and misuse, we limit requests by IP address and/or user account, depending on the feature. Rate-limit data maintained by OMSI Mod Hub itself stores IP addresses only in hashed form. The authentication system may also process IP addresses in plain text as part of its security functions. The relevant rate-limit data is deleted after 24 hours.
+To prevent automated requests and misuse, we apply rate limits using IP addresses, email addresses, usernames or account IDs, depending on the function. Our own rate limits use these keys:
+
+- **IP address hashed using SHA-256 without a secret key:** registration, login, forgot password, password reset, verification code, resend code, project reports, appeals and Cap CAPTCHA.
+- **Email address or username hashed using SHA-256 without a secret key:** login, forgot password, verification code, resend code, existing-account notification and email-address correction.
+- **Account ID in plain text:** actions by logged-in users, including saving projects, uploads, profile changes, password changes, account deletion and administrative actions.
+
+Appeal submissions are limited to ten attempts per hour per hashed IP address. Our rate-limit data is deleted after 24 hours. Hashes are **pseudonymised, not anonymous**: IP addresses and potentially email addresses or usernames may be recoverable by systematic guessing. The authentication system may additionally process IP addresses in plain text for security purposes. The legal basis is Article 6(1)(f) GDPR; our legitimate interest is preventing abuse and protecting the service.
 
 ## **23. Reports, moderation and administrative logs**
 
 Visitors can report projects even without an account. A report includes a reason and may include optional free text. If a report is submitted by a logged-in user, it may be associated with that user’s account. Moderators may add internal notes to reports.
 
 For suspended accounts, the reason for the suspension and its expiry date may be stored. We also log which account performed a moderation or administrative action; these log entries contain the relevant account IDs. The retention periods for reports and log entries are set out in Section 10.
+
+Admins can mark individual download links as broken or block them. We store the link status and a reason visible to the creator in the project editor. The reason is removed when an admin re-enables the link; for links marked as broken, it is also removed when the creator enters a new URL. Otherwise, the reason is retained for as long as the link exists. Changes are logged with the admin account ID, previous and new status, and reason for twelve months. Project category changes are also logged with the admin account ID for twelve months.
 
 ## **24. External download links**
 
@@ -280,3 +294,30 @@ When an external download link is clicked, we count the click only. The click co
 ## **25. No third-party content in the browser**
 
 Fonts are served from our own server. As currently implemented, we do not use analytics tools or directly embed external content, such as third-party videos or comparable third-party content, into the website.
+
+## **26. Cap CAPTCHA for protection against automated requests**
+
+To protect against automated bulk requests, spam registrations, abusive login attempts and unwanted project reports, we use the open-source software **Cap** ([https://trycap.dev/de](https://trycap.dev/de)). Cap is hosted entirely on our own server as part of the OMSI Mod Hub application. No external CAPTCHA provider is involved in the verification, and no data is transmitted to the software provider for this purpose.
+
+Cap is used for registration (including correction of the email address), login, the “Forgot password” function and project reports. When a protected form is submitted, the browser requests a computational challenge from our server without transmitting the form contents. The challenge is solved locally using JavaScript and WebAssembly. The solution is sent to our server; following successful verification, a single-use token valid for five minutes is issued. The token is checked and consumed when the form is submitted. The protected form cannot be submitted without a valid token.
+
+Our Cap implementation does not use image puzzles, behavioural analysis or browser fingerprinting. The optional automated-browser detection feature is disabled. Cap does not set cookies or store data in Local Storage or Session Storage. The browser's CPU core count and language preference are read locally to distribute the computation and display the widget text, respectively, but are not transmitted to the server. All scripts and computational modules are served from our own domain.
+
+For verification, random challenge values or signatures and SHA-256 hashes of one-time tokens are processed. These verification values are not linked to an individual by themselves; Cap does not store form contents. To enforce a limit of up to 30 requests per minute, we also process a SHA-256 hash of the IP address without a secret key, a request counter and a timestamp. The IP hash is **pseudonymised, not anonymous**. Standard technical server access logs may additionally contain the IP address, time, requested URL and browser identifier.
+
+The legal basis for processing personal data is **Article 6(1)(f) GDPR**. Our legitimate interest is to protect the website and user accounts against automated abuse and to ensure IT security.
+
+Redeemed challenges expire within ten minutes and are removed by the next daily cleanup (04:15), no later than approximately 24 hours. Used one-time tokens are deleted immediately. Unused tokens expire after five minutes and are removed during the next cleanup, no later than approximately 24 hours. IP-based request counters are deleted after 24 hours, and server access logs no later than 14 days. Data may remain temporarily in backups as described in Section 10.
+
+Without JavaScript, the four Cap-protected forms cannot be submitted. Other pages and forms are unaffected.
+
+
+## **27. Appeals against project moderation decisions**
+
+Creators may appeal a decision to hide or reject their project. Account suspensions and dismissed project reports are excluded from this process. Appeals are decided by a human reviewer, not solely by an automated system.
+
+The email notifying the creator that a project has been hidden or rejected includes a secret link valid for six months. The creator can use this link **once, without logging in**, to submit a reasoned appeal. For the original moderation decision, we store the decision type (hidden or rejected), affected project, moderation reason, decision timestamp and appeal deadline. Only a SHA-256 hash of the secret link is stored; the link itself is sent in the email. When an appeal is submitted, we store the creator's explanation and submission timestamp. After review, we store the outcome (upheld or rejected), the reason, the deciding admin's account ID and the decision timestamp.
+
+The moderation log records the submission of an appeal without an account ID and the appeal decision with the deciding admin's account ID. To prevent abuse, appeal submissions are limited to ten attempts per hour per IP address hashed with SHA-256 (see Section 22).
+
+If no appeal is submitted, the associated data is deleted during the next daily cleanup after the six-month appeal period expires. Resolved appeals are deleted six months after the appeal decision; pending appeals remain stored until a decision is made. When the project or account is deleted, related appeal data is deleted immediately from the active system. Moderation log entries are generally retained for twelve months; backup retention periods are described in Section 10. The legal basis is Article 6(1)(f) GDPR, reflecting our legitimate interest in fair, traceable review of moderation decisions and preventing misuse.

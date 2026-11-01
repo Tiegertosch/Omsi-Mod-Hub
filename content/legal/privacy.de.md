@@ -241,12 +241,15 @@ Das Kriterium für die Dauer der Speicherung personenbezogener Daten ist die jew
 Für OMSI Mod Hub gelten folgende vorgesehene Löschfristen:
 
 - **Zugriffslogs:** spätestens nach 14 Tagen.
-- **Rate-Limit-Daten:** nach 24 Stunden. Die von OMSI Mod Hub selbst geführten Rate-Limit-Daten enthalten gehashte IP-Adressen. Das eingesetzte Anmeldesystem kann IP-Adressen für Sicherheits- und Missbrauchsschutz auch im Klartext verarbeiten.
+- **Cap-CAPTCHA:** Eingelöste Aufgaben werden nach Ablauf (höchstens 10 Minuten) beim nächsten täglichen Aufräumlauf gelöscht, spätestens nach rund 24 Stunden. Verwendete Einmal-Token werden sofort gelöscht; ungenutzte Token laufen nach 5 Minuten ab und werden spätestens nach rund 24 Stunden entfernt. Der IP-basierte Anfragezähler wird nach 24 Stunden gelöscht.
+- **Rate-Limit-Daten:** nach 24 Stunden; Details zu den verwendeten Schlüsseln stehen in Abschnitt 22. Das Anmeldesystem kann IP-Adressen für Sicherheits- und Missbrauchsschutz auch im Klartext verarbeiten.
 - **Sitzungsdaten und Einträge zu angemeldeten Geräten:** bei Abmeldung beziehungsweise spätestens nach 30 Tagen.
 - **Nicht bestätigte Konten:** 7 Tage nach der Registrierung, wenn die E-Mail-Adresse bis dahin nicht bestätigt wurde.
 - **Bestätigungs-, Passwortzurücksetzungs- und E-Mail-Änderungscodes beziehungsweise -Links:** sobald sie abgelaufen sind.
 - **Abgeschlossene Meldungen:** 6 Monate nach Abschluss. Offene Meldungen werden bis zur Bearbeitung gespeichert.
-- **Protokolleinträge zu Moderations- und Verwaltungsaktionen:** 12 Monate.
+- **Widersprüche gegen Projektmoderation:** Ohne Widerspruch werden die Daten nach Ablauf der sechsmonatigen Widerspruchsfrist beim nächsten täglichen Aufräumlauf gelöscht. Abgeschlossene Widersprüche werden sechs Monate nach der Widerspruchsentscheidung gelöscht; offene bleiben bis zur Entscheidung gespeichert. Bei Löschung des betroffenen Projekts oder Kontos werden die zugehörigen Widerspruchsdaten sofort aus dem aktiven System gelöscht. Für Backups gelten die unten genannten Fristen.
+- **Downloadlink-Moderation:** Status und Begründung bleiben grundsätzlich so lange gespeichert wie der Link. Bei Freigabe entfällt die Begründung; bei als defekt markierten Links auch dann, wenn der Creator eine neue Adresse einträgt.
+- **Protokolleinträge zu Moderations- und Verwaltungsaktionen, einschließlich Widersprüchen, Linkstatus und Kategoriewechseln:** 12 Monate.
 - **Benutzerkonten und zugehörige Inhalte:** bis zur Löschung des Kontos durch den Nutzer, vorbehaltlich einer erforderlichen weiteren Speicherung aufgrund gesetzlicher Pflichten oder zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen.
 - **Backups:** Gelöschte Daten können noch bis zu 14 Tage in täglichen Backups enthalten sein. Sofern zusätzliche Server-Backups von Hetzner aktiviert sind, können Daten dort bis zu weitere 7 Tage enthalten sein.
 
@@ -340,7 +343,10 @@ Es werden keine Newsletter und keine Werbe-E-Mails versendet. E-Mails werden nur
 - Zurücksetzen des Passworts,
 - Mitteilung über eine Änderung der E-Mail-Adresse an die alte und die neue Adresse,
 - Bestätigung der Kontolöschung,
-- Mitteilungen über Moderationsentscheidungen an Creator.
+- Mitteilungen über Moderationsentscheidungen an Creator; bei ausgeblendeten oder zurückgewiesenen Projekten einschließlich geheimem Widerspruchslink und sechsmonatiger Frist.
+- Benachrichtigungen an jedes gesperrte Konto mit Sperrgrund, Dauer und Anzahl der dabei ausgeblendeten Projekte.
+- Benachrichtigungen an Creator über gesperrte oder als defekt markierte Downloadlinks einschließlich Begründung.
+- Mitteilungen über das Ergebnis eines Widerspruchs einschließlich Begründung.
 
 ## **20. Technisch notwendige Cookies**
 
@@ -358,13 +364,21 @@ Für jede Anmeldung können die IP-Adresse und die Browser-Kennung (User-Agent) 
 
 ## **22. Schutz vor Missbrauch und Rate-Limits**
 
-Zum Schutz vor automatisierten Anfragen und Missbrauch begrenzen wir Anfragen je nach Funktion pro IP-Adresse und/oder Benutzerkonto. Die von OMSI Mod Hub selbst geführten Rate-Limit-Daten speichern IP-Adressen nur gehasht. Das Anmeldesystem kann IP-Adressen im Rahmen seiner Sicherheitsfunktionen auch im Klartext verarbeiten. Die entsprechenden Rate-Limit-Daten werden nach 24 Stunden gelöscht.
+Zum Schutz vor automatisierten Anfragen und Missbrauch begrenzen wir Anfragen je nach Funktion anhand von IP-Adresse, E-Mail-Adresse, Benutzername oder Konto-ID. Unsere eigenen Rate-Limits verwenden folgende Schlüssel:
+
+- **IP-Adresse als SHA-256-Hash ohne geheimen Schlüssel:** bei Registrierung, Anmeldung, „Passwort vergessen“, Passwortzurücksetzung, Bestätigungscode, erneutem Senden des Codes, Projektmeldungen, Widersprüchen und Cap-CAPTCHA.
+- **E-Mail-Adresse beziehungsweise Benutzername als SHA-256-Hash ohne geheimen Schlüssel:** bei Anmeldung, „Passwort vergessen“, Bestätigungscode, erneutem Senden des Codes, Hinweis auf ein bestehendes Konto und Korrektur der E-Mail-Adresse.
+- **Konto-ID im Klartext:** bei Aktionen angemeldeter Nutzer, insbesondere Projekt speichern, Upload, Profilbearbeitung, Passwortänderung, Kontolöschung und Admin-Aktionen.
+
+Beim Einreichen von Widersprüchen sind höchstens zehn Anfragen pro Stunde je gehashter IP-Adresse zulässig. Die eigenen Rate-Limit-Daten werden nach 24 Stunden gelöscht. Die Hashwerte sind **pseudonymisiert, nicht anonym**; insbesondere IP-Adressen und gegebenenfalls E-Mail-Adressen oder Benutzernamen können durch systematisches Ausprobieren ermittelt werden. Das Anmeldesystem kann IP-Adressen für seine Sicherheitsfunktionen auch im Klartext verarbeiten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse liegt in der Verhinderung von Missbrauch und der Sicherung des Dienstes.
 
 ## **23. Meldungen, Moderation und Verwaltungsprotokolle**
 
 Besucher können Projekte auch ohne Benutzerkonto melden. Dabei werden ein Meldegrund und optional ein Freitext verarbeitet. Wenn eine Meldung von einem angemeldeten Nutzer abgegeben wird, kann sie dessen Konto zugeordnet werden. Moderatoren können interne Notizen zu Meldungen anlegen.
 
 Bei gesperrten Konten können der Sperrgrund und das Ablaufdatum der Sperre gespeichert werden. Außerdem wird protokolliert, welches Konto eine Moderations- oder Verwaltungsaktion ausgeführt hat; die Protokolleinträge enthalten dazu die jeweiligen Konto-IDs. Die Löschfristen für Meldungen und Protokolleinträge sind in Abschnitt 10 beschrieben.
+
+Admins können einzelne Downloadlinks als defekt markieren oder sperren. Hierzu werden der Status und eine Begründung gespeichert, die der Creator im Projekteditor einsehen kann. Die Begründung wird bei Freigabe des Links entfernt; bei einem als defekt markierten Link entfällt sie auch, wenn der Creator eine neue Downloadadresse einträgt. Andernfalls bleibt sie so lange wie der Link gespeichert. Die Änderung wird mit Admin-Konto-ID, altem und neuem Status sowie Begründung für zwölf Monate protokolliert. Auch Änderungen der Projektkategorie werden mit der Admin-Konto-ID für zwölf Monate protokolliert.
 
 ## **24. Externe Downloadlinks**
 
@@ -373,3 +387,30 @@ Bei Klicks auf externe Downloadlinks wird ausschließlich die Anzahl der Klicks 
 ## **25. Keine Drittanbieter-Inhalte im Browser**
 
 Schriften werden von unserem eigenen Server ausgeliefert. Nach aktuellem Stand verwenden wir keine Analyse-Werkzeuge und binden keine fremden Inhalte wie externe Videos oder vergleichbare Drittanbieter-Inhalte direkt in die Website ein.
+
+## **26. Cap-CAPTCHA zum Schutz vor automatisierten Anfragen**
+
+Zum Schutz vor automatisierten Massenanfragen, Spam-Registrierungen, missbräuchlichen Anmeldeversuchen und unerwünschten Projektmeldungen verwenden wir die Open-Source-Software **Cap** ([https://trycap.dev/de](https://trycap.dev/de)). Cap wird vollständig auf unserem eigenen Server innerhalb der Anwendung OMSI Mod Hub betrieben. Für die CAPTCHA-Prüfung werden keine externen CAPTCHA-Dienstleister eingebunden und keine Daten an den Anbieter der Software übermittelt.
+
+Cap wird bei der Registrierung (einschließlich der Korrektur der E-Mail-Adresse), bei der Anmeldung, bei der Funktion „Passwort vergessen“ und beim Melden von Projekten eingesetzt. Beim Absenden eines solchen Formulars fordert der Browser eine Rechenaufgabe von unserem Server an, ohne dabei die Formulareingaben zu übertragen. Die Aufgabe wird im Browser mittels JavaScript und WebAssembly gelöst. Die Lösung wird an unseren Server übermittelt; nach erfolgreicher Prüfung wird ein einmalig verwendbares Token ausgegeben, das fünf Minuten gültig ist. Dieses Token wird beim Absenden des Formulars überprüft und verbraucht. Ohne gültiges Token kann das jeweilige Formular nicht abgesendet werden.
+
+Cap verwendet bei uns keine Bildrätsel, keine Verhaltensanalyse und kein Browser-Fingerprinting. Die optionale Erkennung automatisierter Browser ist deaktiviert. Cap setzt keine Cookies und speichert keine Daten in Local Storage oder Session Storage. Die Anzahl der Prozessorkerne und die Spracheinstellung des Browsers werden lokal für die Berechnung beziehungsweise die Anzeige gelesen, jedoch nicht an den Server übertragen. Sämtliche hierfür benötigten Skripte und Rechenmodule werden von unserer eigenen Domain geladen.
+
+Zur Prüfung werden zufällige Aufgabenwerte beziehungsweise Signaturen sowie SHA-256-Hashes der Einmal-Token verarbeitet. Diese Prüfwerte sind für sich genommen keiner Person zugeordnet; Cap speichert keine Formulareingaben. Zur Begrenzung auf höchstens 30 Anfragen pro Minute werden außerdem ein SHA-256-Hash der IP-Adresse ohne geheimen Zusatzwert, der Zählerstand und der Zeitpunkt verarbeitet. Dieser IP-Hash ist **pseudonymisiert und nicht anonym**. Bei der technischen Verbindung entstehen zudem Server-Zugriffsprotokolle, insbesondere mit IP-Adresse, Zeitpunkt, angeforderter Adresse und Browserkennung.
+
+Die Verarbeitung personenbezogener Daten erfolgt auf Grundlage von **Art. 6 Abs. 1 lit. f DSGVO**. Unser berechtigtes Interesse liegt im Schutz der Website und der Benutzerkonten vor automatisiertem Missbrauch und in der Gewährleistung der IT-Sicherheit.
+
+Eingelöste Aufgaben verfallen spätestens nach zehn Minuten; ihre Einträge werden beim nächsten täglichen Aufräumlauf (04:15 Uhr), spätestens nach rund 24 Stunden, entfernt. Verwendete Einmal-Token werden unmittelbar gelöscht. Nicht verwendete Token verfallen nach fünf Minuten und werden beim nächsten Aufräumlauf, spätestens nach rund 24 Stunden, entfernt. Die IP-bezogenen Anfragezähler werden nach 24 Stunden gelöscht; Server-Zugriffsprotokolle spätestens nach 14 Tagen. Daten können gemäß Abschnitt 10 vorübergehend in Backups verbleiben.
+
+Ohne aktiviertes JavaScript können die vier mit Cap geschützten Formulare nicht abgesendet werden. Andere Seiten und Formulare bleiben davon unberührt.
+
+
+## **27. Widerspruch gegen Projektmoderationsentscheidungen**
+
+Creator können dem Ausblenden oder Zurückweisen ihres Projekts widersprechen. Kontosperren und verworfene Projektmeldungen sind von diesem Verfahren ausgenommen. Über den Widerspruch entscheidet ein Mensch; es findet keine ausschließlich automatisierte Entscheidung über den Widerspruch statt.
+
+Die E-Mail über das Ausblenden oder Zurückweisen enthält einen geheimen, sechs Monate gültigen Link. Darüber kann der Creator **einmalig und ohne Anmeldung** einen begründeten Widerspruch einreichen. Zum ursprünglichen Moderationsvorgang speichern wir die Art der Entscheidung (ausgeblendet oder zurückgewiesen), das betroffene Projekt, die Moderationsbegründung, den Entscheidungszeitpunkt und das Ende der Widerspruchsfrist. Für den geheimen Link wird nur dessen SHA-256-Hash gespeichert; der Link selbst wird in der E-Mail übermittelt. Bei Einlegung des Widerspruchs speichern wir den Text des Creators und den Zeitpunkt. Nach der Prüfung speichern wir das Ergebnis (stattgegeben oder zurückgewiesen), die Begründung, die Konto-ID des entscheidenden Admins und den Zeitpunkt der Entscheidung.
+
+Im Moderationsprotokoll wird die Einlegung des Widerspruchs ohne Konto-ID und die Entscheidung mit der Konto-ID des Admins dokumentiert. Zur Missbrauchsabwehr gelten höchstens zehn Einreichungsversuche pro Stunde je mittels SHA-256 gehashter IP-Adresse (siehe Abschnitt 22).
+
+Ohne Widerspruch werden die zugehörigen Daten nach Ablauf der sechsmonatigen Frist beim nächsten täglichen Aufräumlauf gelöscht. Abgeschlossene Widersprüche werden sechs Monate nach der Entscheidung über den Widerspruch gelöscht; offene Widersprüche bleiben bis zur Entscheidung gespeichert. Bei Löschung des Projekts oder Kontos werden die zugehörigen Widerspruchsdaten sofort aus dem aktiven System gelöscht. Die Moderationsprotokolle werden grundsätzlich zwölf Monate gespeichert; für Backups gelten die Fristen aus Abschnitt 10. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO zur nachvollziehbaren, fairen Überprüfung von Moderationsentscheidungen und zur Verhinderung von Missbrauch.
