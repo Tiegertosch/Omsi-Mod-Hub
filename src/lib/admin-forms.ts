@@ -138,3 +138,6 @@ export function readBanForm(formData: FormData) {
 export const reportNoteSchema = optionalText(ADMIN_LIMITS.reportNote);
 
 export const moderationNoteSchema = requiredText(PROJECT_LIMITS.moderationNote);
+
+/** Begründung zum Linkstatus: beim Sperren Pflicht, bei „defekt“ optional. */
+export const optionalModerationNoteSchema = optionalText(PROJECT_LIMITS.moderationNote);

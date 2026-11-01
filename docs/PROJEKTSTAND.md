@@ -78,7 +78,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
    - Basic Auth und noindex entfernen
    - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
-2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären), Linkstatus „gesperrt“ im Adminbereich setzen, Datenschutzerklärung um Widersprüche und deren Löschfristen ergänzen.
-3. **Moderation:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern, Linkstatus aus Meldungen setzen.
+2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte. Linkstatus „gesperrt“ mit Begründung ist umgesetzt. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären), Datenschutzerklärung um Widersprüche und deren Löschfristen ergänzen.
+3. **Moderation:** Kategorie ändern, Protokollfilter und Linkstatus aus Meldungen sind umgesetzt. Offen: Link-Moderation auch außerhalb von Meldungen.
 4. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
 5. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.

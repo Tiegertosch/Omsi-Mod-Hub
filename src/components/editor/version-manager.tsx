@@ -7,7 +7,7 @@ import { useId, useState } from "react";
 import { buttonStyles } from "@/components/ui/button";
 import { FormAlert, SelectField, TextAreaField, TextField } from "@/components/ui/form";
 import { PendingButton } from "@/components/ui/pending-button";
-import { LinkSourceType } from "@/generated/prisma/enums";
+import { LinkSourceType, type LinkStatus } from "@/generated/prisma/enums";
 import { MAX_EXTERNAL_URL_LENGTH } from "@/lib/external-url";
 import { PROJECT_LIMITS } from "@/lib/project-rules";
 import { deleteVersionAction, saveVersionAction } from "@/server/actions/projects";
@@ -19,7 +19,15 @@ export type EditorVersion = {
   version: string;
   changelog: string;
   releasedAt: Date;
-  links: { id: string; url: string; label: string; sourceType: LinkSourceType }[];
+  links: {
+    id: string;
+    url: string;
+    label: string;
+    sourceType: LinkSourceType;
+    /** Moderation: BLOCKED wird nicht angezeigt, BROKEN mit Hinweis */
+    status?: LinkStatus;
+    moderationNote?: string | null;
+  }[];
 };
 
 const SOURCE_TYPES = Object.values(LinkSourceType);
@@ -71,6 +79,17 @@ function VersionForm({ projectId, version }: { projectId: string; version?: Edit
           {rows.map((row, index) => (
             <li key={row.key} className="rounded-lg border border-border bg-surface-2 p-3">
               <input type="hidden" name={`links.${index}.id`} value={row.id} />
+              {row.status === "BLOCKED" || row.status === "BROKEN" ? (
+                <p
+                  role="note"
+                  className={`mb-3 rounded-md border px-3 py-2 text-sm text-fg ${
+                    row.status === "BLOCKED" ? "border-danger/40 bg-danger/10" : "border-warning/40 bg-warning/10"
+                  }`}
+                >
+                  {t(row.status === "BLOCKED" ? "linkBlocked" : "linkBroken")}
+                  {row.moderationNote ? ` ${t("linkModerationNote", { note: row.moderationNote })}` : null}
+                </p>
+              ) : null}
               {/* URL in eigener Zeile, darunter Bezeichnung, Art und Entfernen */}
               <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <TextField

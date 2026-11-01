@@ -5,6 +5,7 @@ import { locale as rootLocale } from "next/root-params";
 import { Suspense } from "react";
 
 import { AdminPageHeader, FilterTabs, ListSkeleton } from "@/components/admin/admin-page";
+import { ProjectCategoryForm } from "@/components/admin/project-category-form";
 import { ProjectModeration } from "@/components/admin/project-moderation";
 import { STATUS_TONES } from "@/components/editor/status-tones";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,8 @@ import { buttonStyles } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/state";
 import { ProjectStatus } from "@/generated/prisma/enums";
 import { Link } from "@/i18n/navigation";
+import { pickTranslation } from "@/lib/translation";
+import { getAdminCategories } from "@/server/data/admin";
 import { countProjectsByStatus, getReviewQueue } from "@/server/data/review";
 import { requireAdmin } from "@/server/session";
 
@@ -30,14 +33,19 @@ async function ReviewContent({ searchParams }: Pick<Props, "searchParams">) {
   const { status: rawStatus } = await searchParams;
   const status = STATUSES.find((s) => s === rawStatus) ?? "PENDING_REVIEW";
 
-  const [projects, counts, t, statusT, common, format] = await Promise.all([
+  const [projects, counts, rawCategories, t, statusT, common, format] = await Promise.all([
     getReviewQueue(status, locale),
     countProjectsByStatus(),
+    getAdminCategories(),
     getTranslations("Review"),
     getTranslations("ProjectStatus"),
     getTranslations("Common"),
     getFormatter(),
   ]);
+  const categories = rawCategories.map((c) => ({
+    id: c.id,
+    name: pickTranslation(c.translations, locale, "en")?.translation.name ?? c.slug,
+  }));
 
   return (
     <>
@@ -102,6 +110,9 @@ async function ReviewContent({ searchParams }: Pick<Props, "searchParams">) {
                       {t("publicPage")}
                     </Link>
                   ) : null}
+                </div>
+                <div className="mt-2">
+                  <ProjectCategoryForm projectId={project.id} categoryId={project.categoryId} categories={categories} />
                 </div>
               </div>
               <ProjectModeration projectId={project.id} status={project.status} />

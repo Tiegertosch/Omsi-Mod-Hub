@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Prisma } from "@/generated/prisma/client";
 import type { ReportStatus } from "@/generated/prisma/enums";
+import { AUDIT_AREAS, AUDIT_PAGE_SIZE, type AuditFilter } from "@/lib/audit-filter";
 import { db } from "@/lib/db";
 import { isClosedReportStatus } from "@/lib/moderation";
 import { tokenizeQuery } from "@/lib/search-text";
@@ -79,6 +80,16 @@ export async function getReports(status: ReportStatus, locale: string) {
           translations: { select: { locale: true, title: true } },
           creator: { select: { username: true } },
           _count: { select: { reports: { where: { status: { in: ["OPEN", "IN_REVIEW"] } } } } },
+          versions: {
+            orderBy: { releasedAt: "desc" },
+            select: {
+              version: true,
+              links: {
+                orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+                select: { id: true, url: true, status: true, moderationNote: true },
+              },
+            },
+          },
         },
       },
     },
@@ -90,6 +101,7 @@ export async function getReports(status: ReportStatus, locale: string) {
       slug: project.slug,
       status: project.status,
       creatorUsername: project.creator.username,
+      links: project.versions.flatMap((v) => v.links.map((link) => ({ ...link, version: v.version }))),
       openReports: project._count.reports,
       title: pickTranslation(project.translations, locale, project.defaultLocale)?.translation.title ?? project.slug,
     },
@@ -181,21 +193,32 @@ export async function getAdminTags() {
   });
 }
 
-export async function getAuditLog() {
+/** Protokoll seitenweise, optional gefiltert nach Bereich und Aktionsname. */
+export async function getAuditLog(filter: AuditFilter) {
   await assertAdmin();
-  return db.auditLog.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 100,
-    select: {
-      id: true,
-      action: true,
-      entityType: true,
-      entityId: true,
-      metadata: true,
-      createdAt: true,
-      actor: { select: { username: true } },
-    },
-  });
+  const where = {
+    ...(filter.area ? { entityType: AUDIT_AREAS[filter.area] } : {}),
+    ...(filter.q ? { action: { contains: filter.q, mode: "insensitive" as const } } : {}),
+  };
+  const [total, entries] = await Promise.all([
+    db.auditLog.count({ where }),
+    db.auditLog.findMany({
+      where,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip: (filter.page - 1) * AUDIT_PAGE_SIZE,
+      take: AUDIT_PAGE_SIZE,
+      select: {
+        id: true,
+        action: true,
+        entityType: true,
+        entityId: true,
+        metadata: true,
+        createdAt: true,
+        actor: { select: { username: true } },
+      },
+    }),
+  ]);
+  return { entries, pageCount: Math.max(1, Math.ceil(total / AUDIT_PAGE_SIZE)) };
 }
 
 /** Zähler für die Admin-Navigation. */

@@ -116,6 +116,32 @@ export function projectDecisionEmail(
   };
 }
 
+/** Ein Downloadlink wurde gesperrt oder als defekt markiert. */
+export function linkStatusEmail(
+  user: MailUser,
+  project: { id: string; title: string },
+  link: { url: string; version: string },
+  status: "BLOCKED" | "BROKEN",
+  note: string | null,
+): MailMessage {
+  const locale = mailLocale(user);
+  const t = translator(locale);
+  const key = status === "BLOCKED" ? "blocked" : "broken";
+  return {
+    to: user.email,
+    subject: t(`link.${key}.subject`, { title: project.title }),
+    text: t(`link.${key}.body`, {
+      name: user.name,
+      title: project.title,
+      version: link.version,
+      url: link.url,
+      note: note ?? "",
+      hasNote: note ? "yes" : "no",
+      editUrl: absoluteUrl(`/${locale}/dashboard/projects/${project.id}/edit#versions`),
+    }),
+  };
+}
+
 /** Sperre eines Kontos mit Begründung und Dauer. */
 export function banEmail(user: MailUser, ban: { reason: string; expires: Date | null; hiddenProjects: number }): MailMessage {
   const locale = mailLocale(user);

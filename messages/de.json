@@ -557,13 +557,26 @@
     },
     "audit": {
       "title": "Protokoll",
-      "description": "Die letzten 100 Moderations- und Verwaltungsaktionen.",
+      "description": "Moderations- und Verwaltungsaktionen, neueste zuerst.",
       "empty": "Noch keine Einträge.",
       "time": "Zeit",
       "actor": "Wer",
       "action": "Aktion",
       "details": "Details",
-      "system": "System/CLI"
+      "system": "System/CLI",
+      "area": "Bereich",
+      "allAreas": "Alle Bereiche",
+      "areas": {
+        "project": "Projekte",
+        "report": "Meldungen",
+        "user": "Konten",
+        "link": "Downloadlinks",
+        "category": "Kategorien",
+        "tag": "Tags"
+      },
+      "search": "Aktion suchen",
+      "searchPlaceholder": "Aktion, z. B. ban oder appeal",
+      "filter": "Filtern"
     },
     "appeals": {
       "title": "Widersprüche",
@@ -586,6 +599,29 @@
       "noteHint": "Bei „Stattgeben“ wird das Projekt wieder veröffentlicht, sofern es noch ausgeblendet bzw. zurückgewiesen ist.",
       "grant": "Stattgeben",
       "deny": "Zurückweisen"
+    },
+    "links": {
+      "title": "Downloadlinks ({count})",
+      "status": {
+        "UNCHECKED": "Ungeprüft",
+        "OK": "In Ordnung",
+        "BROKEN": "Defekt",
+        "BLOCKED": "Gesperrt"
+      },
+      "currentNote": "Begründung:",
+      "note": "Begründung zum Link",
+      "noteHint": "Pflicht beim Sperren, optional bei „defekt“. Geht per E-Mail an den Creator.",
+      "actions": {
+        "markBroken": "Als defekt markieren",
+        "block": "Sperren",
+        "release": "Freigeben"
+      }
+    },
+    "category": {
+      "change": "Kategorie ändern",
+      "label": "Neue Kategorie",
+      "submit": "Kategorie speichern",
+      "changed": "Kategorie geändert."
     }
   },
   "ProjectStatus": {
@@ -804,7 +840,10 @@
       "FREEWARE": "Freeware",
       "PAYWARE": "Payware"
     },
-    "addRequirement": "Voraussetzung hinzufügen"
+    "addRequirement": "Voraussetzung hinzufügen",
+    "linkBlocked": "Von der Moderation gesperrt: Dieser Link wird nicht angezeigt, auch wenn du die Adresse änderst. Entferne ihn oder lege einen neuen an.",
+    "linkBroken": "Als defekt markiert: Besucher sehen einen Hinweis. Mit einer neuen Adresse entfällt er.",
+    "linkModerationNote": "Begründung: {note}"
   },
   "Review": {
     "title": "Projekte & Freigaben",
@@ -873,6 +912,16 @@
       "denied": {
         "subject": "Widerspruch abgelehnt: {title} – OMSI Mod Hub",
         "body": "Hallo {name},\n\ndein Widerspruch zu deinem Projekt „{title}“ wurde geprüft. Die Entscheidung bleibt bestehen.\n\nBegründung der Moderation:\n\n{note}\n\nUnabhängig davon kannst du dich an eine zertifizierte außergerichtliche Streitbeilegungsstelle wenden oder den Rechtsweg beschreiten.\n\n{url}"
+      }
+    },
+    "link": {
+      "blocked": {
+        "subject": "Downloadlink gesperrt: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\nein Downloadlink deines Projekts „{title}“ (Version {version}) wurde von der Moderation gesperrt und wird nicht mehr angezeigt:\n\n{url}\n\nBegründung:\n\n{note}\n\nDie Entscheidung hat ein Mensch getroffen, kein automatisches System. Du kannst den Link im Editor entfernen oder durch einen anderen ersetzen; die Sperre selbst hebt nur die Moderation auf. Fragen kannst du an die Kontaktadresse im Impressum richten.\n\n{editUrl}"
+      },
+      "broken": {
+        "subject": "Downloadlink als defekt markiert: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\nein Downloadlink deines Projekts „{title}“ (Version {version}) wurde als defekt markiert. Besucher sehen dazu einen Hinweis:\n\n{url}\n\n{hasNote, select, yes {Hinweis der Moderation:\n\n{note}\n\n} other {}}Bitte prüfe den Link. Sobald du eine neue Adresse einträgst, entfällt der Hinweis.\n\n{editUrl}"
       }
     }
   },

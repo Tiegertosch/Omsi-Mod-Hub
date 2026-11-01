@@ -159,9 +159,101 @@ test("Meldung bearbeiten, mit Notiz abschließen und im Protokoll finden", async
   await expect(resolved.getByText(`Abgeschlossen von @${admin.user.username}`)).toBeVisible();
   await expect(resolved.getByRole("button", { name: "Wieder öffnen" })).toBeVisible();
 
+  // Protokoll gefiltert nach Bereich und Aktion (GET-Formular)
   await admin.page.goto("/de/admin/audit");
+  await admin.page.getByLabel("Bereich", { exact: true }).selectOption("report");
+  await admin.page.getByLabel("Aktion suchen").fill("resolve");
+  await admin.page.getByRole("button", { name: "Filtern" }).click();
+  await expect(admin.page).toHaveURL(/area=report/);
   const row = admin.page.locator("tr", { hasText: "report.resolve" }).filter({ hasText: `@${admin.user.username}` });
   await expect(row.first()).toBeVisible();
+  await expect(admin.page.locator("tbody tr").filter({ hasNotText: "report." })).toHaveCount(0);
+});
+
+test("Downloadlink sperren: verschwindet öffentlich, bleibt bei URL-Änderung gesperrt, Freigabe stellt ihn wieder her", async ({
+  page,
+  browser,
+}) => {
+  const since = Date.now() - 1000;
+  const { creator, title, project, admin } = await publishedProject(page, browser);
+  const description = `E2E-Link ${uid()}: Datei enthält Schadsoftware.`;
+
+  // Gast meldet; dabei die /go-Adresse des Links merken
+  const guest = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
+  const guestPage = await guest.newPage();
+  await guestPage.goto(`/de/mods/${project.slug}`);
+  const goHref = await guestPage.locator('a[href^="/go/"]').first().getAttribute("href");
+  expect(goHref).toBeTruthy();
+  await guestPage.getByText("Problem melden").click();
+  await guestPage.getByLabel("Grund").selectOption("MALWARE");
+  await guestPage.getByLabel("Beschreibung (optional)").fill(description);
+  await guestPage.getByRole("button", { name: "Meldung absenden" }).click();
+  await expect(guestPage.getByRole("status")).toContainText("Danke!");
+
+  // Admin sperrt den Link direkt aus der Meldung; ohne Begründung geht es nicht
+  await admin.page.goto("/de/admin/reports");
+  const report = admin.page.locator("li", { hasText: description });
+  await report.getByText("Downloadlinks (1)").click();
+  await report.getByText("example.com/e2e-download").click();
+  await report.getByRole("button", { name: "Sperren" }).click();
+  await expect(report.getByText("Dieses Feld ist erforderlich.")).toBeVisible();
+  await report.getByLabel("Begründung zum Link").fill("E2E: Datei als Schadsoftware erkannt.");
+  await report.getByRole("button", { name: "Sperren" }).click();
+  await expect(report.getByText("Gesperrt", { exact: true })).toBeVisible();
+
+  // Öffentlich verschwunden, /go liefert 404
+  await guestPage.goto(`/de/mods/${project.slug}`);
+  await expect(guestPage.getByRole("heading", { level: 1 })).toHaveText(title);
+  await expect(guestPage.locator('a[href^="/go/"]')).toHaveCount(0);
+  expect((await guestPage.request.get(goHref!, { maxRedirects: 0 })).status()).toBe(404);
+
+  // Creator erfährt es per Mail und im Editor; eine neue URL hebt die Sperre nicht auf
+  const mail = await waitForMail(creator.email, /Downloadlink gesperrt/, since);
+  expect(mail.text).toContain("E2E: Datei als Schadsoftware erkannt.");
+  // Erst eine andere Seite: Ein goto nur mit neuem Anker würde die alte Seite (vor der Freigabe) behalten.
+  await page.goto("/de/dashboard/projects");
+  await page.goto(`/de/dashboard/projects/${project.id}/edit#versions`);
+  const version = page.locator("li > details").filter({ has: page.locator("summary", { hasText: "1.0.0" }) });
+  await version.locator("summary").click();
+  await expect(version.getByText("Von der Moderation gesperrt")).toBeVisible();
+  await version.getByLabel("URL").fill("https://example.com/e2e-download-neu");
+  await version.getByRole("button", { name: "Version speichern" }).click();
+  await expect(version.getByText("Version gespeichert.")).toBeVisible();
+  await guestPage.goto(`/de/mods/${project.slug}`);
+  await expect(guestPage.locator('a[href^="/go/"]')).toHaveCount(0);
+
+  // Freigabe: wieder sichtbar
+  await admin.page.goto("/de/admin/reports");
+  const again = admin.page.locator("li", { hasText: description });
+  await again.getByText("Downloadlinks (1)").click();
+  await again.getByText("example.com/e2e-download-neu").click();
+  await again.getByRole("button", { name: "Freigeben" }).click();
+  await expect(again.getByText("In Ordnung", { exact: true })).toBeVisible();
+  await guestPage.goto(`/de/mods/${project.slug}`);
+  await expect(guestPage.locator('a[href^="/go/"]')).toHaveCount(1);
+  await guest.close();
+});
+
+test("Admin ordnet ein Projekt einer anderen Kategorie zu", async ({ page, browser }) => {
+  const { title, project, admin } = await publishedProject(page, browser);
+  await admin.page.goto("/de/admin/projects?status=PUBLISHED");
+  const item = admin.page.locator("li", { hasText: title });
+  await item.getByText("Kategorie ändern").click();
+  const select = item.getByLabel("Neue Kategorie");
+  const current = await select.inputValue();
+  // Nur Stammkategorien: Testkategorien anderer, parallel laufender Tests müssen löschbar bleiben.
+  const other = await select.locator("option").evaluateAll(
+    (options, value) =>
+      (options as HTMLOptionElement[]).find((o) => o.value !== value && !/^e2e/i.test(o.textContent ?? ""))?.value ?? "",
+    current,
+  );
+  expect(other).not.toBe("");
+  await select.selectOption(other);
+  await item.getByRole("button", { name: "Kategorie speichern" }).click();
+  await expect(item.getByText("Kategorie geändert.")).toBeVisible();
+
+  await admin.page.goto("/de/admin/audit?area=project&q=category");
+  await expect(admin.page.locator("tr", { hasText: "project.category" }).filter({ hasText: project.id }).first()).toBeVisible();
 });
 
 test("Sperren beendet Sitzungen und verhindert die Anmeldung bis zur Aufhebung", async ({ page, browser }) => {

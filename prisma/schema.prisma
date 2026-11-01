@@ -379,19 +379,21 @@ model ProjectVersion {
 }
 
 model ExternalLink {
-  id            String         @id @default(cuid())
-  versionId     String
-  url           String
-  label         String?
+  id             String         @id @default(cuid())
+  versionId      String
+  url            String
+  label          String?
   /// Hostname des Anbieters, serverseitig aus der URL abgeleitet
-  provider      String
-  sourceType    LinkSourceType @default(FILE_HOSTER)
-  status        LinkStatus     @default(UNCHECKED)
-  lastCheckedAt DateTime?
-  clickCount    Int            @default(0)
-  sortOrder     Int            @default(0)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  provider       String
+  sourceType     LinkSourceType @default(FILE_HOSTER)
+  status         LinkStatus     @default(UNCHECKED)
+  /// Begründung der Moderation bei BROKEN/BLOCKED (für den Creator sichtbar)
+  moderationNote String?
+  lastCheckedAt  DateTime?
+  clickCount     Int            @default(0)
+  sortOrder      Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   version ProjectVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
 

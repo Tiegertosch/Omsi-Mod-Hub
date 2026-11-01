@@ -5,6 +5,7 @@ import { locale as rootLocale } from "next/root-params";
 import { Suspense } from "react";
 
 import { AdminPageHeader, FilterTabs, ListSkeleton } from "@/components/admin/admin-page";
+import { LinkModeration } from "@/components/admin/link-moderation";
 import { ProjectModeration } from "@/components/admin/project-moderation";
 import { ReportActions } from "@/components/admin/report-actions";
 import { STATUS_TONES } from "@/components/editor/status-tones";
@@ -103,6 +104,16 @@ async function ReportsContent({ searchParams }: Pick<Props, "searchParams">) {
                       date: dateTime(report.resolvedAt),
                     })}
                   </p>
+                ) : null}
+                {report.project.links.length > 0 ? (
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-sm font-medium text-fg">
+                      {t("links.title", { count: report.project.links.length })}
+                    </summary>
+                    <div className="mt-2">
+                      <LinkModeration links={report.project.links} />
+                    </div>
+                  </details>
                 ) : null}
                 <div className="mt-3 -ml-3 flex flex-wrap gap-1">
                   <Link

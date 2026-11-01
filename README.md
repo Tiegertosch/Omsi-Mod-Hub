@@ -46,7 +46,8 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Admin: Meldungen bearbeiten (offen → in Bearbeitung → erledigt/verworfen, interne Notiz) `/admin/reports` | ✅ |
 | Admin: Konten suchen und befristet/unbefristet sperren (beendet Sitzungen, optional Projekte ausblenden, E-Mail mit Grund und Dauer) `/admin/users` | ✅ |
 | Widerspruch gegen ausgeblendete oder zurückgewiesene Projekte: geheimer Link in der Entscheidungs-Mail (6 Monate gültig, ohne Login), Entscheidung mit Begründung unter `/admin/appeals`, beim Stattgeben automatisch wieder veröffentlicht | ✅ |
-| Admin: Kategorien und Tags anlegen, bearbeiten, löschen `/admin/categories`, `/admin/tags`; Protokoll `/admin/audit` | ✅ |
+| Admin: Kategorien und Tags anlegen, bearbeiten, löschen `/admin/categories`, `/admin/tags`; Projekte einer anderen Kategorie zuordnen; Protokoll mit Filter nach Bereich und Aktion, seitenweise `/admin/audit` | ✅ |
+| Admin: Downloadlinks aus einer Meldung heraus als defekt markieren, sperren (mit Begründung, E-Mail an den Creator) oder freigeben; gesperrte Links verschwinden öffentlich, `/go` liefert 404, die Sperre bleibt auch bei einer URL-Änderung durch den Creator | ✅ |
 | E-Mail an Creator bei Freigabe, Zurückweisung, Ausblenden, Wiedereinblenden und nach der Entscheidung über einen Widerspruch | ✅ |
 | Rechtliche Seiten: Impressum, Datenschutzerklärung, versionierte Nutzungsbedingungen mit Zustimmung bei neuen Fassungen | ✅ |
 
@@ -209,7 +210,7 @@ tests/
 
 ## Bekannte Einschränkungen
 
-- **Moderation:** Admin-Rechte werden bewusst nur per CLI vergeben und entzogen; Admins können nicht gesperrt werden. Eine Sperre blendet Projekte nur auf Wunsch aus, und das Aufheben der Sperre blendet sie nicht automatisch wieder ein. Kategorien sind einstufig verwaltbar (keine Oberkategorie wählbar); Kürzel von Kategorien und Tags sind nach dem Anlegen fest. Gesperrte Nutzer sehen beim Login nur „Konto gesperrt“; Grund und Dauer stehen in der E-Mail zur Sperre. Gegen Sperren und verworfene Meldungen gibt es keinen Widerspruch über die Seite, nur gegen ausgeblendete oder zurückgewiesene Projekte. Das Protokoll zeigt die letzten 100 Einträge ohne Filter.
+- **Moderation:** Admin-Rechte werden bewusst nur per CLI vergeben und entzogen; Admins können nicht gesperrt werden. Eine Sperre blendet Projekte nur auf Wunsch aus, und das Aufheben der Sperre blendet sie nicht automatisch wieder ein. Kategorien sind einstufig verwaltbar (keine Oberkategorie wählbar); Kürzel von Kategorien und Tags sind nach dem Anlegen fest. Gesperrte Nutzer sehen beim Login nur „Konto gesperrt“; Grund und Dauer stehen in der E-Mail zur Sperre. Gegen Sperren und verworfene Meldungen gibt es keinen Widerspruch über die Seite, nur gegen ausgeblendete oder zurückgewiesene Projekte. Link-Moderation gibt es nur in der Meldungsliste, nicht für beliebige Projekte.
 - **Benachrichtigungen** werden ohne Warteschlange im Hintergrund versendet; schlägt der Versand fehl, wird das nur protokolliert (kein erneuter Versuch). An Beispielkonten wird nichts gesendet.
 - **Bildspeicher lokal:** Uploads liegen im Dateisystem (`UPLOAD_DIR`). Für mehrere Server-Instanzen oder Serverless-Hosting ist ein Objektspeicher (z. B. S3) nötig; die Schnittstelle ist in `src/server/storage.ts` gekapselt. Backups müssen dieses Verzeichnis einschließen.
 - **Reihenfolge von Screenshots** lässt sich noch nicht ändern (Upload-Reihenfolge); Bildbeschreibungen nur beim Hochladen.
@@ -228,7 +229,7 @@ tests/
 
 ## Nächste Schritte
 
-1. **Moderation ausbauen:** Projekte einer anderen Kategorie zuordnen, Protokoll filtern/paginieren, Linkstatus (`BROKEN`/`BLOCKED`) aus Meldungen heraus setzen.
+1. **Moderation ausbauen:** Widerspruch gegen Sperren und verworfene Meldungen (rechtlich klären), Link-Moderation auch außerhalb von Meldungen.
 2. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption für Benachrichtigungen.
 3. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
 4. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.

@@ -435,11 +435,18 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
       const current = id ? known.get(id) : undefined;
       if (current) {
         keep.add(current.id);
-        await tx.externalLink.update({
-          where: { id: current.id },
-          // Geänderte Ziele gelten wieder als ungeprüft; Klickzahlen bleiben erhalten.
-          data: current.url === link.url ? link : { ...link, status: "UNCHECKED", lastCheckedAt: null },
-        });
+        // Klickzahlen und Status bleiben bei der Bearbeitung erhalten.
+        await tx.externalLink.update({ where: { id: current.id }, data: link });
+        if (current.url !== link.url) {
+          // Neues Ziel: wieder ungeprüft, eine Defekt-Markierung entfällt. Gesperrte
+          // Links bleiben gesperrt, bis ein Admin sie freigibt (sonst ließe sich die
+          // Sperre per URL-Änderung umgehen). Bedingt in einer Anweisung, damit eine
+          // gleichzeitige Sperre nicht überschrieben wird.
+          await tx.externalLink.updateMany({
+            where: { id: current.id, status: { not: "BLOCKED" } },
+            data: { status: "UNCHECKED", lastCheckedAt: null, moderationNote: null },
+          });
+        }
       } else {
         const created = await tx.externalLink.create({ data: { ...link, versionId: existing.id }, select: { id: true } });
         keep.add(created.id);

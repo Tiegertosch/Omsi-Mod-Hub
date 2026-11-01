@@ -557,13 +557,26 @@
     },
     "audit": {
       "title": "Audit log",
-      "description": "The latest 100 moderation and management actions.",
+      "description": "Moderation and administration actions, newest first.",
       "empty": "No entries yet.",
       "time": "Time",
       "actor": "Who",
       "action": "Action",
       "details": "Details",
-      "system": "System/CLI"
+      "system": "System/CLI",
+      "area": "Area",
+      "allAreas": "All areas",
+      "areas": {
+        "project": "Projects",
+        "report": "Reports",
+        "user": "Accounts",
+        "link": "Download links",
+        "category": "Categories",
+        "tag": "Tags"
+      },
+      "search": "Search action",
+      "searchPlaceholder": "Action, e.g. ban or appeal",
+      "filter": "Filter"
     },
     "appeals": {
       "title": "Appeals",
@@ -586,6 +599,29 @@
       "noteHint": "“Grant” publishes the project again if it is still hidden or rejected.",
       "grant": "Grant",
       "deny": "Reject"
+    },
+    "links": {
+      "title": "Download links ({count})",
+      "status": {
+        "UNCHECKED": "Unchecked",
+        "OK": "OK",
+        "BROKEN": "Broken",
+        "BLOCKED": "Blocked"
+      },
+      "currentNote": "Reason:",
+      "note": "Reason for this link",
+      "noteHint": "Required when blocking, optional for “broken”. Sent to the creator by email.",
+      "actions": {
+        "markBroken": "Mark as broken",
+        "block": "Block",
+        "release": "Release"
+      }
+    },
+    "category": {
+      "change": "Change category",
+      "label": "New category",
+      "submit": "Save category",
+      "changed": "Category changed."
     }
   },
   "ProjectStatus": {
@@ -804,7 +840,10 @@
       "FREEWARE": "Freeware",
       "PAYWARE": "Payware"
     },
-    "addRequirement": "Add requirement"
+    "addRequirement": "Add requirement",
+    "linkBlocked": "Blocked by the moderators: this link is not shown, even if you change the address. Remove it or add a new one.",
+    "linkBroken": "Marked as broken: visitors see a notice. It disappears once you enter a new address.",
+    "linkModerationNote": "Reason: {note}"
   },
   "Review": {
     "title": "Projects & reviews",
@@ -873,6 +912,16 @@
       "denied": {
         "subject": "Appeal rejected: {title} – OMSI Mod Hub",
         "body": "Hi {name},\n\nyour appeal regarding your project “{title}” has been reviewed. The decision stands.\n\nModerators’ reasoning:\n\n{note}\n\nIndependently of this, you can contact a certified out-of-court dispute settlement body or take legal action.\n\n{url}"
+      }
+    },
+    "link": {
+      "blocked": {
+        "subject": "Download link blocked: {title} – OMSI Mod Hub",
+        "body": "Hi {name},\n\na download link of your project “{title}” (version {version}) has been blocked by the moderators and is no longer shown:\n\n{url}\n\nReason:\n\n{note}\n\nThis decision was made by a person, not an automated system. You can remove the link in the editor or replace it with another one; only the moderators can lift the block itself. If you have questions, please use the contact address in the legal notice.\n\n{editUrl}"
+      },
+      "broken": {
+        "subject": "Download link marked as broken: {title} – OMSI Mod Hub",
+        "body": "Hi {name},\n\na download link of your project “{title}” (version {version}) has been marked as broken. Visitors see a notice next to it:\n\n{url}\n\n{hasNote, select, yes {Note from the moderators:\n\n{note}\n\n} other {}}Please check the link. As soon as you enter a new address, the notice disappears.\n\n{editUrl}"
       }
     }
   },

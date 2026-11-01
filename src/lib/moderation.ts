@@ -1,4 +1,4 @@
-import type { ProjectStatus, ReportStatus } from "@/generated/prisma/enums";
+import type { LinkStatus, ProjectStatus, ReportStatus } from "@/generated/prisma/enums";
 
 import { isAdmin } from "./roles";
 
@@ -29,6 +29,35 @@ export function nextStatusForAdmin(current: ProjectStatus, action: AdminProjectA
 /** Aktionen, die eine Begründung für den Creator erfordern. */
 export function requiresModerationNote(action: AdminProjectAction): boolean {
   return action === "reject" || action === "hide";
+}
+
+// ---------------------------------------------------------------------------
+// Downloadlinks
+// ---------------------------------------------------------------------------
+
+/** Moderation einzelner Downloadlinks; „release“ hebt Defekt-Markierung oder Sperre auf. */
+export type LinkAction = "markBroken" | "block" | "release";
+
+export const LINK_ACTIONS = ["markBroken", "block", "release"] as const satisfies readonly LinkAction[];
+
+export function nextLinkStatus(current: LinkStatus, action: LinkAction): LinkStatus | null {
+  switch (action) {
+    case "markBroken":
+      return current === "UNCHECKED" || current === "OK" ? "BROKEN" : null;
+    case "block":
+      return current === "BLOCKED" ? null : "BLOCKED";
+    case "release":
+      return current === "BROKEN" || current === "BLOCKED" ? "OK" : null;
+  }
+}
+
+export function availableLinkActions(current: LinkStatus): LinkAction[] {
+  return LINK_ACTIONS.filter((action) => nextLinkStatus(current, action) !== null);
+}
+
+/** Sperren braucht eine Begründung für den Creator; bei „defekt“ ist sie optional. */
+export function linkActionNeedsNote(action: LinkAction): boolean {
+  return action === "block";
 }
 
 // ---------------------------------------------------------------------------

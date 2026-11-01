@@ -30,6 +30,15 @@ describe.each([
     expect(text).toContain("https://example.com/de/appeal?token=x");
   });
 
+  it("Linkstatus mit und ohne Begründung", () => {
+    const values = { name: "Anna", title: "Bus X", version: "1.0", url: "https://example.com/x", editUrl: "https://e/x" };
+    expect(t("link.blocked.body", { ...values, note: "Schadsoftware", hasNote: "yes" })).toContain("Schadsoftware");
+    const withNote = t("link.broken.body", { ...values, note: "404", hasNote: "yes" });
+    const withoutNote = t("link.broken.body", { ...values, note: "", hasNote: "no" });
+    expect(withNote).toContain("404");
+    expect(withoutNote.length).toBeLessThan(withNote.length);
+  });
+
   it("Ergebnis eines Widerspruchs", () => {
     const values = { name: "Anna", title: "Bus X", note: "Passt.", url: "https://example.com" };
     const restored = t("appealResult.granted.body", { ...values, restored: "yes" });

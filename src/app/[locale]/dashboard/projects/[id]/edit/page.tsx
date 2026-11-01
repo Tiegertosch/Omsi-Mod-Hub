@@ -146,7 +146,14 @@ async function EditorContent({ params }: Pick<Props, "params">) {
                         version: v.version,
                         changelog: v.changelog ?? "",
                         releasedAt: v.releasedAt,
-                        links: v.links.map((l) => ({ id: l.id, url: l.url, label: l.label ?? "", sourceType: l.sourceType })),
+                        links: v.links.map((l) => ({
+                          id: l.id,
+                          url: l.url,
+                          label: l.label ?? "",
+                          sourceType: l.sourceType,
+                          status: l.status,
+                          moderationNote: l.moderationNote,
+                        })),
                       }))}
                     />
                   </Panel>

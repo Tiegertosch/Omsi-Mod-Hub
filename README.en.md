@@ -48,7 +48,8 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Admin: handle reports (open → in progress → resolved/dismissed, internal note) `/admin/reports` | ✅ |
 | Admin: search accounts and ban them temporarily/permanently (ends sessions, optionally hides projects, email with reason and duration) `/admin/users` | ✅ |
 | Appeals against hidden or rejected projects: secret link in the decision email (valid for 6 months, no sign-in), decided with reasoning under `/admin/appeals`, automatically published again when granted | ✅ |
-| Admin: create, edit, delete categories and tags `/admin/categories`, `/admin/tags`; audit log `/admin/audit` | ✅ |
+| Admin: create, edit, delete categories and tags `/admin/categories`, `/admin/tags`; move projects to another category; audit log with filters by area and action, paginated `/admin/audit` | ✅ |
+| Admin: mark download links as broken, block them (with reason, email to the creator) or release them directly from a report; blocked links disappear publicly, `/go` returns 404, and the block stays even if the creator changes the URL | ✅ |
 | Emails to creators on approval, rejection, hiding, unhiding and after an appeal has been decided | ✅ |
 | Legal pages: imprint, privacy policy, versioned terms of use with consent to new versions | ✅ |
 
@@ -211,7 +212,7 @@ tests/
 
 ## Known limitations
 
-- **Moderation:** Admin rights are intentionally granted and revoked via CLI only; admins cannot be banned. A ban only hides projects on request, and lifting a ban does not automatically show them again. Categories can only be managed on one level (no parent category selectable); slugs of categories and tags are fixed once created. Banned users only see "This account has been suspended." when signing in; the reason and duration are in the suspension email. Bans and dismissed reports cannot be appealed through the site, only hidden or rejected projects. The audit log shows the last 100 entries without filters.
+- **Moderation:** Admin rights are intentionally granted and revoked via CLI only; admins cannot be banned. A ban only hides projects on request, and lifting a ban does not automatically show them again. Categories can only be managed on one level (no parent category selectable); slugs of categories and tags are fixed once created. Banned users only see "This account has been suspended." when signing in; the reason and duration are in the suspension email. Bans and dismissed reports cannot be appealed through the site, only hidden or rejected projects. Link moderation is only available in the report list, not for arbitrary projects.
 - **Notifications** are sent in the background without a queue; if sending fails, this is only logged (no retry). Nothing is sent to sample accounts.
 - **Local image storage:** Uploads are stored on the file system (`UPLOAD_DIR`). Multiple server instances or serverless hosting require object storage (e.g. S3); the interface is encapsulated in `src/server/storage.ts`. Backups must include this directory.
 - **Screenshot order** cannot be changed yet (upload order); image descriptions can only be set when uploading.
@@ -230,7 +231,7 @@ tests/
 
 ## Next steps
 
-1. **Extend moderation:** move projects to another category, filter/paginate the audit log, set link status (`BROKEN`/`BLOCKED`) directly from reports.
+1. **Extend moderation:** appeals against bans and dismissed reports (legal clarification needed), link moderation outside of reports.
 2. **Notifications:** sending queue with retries, opt-out for notifications.
 3. **Object storage** for uploads (S3-compatible) instead of the local file system.
 4. **Link checking** in the background with DNS-based SSRF protection.
