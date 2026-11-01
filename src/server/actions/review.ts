@@ -4,12 +4,14 @@ import { refresh } from "next/cache";
 import { z } from "zod";
 
 import { moderationNoteSchema } from "@/lib/admin-forms";
+import { decisionKindFor } from "@/lib/appeals";
 import { db } from "@/lib/db";
 import type { FormState } from "@/lib/form-state";
 import { nextStatusForAdmin, requiresModerationNote, type AdminProjectAction } from "@/lib/moderation";
 import type { EditorErrorCode, EditorFieldCode } from "@/lib/project-form";
 import { isAdmin } from "@/lib/roles";
 import { pickTranslation } from "@/lib/translation";
+import { newAppealToken } from "@/server/appeals";
 import { projectDecisionEmail } from "@/server/emails";
 import { sendMailInBackground } from "@/server/mail";
 import { getActingUser, type CurrentUser } from "@/server/session";
@@ -62,6 +64,10 @@ async function moderateProject(action: AdminProjectAction, formData: FormData): 
   const next = nextStatusForAdmin(project.status, action);
   if (!next) return { status: "error", code: "invalid_transition" };
 
+  // Ausblenden und Zurückweisen sind widersprechbar: Entscheidung mit Link-Token speichern.
+  const kind = decisionKindFor(action);
+  const appeal = kind && note ? newAppealToken() : null;
+
   // Bedingtes Update: Bei gleichzeitigen Entscheidungen gewinnt nur die erste.
   const updated = await db.$transaction(async (tx) => {
     const result = await tx.project.updateMany({
@@ -73,6 +79,11 @@ async function moderateProject(action: AdminProjectAction, formData: FormData): 
       },
     });
     if (result.count === 0) return false;
+    if (kind && appeal && note) {
+      await tx.moderationDecision.create({
+        data: { kind, projectId: project.id, reason: note, appealTokenHash: appeal.hash, appealUntil: appeal.until },
+      });
+    }
     await tx.auditLog.create({
       data: {
         actorId: admin.id,
@@ -90,7 +101,15 @@ async function moderateProject(action: AdminProjectAction, formData: FormData): 
   if (!project.creator.isSample) {
     const locale = project.creator.preferredLocale ?? project.defaultLocale;
     const title = pickTranslation(project.translations, locale, project.defaultLocale)?.translation.title ?? project.slug;
-    sendMailInBackground(projectDecisionEmail(project.creator, { id: project.id, slug: project.slug, title }, action, note));
+    sendMailInBackground(
+      projectDecisionEmail(
+        project.creator,
+        { id: project.id, slug: project.slug, title },
+        action,
+        note,
+        appeal ? { token: appeal.token, until: appeal.until } : undefined,
+      ),
+    );
   }
 
   projectsChanged([project.slug]);

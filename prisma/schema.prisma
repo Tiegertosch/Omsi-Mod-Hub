@@ -107,6 +107,7 @@ model User {
   contributions   ProjectContributor[]
   reports         Report[]             @relation("ReportReporter")
   resolvedReports Report[]             @relation("ReportResolver")
+  resolvedAppeals ModerationDecision[] @relation("AppealResolver")
   auditLogs       AuditLog[]
 
   @@index([role])
@@ -265,13 +266,13 @@ model ProjectTag {
 // ---------------------------------------------------------------------------
 
 model Project {
-  id                 String        @id @default(cuid())
-  slug               String        @unique
+  id                 String             @id @default(cuid())
+  slug               String             @unique
   creatorId          String
   categoryId         String
-  status             ProjectStatus @default(DRAFT)
+  status             ProjectStatus      @default(DRAFT)
   /// Originalsprache der Projekttexte; Fallback bei fehlender Übersetzung
-  defaultLocale      String        @default("de")
+  defaultLocale      String             @default("de")
   /// Lizenz / Nutzungsbedingungen des Erstellers (Freitext)
   license            String
   /// Seite der Originalquelle (z. B. Forenthread oder Website des Erstellers)
@@ -283,8 +284,8 @@ model Project {
   coverImageUrl      String?
   coverImageAlt      String?
   /// gemessene Aufrufe externer Downloadseiten (keine Downloads!)
-  outboundClickCount Int           @default(0)
-  isSample           Boolean       @default(false)
+  outboundClickCount Int                @default(0)
+  isSample           Boolean            @default(false)
   /// Begründung der Moderation (z. B. bei Zurückweisung), für den Creator sichtbar
   moderationNote     String?
   /// Zeitpunkt der letzten Einreichung zur Prüfung
@@ -292,8 +293,8 @@ model Project {
   publishedAt        DateTime?
   /// Zeitpunkt der letzten veröffentlichten Version
   lastReleaseAt      DateTime?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
 
   creator      User                 @relation(fields: [creatorId], references: [id], onDelete: Restrict)
   category     Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
@@ -304,6 +305,7 @@ model Project {
   contributors ProjectContributor[]
   requirements ProjectRequirement[]
   reports      Report[]
+  decisions    ModerationDecision[]
 
   @@index([status, publishedAt])
   @@index([status, lastReleaseAt])
@@ -433,6 +435,47 @@ model Report {
   project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([status, createdAt])
+  @@index([projectId])
+}
+
+/// Widersprechbare Moderationsentscheidung zu einem Projekt (src/lib/appeals.ts).
+enum ModerationDecisionKind {
+  PROJECT_HIDE
+  PROJECT_REJECT
+}
+
+/// NONE: kein Widerspruch eingelegt; OPEN: eingelegt, noch nicht entschieden
+enum AppealStatus {
+  NONE
+  OPEN
+  GRANTED
+  DENIED
+}
+
+/// Moderationsentscheidung mit Widerspruchsmöglichkeit (interner Beschwerdeweg).
+/// Der Creator erhält per E-Mail einen geheimen Link; gespeichert wird nur dessen Hash.
+model ModerationDecision {
+  id              String                 @id @default(cuid())
+  kind            ModerationDecisionKind
+  projectId       String
+  /// Begründung der Moderation (für den Creator sichtbar)
+  reason          String
+  createdAt       DateTime               @default(now())
+  /// SHA-256 des Widerspruchs-Tokens aus der E-Mail
+  appealTokenHash String                 @unique
+  appealUntil     DateTime
+  appealStatus    AppealStatus           @default(NONE)
+  appealMessage   String?
+  appealedAt      DateTime?
+  resolvedById    String?
+  /// Begründung der Entscheidung über den Widerspruch (geht an den Creator)
+  resolutionNote  String?
+  resolvedAt      DateTime?
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  resolvedBy User?   @relation("AppealResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@index([appealStatus, appealedAt])
   @@index([projectId])
 }
 

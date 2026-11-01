@@ -10,11 +10,15 @@
  * - Abgeschlossene Meldungen (erledigt/verworfen, mit Freitext und ggf.
  *   Konto): 6 Monate nach dem Abschluss. Offene Meldungen bleiben.
  * - Protokoll (Audit-Log, Konto-IDs der Handelnden): nach 12 Monaten.
+ * - Moderationsentscheidungen mit Widerspruchsmöglichkeit: ohne Widerspruch
+ *   nach Ablauf der Frist (6 Monate), abgeschlossene Widersprüche 6 Monate
+ *   nach der Entscheidung über den Widerspruch. Offene bleiben.
  */
 export const RATE_LIMIT_RETENTION_HOURS = 24;
 export const UNVERIFIED_ACCOUNT_RETENTION_DAYS = 7;
 export const CLOSED_REPORT_RETENTION_MONTHS = 6;
 export const AUDIT_LOG_RETENTION_MONTHS = 12;
+export const CLOSED_APPEAL_RETENTION_MONTHS = 6;
 
 const HOUR = 60 * 60 * 1000;
 
@@ -34,5 +38,7 @@ export function retentionCutoffs(now: Date) {
     closedReportBefore: monthsBefore(now, CLOSED_REPORT_RETENTION_MONTHS),
     /** Protokolleinträge davor werden gelöscht. */
     auditLogBefore: monthsBefore(now, AUDIT_LOG_RETENTION_MONTHS),
+    /** Widersprüche, über die davor entschieden wurde, werden gelöscht. */
+    closedAppealBefore: monthsBefore(now, CLOSED_APPEAL_RETENTION_MONTHS),
   };
 }

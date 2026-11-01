@@ -424,7 +424,8 @@
       "users": "Konten",
       "categories": "Kategorien",
       "tags": "Tags",
-      "audit": "Protokoll"
+      "audit": "Protokoll",
+      "appeals": "Widersprüche"
     },
     "stats": {
       "users": "Konten",
@@ -563,6 +564,28 @@
       "action": "Aktion",
       "details": "Details",
       "system": "System/CLI"
+    },
+    "appeals": {
+      "title": "Widersprüche",
+      "description": "Widersprüche von Creatorn gegen ausgeblendete oder zurückgewiesene Projekte prüfen und entscheiden.",
+      "filterLabel": "Nach Stand filtern",
+      "status": {
+        "OPEN": "Offen",
+        "GRANTED": "Stattgegeben",
+        "DENIED": "Zurückgewiesen"
+      },
+      "empty": "Keine Widersprüche in diesem Stand.",
+      "appealedBy": "Widerspruch von @{username} am {date}",
+      "decidedOn": "Entscheidung vom {date}",
+      "reason": "Begründung der Entscheidung",
+      "message": "Widerspruch",
+      "resolutionNote": "Begründung zum Widerspruch",
+      "resolvedBy": "Entschieden von {admin} am {date}",
+      "viewProject": "Projekt ansehen",
+      "note": "Begründung (geht per E-Mail an den Creator)",
+      "noteHint": "Bei „Stattgeben“ wird das Projekt wieder veröffentlicht, sofern es noch ausgeblendet bzw. zurückgewiesen ist.",
+      "grant": "Stattgeben",
+      "deny": "Zurückweisen"
     }
   },
   "ProjectStatus": {
@@ -834,7 +857,24 @@
     "accountDeletedSubject": "Dein Konto wurde gelöscht – OMSI Mod Hub",
     "accountDeletedBody": "Hallo {name},\n\ndein Konto bei OMSI Mod Hub wurde gelöscht, zusammen mit deinem Creator-Profil und deinen Projekten.\n\nWenn du das nicht selbst veranlasst hast, wende dich bitte über die Kontaktangaben auf der Website an uns.",
     "verifyCodeSubject": "{code} ist dein Bestätigungscode – OMSI Mod Hub",
-    "verifyCodeBody": "Hallo {name},\n\ndein Code zur Bestätigung deiner E-Mail-Adresse bei OMSI Mod Hub lautet:\n\n{code}\n\nGib ihn auf der Seite ein, die sich nach der Registrierung geöffnet hat, oder hier:\n\n{url}\n\nDer Code ist {minutes} Minuten gültig. Wenn du dich nicht registriert hast, kannst du diese E-Mail ignorieren."
+    "verifyCodeBody": "Hallo {name},\n\ndein Code zur Bestätigung deiner E-Mail-Adresse bei OMSI Mod Hub lautet:\n\n{code}\n\nGib ihn auf der Seite ein, die sich nach der Registrierung geöffnet hat, oder hier:\n\n{url}\n\nDer Code ist {minutes} Minuten gültig. Wenn du dich nicht registriert hast, kannst du diese E-Mail ignorieren.",
+    "appealHint": "Du bist mit dieser Entscheidung nicht einverstanden? Du kannst bis zum {appealUntil, date, long} begründet widersprechen. Über den Widerspruch entscheidet ein Mensch, kein automatisches System:\n\n{appealUrl}",
+    "ban": {
+      "subject": "Dein Konto wurde gesperrt – OMSI Mod Hub",
+      "body": "Hallo {name},\n\ndein Konto bei OMSI Mod Hub wurde von der Moderation gesperrt ({duration}). Begründung:\n\n{reason}\n\n{hidden, plural, =0 {} one {Dein veröffentlichtes Projekt wurde dabei ausgeblendet.\n\n} other {Deine # veröffentlichten Projekte wurden dabei ausgeblendet.\n\n}}Solange die Sperre besteht, kannst du dich nicht anmelden. Die Entscheidung hat ein Mensch getroffen, kein automatisches System.\n\nFragen zur Sperre kannst du an die Kontaktadresse im Impressum richten:\n\n{contactUrl}",
+      "until": "bis zum {until, date, long}",
+      "permanent": "unbefristet"
+    },
+    "appealResult": {
+      "granted": {
+        "subject": "Widerspruch erfolgreich: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\ndein Widerspruch zu deinem Projekt „{title}“ wurde geprüft. Wir haben die Entscheidung aufgehoben.{restored, select, yes { Das Projekt ist wieder öffentlich sichtbar.} other {}}\n\nBegründung der Moderation:\n\n{note}\n\n{url}"
+      },
+      "denied": {
+        "subject": "Widerspruch abgelehnt: {title} – OMSI Mod Hub",
+        "body": "Hallo {name},\n\ndein Widerspruch zu deinem Projekt „{title}“ wurde geprüft. Die Entscheidung bleibt bestehen.\n\nBegründung der Moderation:\n\n{note}\n\nUnabhängig davon kannst du dich an eine zertifizierte außergerichtliche Streitbeilegungsstelle wenden oder den Rechtsweg beschreiten.\n\n{url}"
+      }
+    }
   },
   "Errors": {
     "notFoundTitle": "Seite nicht gefunden",
@@ -870,5 +910,37 @@
     "verifying": "Wird geprüft …",
     "error": "Die Prüfung, ob du ein Mensch bist, hat nicht geklappt. Bitte versuche es erneut.",
     "noscript": "Dieses Formular braucht JavaScript: Beim Absenden prüft dein Browser kurz, ob du ein Mensch bist (Cap, ohne Dienste Dritter). Bitte aktiviere JavaScript."
+  },
+  "Appeal": {
+    "title": "Widerspruch einlegen",
+    "description": "Hier kannst du einer Moderationsentscheidung zu deinem Projekt widersprechen.",
+    "invalidLink": "Dieser Link ist ungültig. Nutze bitte den Link aus der E-Mail zur Entscheidung.",
+    "kind": {
+      "PROJECT_HIDE": "Projekt ausgeblendet",
+      "PROJECT_REJECT": "Projekt nicht freigegeben"
+    },
+    "project": "Projekt",
+    "decision": "Entscheidung",
+    "decidedAt": "Datum",
+    "reason": "Begründung der Moderation",
+    "deadline": "Widerspruch möglich bis",
+    "message": "Deine Begründung",
+    "messageHint": "Erkläre, warum die Entscheidung aus deiner Sicht falsch ist. Höchstens {max} Zeichen.",
+    "submit": "Widerspruch einreichen",
+    "submitting": "Wird gesendet …",
+    "received": "Dein Widerspruch ist eingegangen. Ein Mensch aus der Moderation prüft ihn, das Ergebnis bekommst du per E-Mail.",
+    "open": "Dein Widerspruch vom {date} wird geprüft. Das Ergebnis bekommst du per E-Mail.",
+    "granted": "Dem Widerspruch wurde am {date} stattgegeben.",
+    "denied": "Der Widerspruch wurde am {date} zurückgewiesen.",
+    "yourMessage": "Dein Widerspruch",
+    "resolutionNote": "Begründung der Moderation zum Widerspruch",
+    "expired": "Die Frist für einen Widerspruch ist am {date} abgelaufen.",
+    "errors": {
+      "validation": "Bitte gib eine Begründung ein (höchstens {max} Zeichen).",
+      "rate_limit": "Zu viele Versuche. Bitte warte einige Minuten.",
+      "invalid_link": "Dieser Link ist ungültig. Nutze bitte den Link aus der E-Mail zur Entscheidung.",
+      "closed": "Zu dieser Entscheidung ist kein Widerspruch (mehr) möglich.",
+      "generic": "Das hat nicht geklappt. Bitte versuche es erneut."
+    }
   }
 }

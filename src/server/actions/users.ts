@@ -7,13 +7,16 @@ import { db } from "@/lib/db";
 import { fieldErrorsFrom } from "@/lib/form-state";
 import { banExpiresAt, canBanUser, type BanDuration } from "@/lib/moderation";
 import { adminActor, adminFail, adminIdSchema, type AdminState } from "@/server/admin-action";
+import { banEmail } from "@/server/emails";
+import { sendMailInBackground } from "@/server/mail";
 import { creatorChanged, projectsChanged } from "@/server/public-cache";
 
 /**
  * Sperrt ein Konto: beendet alle Sitzungen, eine Anmeldung ist bis zum Ablauf
  * nicht mehr möglich (Better Auth prüft `banned`/`banExpires` beim Login und
  * hebt abgelaufene Sperren dabei selbst auf). Optional werden alle
- * veröffentlichten Projekte des Kontos ausgeblendet.
+ * veröffentlichten Projekte des Kontos ausgeblendet. Das Konto erhält eine
+ * E-Mail mit Begründung und Dauer.
  */
 export async function banUserAction(_prev: AdminState, formData: FormData): Promise<AdminState> {
   const actor = await adminActor();
@@ -26,7 +29,10 @@ export async function banUserAction(_prev: AdminState, formData: FormData): Prom
   const { reason, hideProjects } = parsed.data;
   const duration = parsed.data.duration as BanDuration;
 
-  const target = await db.user.findUnique({ where: { id: id.data }, select: { id: true, role: true, username: true } });
+  const target = await db.user.findUnique({
+    where: { id: id.data },
+    select: { id: true, role: true, username: true, email: true, name: true, preferredLocale: true, isSample: true },
+  });
   if (!target) return adminFail("not_found");
   if (!canBanUser(actor.admin, target)) return adminFail("forbidden_target");
 
@@ -58,6 +64,11 @@ export async function banUserAction(_prev: AdminState, formData: FormData): Prom
     });
     return projects.map((p) => p.slug);
   });
+
+  // Beispielkonten haben keine echten Postfächer.
+  if (!target.isSample) {
+    sendMailInBackground(banEmail(target, { reason, expires, hiddenProjects: hiddenSlugs.length }));
+  }
 
   // Gesperrte Creator verschwinden aus Verzeichnis und Profil.
   creatorChanged(target.username);

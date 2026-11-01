@@ -27,7 +27,7 @@ async function main() {
   const cutoff = retentionCutoffs(now);
   const db = createPrismaClient();
   try {
-    const [rateLimits, sessions, verifications, captchas, accounts, reports, auditLogs] = await db.$transaction([
+    const [rateLimits, sessions, verifications, captchas, accounts, reports, auditLogs, decisions] = await db.$transaction([
       db.rateLimit.deleteMany({ where: { lastRequest: { lt: cutoff.rateLimitBefore } } }),
       db.session.deleteMany({ where: { expiresAt: { lt: now } } }),
       db.verification.deleteMany({ where: { expiresAt: { lt: now } } }),
@@ -56,12 +56,22 @@ async function main() {
         },
       }),
       db.auditLog.deleteMany({ where: { createdAt: { lt: cutoff.auditLogBefore } } }),
+      // Offene Widersprüche bleiben unabhängig vom Alter.
+      db.moderationDecision.deleteMany({
+        where: {
+          OR: [
+            { appealStatus: "NONE", appealUntil: { lt: now } },
+            { appealStatus: { in: ["GRANTED", "DENIED"] }, resolvedAt: { lt: cutoff.closedAppealBefore } },
+          ],
+        },
+      }),
     ]);
     console.log(
       `Aufgeräumt: ${rateLimits.count} Rate-Limit-Einträge, ${sessions.count} abgelaufene Sitzungen, ` +
         `${verifications.count} abgelaufene Codes/Links, ${captchas.count} abgelaufene Captcha-Einträge, ` +
         `${accounts.count} unbestätigte Konten, ` +
-        `${reports.count} abgeschlossene Meldungen, ${auditLogs.count} Protokolleinträge.`,
+        `${reports.count} abgeschlossene Meldungen, ${auditLogs.count} Protokolleinträge, ` +
+        `${decisions.count} Moderationsentscheidungen.`,
     );
   } finally {
     await db.$disconnect();

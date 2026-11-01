@@ -8,6 +8,7 @@ import {
   randomIp,
   registerAndVerify,
   uniqueUser,
+  waitForMail,
   waitForMailLink,
 } from "./helpers";
 
@@ -71,6 +72,60 @@ test("Ausblenden mit Begründung, Benachrichtigung und Wiedereinblenden", async 
   await waitForMailLink(creator.email, /Wieder sichtbar/, since);
 });
 
+test("Widerspruch gegen das Ausblenden: Link aus der Mail, Stattgeben veröffentlicht wieder", async ({ page, browser }) => {
+  const since = Date.now() - 1000;
+  const { creator, title, project, admin } = await publishedProject(page, browser);
+
+  await admin.page.goto("/de/admin/projects?status=PUBLISHED");
+  const published = admin.page.locator("li", { hasText: title });
+  await published.locator("summary", { hasText: "Ausblenden" }).click();
+  await published.getByLabel("Begründung für den Creator").fill("E2E: Lizenz unklar.");
+  await published.getByRole("button", { name: "Ausblenden" }).click();
+  await expect(published).toHaveCount(0);
+
+  // Die Mail enthält Frist und geheimen Widerspruchslink
+  const mail = await waitForMail(creator.email, /Ausgeblendet/, since);
+  const appealUrl = /https?:\/\/\S+\/de\/appeal\?token=[A-Za-z0-9_-]{43}/.exec(mail.text)?.[0];
+  expect(appealUrl, mail.text).toBeTruthy();
+  expect(mail.text).toContain("widersprechen");
+
+  // Kein Login nötig: eigener Browser-Kontext ohne Sitzung
+  const guest = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
+  const guestPage = await guest.newPage();
+  await guestPage.goto(appealUrl!);
+  await expect(guestPage.getByText("E2E: Lizenz unklar.")).toBeVisible();
+  await expect(guestPage.getByText("Projekt ausgeblendet")).toBeVisible();
+  await guestPage.getByRole("button", { name: "Widerspruch einreichen" }).click();
+  await expect(guestPage.getByText("Bitte gib eine Begründung ein")).toBeVisible();
+  await guestPage.getByLabel("Deine Begründung").fill("E2E: Die Lizenz steht in der Beschreibung.");
+  await guestPage.getByRole("button", { name: "Widerspruch einreichen" }).click();
+  await expect(guestPage.getByText(/wird geprüft|ist eingegangen/)).toBeVisible();
+
+  // Ein manipulierter Link zeigt nur einen Hinweis
+  await guestPage.goto(appealUrl!.replace(/token=(.)/, (_, first) => `token=${first === "A" ? "B" : "A"}`));
+  await expect(guestPage.getByText("Dieser Link ist ungültig.")).toBeVisible();
+
+  // Admin entscheidet; ohne Begründung geht es nicht
+  await admin.page.goto("/de/admin/appeals");
+  const appeal = admin.page.locator("li", { hasText: title });
+  await expect(appeal.getByText("E2E: Die Lizenz steht in der Beschreibung.")).toBeVisible();
+  await appeal.getByRole("button", { name: "Stattgeben" }).click();
+  await expect(appeal.getByText("Dieses Feld ist erforderlich.")).toBeVisible();
+  await appeal.getByLabel("Begründung (geht per E-Mail an den Creator)").fill("E2E: Stimmt, Lizenz vorhanden.");
+  await appeal.getByRole("button", { name: "Stattgeben" }).click();
+  await expect(appeal).toHaveCount(0);
+
+  // Wieder öffentlich, Creator erhält das Ergebnis, der Link zeigt den Abschluss
+  await page.goto(`/de/mods/${project.slug}`);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
+  const result = await waitForMail(creator.email, /Widerspruch erfolgreich/, since);
+  expect(result.text).toContain("E2E: Stimmt, Lizenz vorhanden.");
+  await guestPage.goto(appealUrl!);
+  await expect(guestPage.getByText(/stattgegeben/)).toBeVisible();
+  await expect(guestPage.getByRole("button", { name: "Widerspruch einreichen" })).toHaveCount(0);
+  await guest.close();
+});
+
 test("Meldung bearbeiten, mit Notiz abschließen und im Protokoll finden", async ({ page, browser }) => {
   const { project, admin } = await publishedProject(page, browser);
   const description = `E2E-Meldung ${uid()}: Link führt ins Leere.`;
@@ -110,6 +165,7 @@ test("Meldung bearbeiten, mit Notiz abschließen und im Protokoll finden", async
 });
 
 test("Sperren beendet Sitzungen und verhindert die Anmeldung bis zur Aufhebung", async ({ page, browser }) => {
+  const since = Date.now() - 1000;
   const user = uniqueUser();
   await registerAndVerify(page, user);
   const admin = await createAdmin(browser);
@@ -128,6 +184,11 @@ test("Sperren beendet Sitzungen und verhindert die Anmeldung bis zur Aufhebung",
   await item.getByRole("button", { name: `@${user.username} sperren` }).click();
   await expect(item.getByText("gesperrt", { exact: true })).toBeVisible();
   await expect(item.getByText(/Gesperrt bis/)).toBeVisible();
+
+  // Das Konto erfährt Grund und Dauer per E-Mail
+  const banMail = await waitForMail(user.email, /Konto wurde gesperrt/, since);
+  expect(banMail.text).toContain("E2E: Spam in Meldungen.");
+  expect(banMail.text).toContain("bis zum");
 
   // Die bestehende Sitzung ist beendet …
   await page.goto("/de/dashboard");

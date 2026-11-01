@@ -10,6 +10,7 @@ export default function robots(): MetadataRoute.Robots {
     `/${locale}/search`,
     `/${locale}/login`,
     `/${locale}/register`,
+    `/${locale}/appeal`,
   ]);
   return {
     rules: [{ userAgent: "*", allow: "/", disallow: ["/go/", "/api/", ...privatePaths] }],

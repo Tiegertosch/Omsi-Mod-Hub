@@ -201,9 +201,10 @@ export async function getAuditLog() {
 /** Zähler für die Admin-Navigation. */
 export async function getAdminBadgeCounts() {
   await assertAdmin();
-  const [pendingReview, openReports] = await Promise.all([
+  const [pendingReview, openReports, openAppeals] = await Promise.all([
     db.project.count({ where: { status: "PENDING_REVIEW" } }),
     db.report.count({ where: { status: "OPEN" } }),
+    db.moderationDecision.count({ where: { appealStatus: "OPEN" } }),
   ]);
-  return { pendingReview, openReports };
+  return { pendingReview, openReports, openAppeals };
 }

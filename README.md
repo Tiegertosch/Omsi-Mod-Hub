@@ -44,9 +44,10 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Status: Entwurf → Einreichen → Freigabe/Zurückweisung (mit Begründung), Zurückziehen, Archivieren; Vorschau | ✅ |
 | Admin: Freigabe-Warteschlange und Ausblenden/Wiedereinblenden veröffentlichter Projekte (mit Begründung) `/admin/projects` | ✅ |
 | Admin: Meldungen bearbeiten (offen → in Bearbeitung → erledigt/verworfen, interne Notiz) `/admin/reports` | ✅ |
-| Admin: Konten suchen und befristet/unbefristet sperren (beendet Sitzungen, optional Projekte ausblenden) `/admin/users` | ✅ |
+| Admin: Konten suchen und befristet/unbefristet sperren (beendet Sitzungen, optional Projekte ausblenden, E-Mail mit Grund und Dauer) `/admin/users` | ✅ |
+| Widerspruch gegen ausgeblendete oder zurückgewiesene Projekte: geheimer Link in der Entscheidungs-Mail (6 Monate gültig, ohne Login), Entscheidung mit Begründung unter `/admin/appeals`, beim Stattgeben automatisch wieder veröffentlicht | ✅ |
 | Admin: Kategorien und Tags anlegen, bearbeiten, löschen `/admin/categories`, `/admin/tags`; Protokoll `/admin/audit` | ✅ |
-| E-Mail an Creator bei Freigabe, Zurückweisung, Ausblenden und Wiedereinblenden | ✅ |
+| E-Mail an Creator bei Freigabe, Zurückweisung, Ausblenden, Wiedereinblenden und nach der Entscheidung über einen Widerspruch | ✅ |
 | Rechtliche Seiten: Impressum, Datenschutzerklärung, versionierte Nutzungsbedingungen mit Zustimmung bei neuen Fassungen | ✅ |
 
 ## Technologie
@@ -133,7 +134,7 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Rolle eines bestätigten Kontos setzen (lokales CLI, mit Audit-Log) |
 | `pnpm mail:test <email>` | SMTP-Konfiguration prüfen und eine Testmail senden |
 | `pnpm cap:assets` | Dateien des Cap-Widgets aus `node_modules` nach `public/cap` kopieren (nach einem Update von `cap-widget` oder `@cap.js/wasm`) |
-| `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen, Codes und CAPTCHA-Einträge, nach 7 Tagen unbestätigte Konten, abgeschlossene Meldungen nach 6 und Protokolleinträge nach 12 Monaten (auf dem Server täglich per Timer) |
+| `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen, Codes und CAPTCHA-Einträge, Moderationsentscheidungen ohne Widerspruch nach Fristablauf bzw. abgeschlossene Widersprüche nach 6 Monaten, nach 7 Tagen unbestätigte Konten, abgeschlossene Meldungen nach 6 und Protokolleinträge nach 12 Monaten (auf dem Server täglich per Timer) |
 
 **Beispieldaten:** Alle Creator und Projekte aus dem Seed sind fiktiv, mit `isSample = true` markiert, in der Oberfläche als „Beispieldaten“ gekennzeichnet, per `noindex` von Suchmaschinen ausgeschlossen und verlinken nur auf `example.com`. Die Illustrationen unter `public/samples/` wurden eigens erstellt. Der Seed legt **keine Admin-Konten und keine Passwörter** an.
 
@@ -208,7 +209,7 @@ tests/
 
 ## Bekannte Einschränkungen
 
-- **Moderation:** Admin-Rechte werden bewusst nur per CLI vergeben und entzogen; Admins können nicht gesperrt werden. Eine Sperre blendet Projekte nur auf Wunsch aus, und das Aufheben der Sperre blendet sie nicht automatisch wieder ein. Kategorien sind einstufig verwaltbar (keine Oberkategorie wählbar); Kürzel von Kategorien und Tags sind nach dem Anlegen fest. Gesperrte Nutzer sehen beim Login nur „Konto gesperrt“, nicht den Grund. Das Protokoll zeigt die letzten 100 Einträge ohne Filter.
+- **Moderation:** Admin-Rechte werden bewusst nur per CLI vergeben und entzogen; Admins können nicht gesperrt werden. Eine Sperre blendet Projekte nur auf Wunsch aus, und das Aufheben der Sperre blendet sie nicht automatisch wieder ein. Kategorien sind einstufig verwaltbar (keine Oberkategorie wählbar); Kürzel von Kategorien und Tags sind nach dem Anlegen fest. Gesperrte Nutzer sehen beim Login nur „Konto gesperrt“; Grund und Dauer stehen in der E-Mail zur Sperre. Gegen Sperren und verworfene Meldungen gibt es keinen Widerspruch über die Seite, nur gegen ausgeblendete oder zurückgewiesene Projekte. Das Protokoll zeigt die letzten 100 Einträge ohne Filter.
 - **Benachrichtigungen** werden ohne Warteschlange im Hintergrund versendet; schlägt der Versand fehl, wird das nur protokolliert (kein erneuter Versuch). An Beispielkonten wird nichts gesendet.
 - **Bildspeicher lokal:** Uploads liegen im Dateisystem (`UPLOAD_DIR`). Für mehrere Server-Instanzen oder Serverless-Hosting ist ein Objektspeicher (z. B. S3) nötig; die Schnittstelle ist in `src/server/storage.ts` gekapselt. Backups müssen dieses Verzeichnis einschließen.
 - **Reihenfolge von Screenshots** lässt sich noch nicht ändern (Upload-Reihenfolge); Bildbeschreibungen nur beim Hochladen.

@@ -424,7 +424,8 @@
       "users": "Accounts",
       "categories": "Categories",
       "tags": "Tags",
-      "audit": "Audit log"
+      "audit": "Audit log",
+      "appeals": "Appeals"
     },
     "stats": {
       "users": "Accounts",
@@ -563,6 +564,28 @@
       "action": "Action",
       "details": "Details",
       "system": "System/CLI"
+    },
+    "appeals": {
+      "title": "Appeals",
+      "description": "Review and decide appeals by creators against hidden or rejected projects.",
+      "filterLabel": "Filter by status",
+      "status": {
+        "OPEN": "Open",
+        "GRANTED": "Granted",
+        "DENIED": "Rejected"
+      },
+      "empty": "No appeals with this status.",
+      "appealedBy": "Appeal by @{username} on {date}",
+      "decidedOn": "Decision of {date}",
+      "reason": "Reason for the decision",
+      "message": "Appeal",
+      "resolutionNote": "Reasoning on the appeal",
+      "resolvedBy": "Decided by {admin} on {date}",
+      "viewProject": "View project",
+      "note": "Reasoning (sent to the creator by email)",
+      "noteHint": "“Grant” publishes the project again if it is still hidden or rejected.",
+      "grant": "Grant",
+      "deny": "Reject"
     }
   },
   "ProjectStatus": {
@@ -834,7 +857,24 @@
     "accountDeletedSubject": "Your account has been deleted – OMSI Mod Hub",
     "accountDeletedBody": "Hi {name},\n\nyour OMSI Mod Hub account has been deleted, together with your creator profile and your projects.\n\nIf you didn't do this yourself, please contact us using the details on the website.",
     "verifyCodeSubject": "{code} is your confirmation code – OMSI Mod Hub",
-    "verifyCodeBody": "Hi {name},\n\nyour code to confirm your email address at OMSI Mod Hub is:\n\n{code}\n\nEnter it on the page that opened after you registered, or here:\n\n{url}\n\nThe code is valid for {minutes} minutes. If you didn't register, you can ignore this email."
+    "verifyCodeBody": "Hi {name},\n\nyour code to confirm your email address at OMSI Mod Hub is:\n\n{code}\n\nEnter it on the page that opened after you registered, or here:\n\n{url}\n\nThe code is valid for {minutes} minutes. If you didn't register, you can ignore this email.",
+    "appealHint": "Don't agree with this decision? You can appeal with a reason until {appealUntil, date, long}. Your appeal is decided by a person, not an automated system:\n\n{appealUrl}",
+    "ban": {
+      "subject": "Your account has been suspended – OMSI Mod Hub",
+      "body": "Hi {name},\n\nyour OMSI Mod Hub account has been suspended by the moderators ({duration}). Reason:\n\n{reason}\n\n{hidden, plural, =0 {} one {Your published project was hidden as part of this.\n\n} other {Your # published projects were hidden as part of this.\n\n}}You cannot sign in while the suspension is in effect. This decision was made by a person, not an automated system.\n\nIf you have questions about the suspension, please use the contact address in the legal notice:\n\n{contactUrl}",
+      "until": "until {until, date, long}",
+      "permanent": "indefinitely"
+    },
+    "appealResult": {
+      "granted": {
+        "subject": "Appeal successful: {title} – OMSI Mod Hub",
+        "body": "Hi {name},\n\nyour appeal regarding your project “{title}” has been reviewed. We have reversed the decision.{restored, select, yes { The project is publicly visible again.} other {}}\n\nModerators’ reasoning:\n\n{note}\n\n{url}"
+      },
+      "denied": {
+        "subject": "Appeal rejected: {title} – OMSI Mod Hub",
+        "body": "Hi {name},\n\nyour appeal regarding your project “{title}” has been reviewed. The decision stands.\n\nModerators’ reasoning:\n\n{note}\n\nIndependently of this, you can contact a certified out-of-court dispute settlement body or take legal action.\n\n{url}"
+      }
+    }
   },
   "Errors": {
     "notFoundTitle": "Page not found",
@@ -870,5 +910,37 @@
     "verifying": "Verifying …",
     "error": "The check that you are human did not work. Please try again.",
     "noscript": "This form needs JavaScript: when you submit it, your browser briefly checks that you are human (Cap, no third-party services). Please enable JavaScript."
+  },
+  "Appeal": {
+    "title": "Appeal a decision",
+    "description": "Here you can appeal a moderation decision about your project.",
+    "invalidLink": "This link is invalid. Please use the link from the email about the decision.",
+    "kind": {
+      "PROJECT_HIDE": "Project hidden",
+      "PROJECT_REJECT": "Project not approved"
+    },
+    "project": "Project",
+    "decision": "Decision",
+    "decidedAt": "Date",
+    "reason": "Moderators’ reasoning",
+    "deadline": "Appeal possible until",
+    "message": "Your reasoning",
+    "messageHint": "Explain why you think the decision is wrong. At most {max} characters.",
+    "submit": "Submit appeal",
+    "submitting": "Sending …",
+    "received": "Your appeal has been received. A moderator will review it, and you will get the result by email.",
+    "open": "Your appeal from {date} is being reviewed. You will get the result by email.",
+    "granted": "The appeal was granted on {date}.",
+    "denied": "The appeal was rejected on {date}.",
+    "yourMessage": "Your appeal",
+    "resolutionNote": "Moderators’ reasoning on the appeal",
+    "expired": "The deadline for an appeal ended on {date}.",
+    "errors": {
+      "validation": "Please enter a reason (at most {max} characters).",
+      "rate_limit": "Too many attempts. Please wait a few minutes.",
+      "invalid_link": "This link is invalid. Please use the link from the email about the decision.",
+      "closed": "An appeal against this decision is not (or no longer) possible.",
+      "generic": "That didn’t work. Please try again."
+    }
   }
 }

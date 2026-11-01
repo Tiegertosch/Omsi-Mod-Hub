@@ -8,6 +8,7 @@ import { siteConfig } from "@/lib/site";
 import de from "../../messages/de.json";
 import en from "../../messages/en.json";
 
+import { appealPath } from "./appeals";
 import type { MailMessage } from "./mail";
 
 const MESSAGES = { de, en } as const;
@@ -19,7 +20,8 @@ function mailLocale(user: MailUser): AppLocale {
 }
 
 function translator(locale: AppLocale) {
-  return createTranslator({ locale, messages: MESSAGES[locale], namespace: "Email" });
+  // Feste Zeitzone wie in src/i18n/request.ts, damit Daten (Fristen) überall gleich erscheinen.
+  return createTranslator({ locale, messages: MESSAGES[locale], namespace: "Email", timeZone: "Europe/Berlin" });
 }
 
 /** Absolute URLs in E-Mails zeigen auf dieselbe Basis wie die Links von Better Auth. */
@@ -86,13 +88,16 @@ export function resetPasswordEmail(user: MailUser, url: string): MailMessage {
 
 /**
  * Benachrichtigung über eine Moderationsentscheidung. Die Begründung ist
- * Freitext der Moderation und wird nur als Klartext verschickt.
+ * Freitext der Moderation und wird nur als Klartext verschickt. Bei
+ * widersprechbaren Entscheidungen (Ausblenden, Zurückweisen) enthält sie den
+ * Widerspruchslink samt Frist.
  */
 export function projectDecisionEmail(
   user: MailUser,
   project: { id: string; slug: string; title: string },
   action: AdminProjectAction,
   note: string | null,
+  appeal?: { token: string; until: Date },
 ): MailMessage {
   const locale = mailLocale(user);
   const t = translator(locale);
@@ -101,9 +106,54 @@ export function projectDecisionEmail(
     publicAction ? `/${locale}/mods/${project.slug}` : `/${locale}/dashboard/projects/${project.id}/edit`,
   );
   const values = { name: user.name, title: project.title, url, note: note ?? "" };
+  const appealText = appeal
+    ? `\n\n${t("appealHint", { appealUntil: appeal.until, appealUrl: absoluteUrl(appealPath(locale, appeal.token)) })}`
+    : "";
   return {
     to: user.email,
     subject: t(`decision.${action}.subject`, { title: project.title }),
-    text: t(`decision.${action}.body`, values),
+    text: t(`decision.${action}.body`, values) + appealText,
+  };
+}
+
+/** Sperre eines Kontos mit Begründung und Dauer. */
+export function banEmail(user: MailUser, ban: { reason: string; expires: Date | null; hiddenProjects: number }): MailMessage {
+  const locale = mailLocale(user);
+  const t = translator(locale);
+  return {
+    to: user.email,
+    subject: t("ban.subject"),
+    text: t("ban.body", {
+      name: user.name,
+      reason: ban.reason,
+      duration: ban.expires ? t("ban.until", { until: ban.expires }) : t("ban.permanent"),
+      hidden: ban.hiddenProjects,
+      contactUrl: absoluteUrl(`/${locale}/legal/imprint`),
+    }),
+  };
+}
+
+/** Ergebnis eines Widerspruchs mit der Begründung der Moderation. */
+export function appealResultEmail(
+  user: MailUser,
+  project: { id: string; slug: string; title: string },
+  result: { granted: boolean; restored: boolean; note: string },
+): MailMessage {
+  const locale = mailLocale(user);
+  const t = translator(locale);
+  const url = absoluteUrl(
+    result.restored ? `/${locale}/mods/${project.slug}` : `/${locale}/dashboard/projects/${project.id}/edit`,
+  );
+  const key = result.granted ? "granted" : "denied";
+  return {
+    to: user.email,
+    subject: t(`appealResult.${key}.subject`, { title: project.title }),
+    text: t(`appealResult.${key}.body`, {
+      name: user.name,
+      title: project.title,
+      note: result.note,
+      url,
+      restored: result.restored ? "yes" : "no",
+    }),
   };
 }

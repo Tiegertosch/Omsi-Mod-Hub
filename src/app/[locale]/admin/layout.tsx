@@ -24,6 +24,7 @@ async function AdminNavigation() {
         { href: "/admin", label: t("nav.overview") },
         { href: "/admin/projects", label: t("nav.projects"), count: counts.pendingReview },
         { href: "/admin/reports", label: t("nav.reports"), count: counts.openReports },
+        { href: "/admin/appeals", label: t("nav.appeals"), count: counts.openAppeals },
         { href: "/admin/users", label: t("nav.users") },
         { href: "/admin/categories", label: t("nav.categories") },
         { href: "/admin/tags", label: t("nav.tags") },

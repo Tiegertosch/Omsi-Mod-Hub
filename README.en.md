@@ -46,9 +46,10 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Status: draft → submit → approval/rejection (with reason), withdraw, archive; preview | ✅ |
 | Admin: approval queue and hiding/unhiding published projects (with reason) `/admin/projects` | ✅ |
 | Admin: handle reports (open → in progress → resolved/dismissed, internal note) `/admin/reports` | ✅ |
-| Admin: search accounts and ban them temporarily/permanently (ends sessions, optionally hides projects) `/admin/users` | ✅ |
+| Admin: search accounts and ban them temporarily/permanently (ends sessions, optionally hides projects, email with reason and duration) `/admin/users` | ✅ |
+| Appeals against hidden or rejected projects: secret link in the decision email (valid for 6 months, no sign-in), decided with reasoning under `/admin/appeals`, automatically published again when granted | ✅ |
 | Admin: create, edit, delete categories and tags `/admin/categories`, `/admin/tags`; audit log `/admin/audit` | ✅ |
-| Emails to creators on approval, rejection, hiding and unhiding | ✅ |
+| Emails to creators on approval, rejection, hiding, unhiding and after an appeal has been decided | ✅ |
 | Legal pages: imprint, privacy policy, versioned terms of use with consent to new versions | ✅ |
 
 ## Technology
@@ -135,7 +136,7 @@ Template: [.env.example](.env.example). Real credentials never belong in the rep
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Set the role of a confirmed account (local CLI, with audit log) |
 | `pnpm mail:test <email>` | Check the SMTP configuration and send a test email |
 | `pnpm cap:assets` | Copy the Cap widget files from `node_modules` to `public/cap` (after updating `cap-widget` or `@cap.js/wasm`) |
-| `pnpm data:cleanup` | Apply retention periods: old rate-limit entries, expired sessions, codes and CAPTCHA entries, accounts unconfirmed after 7 days, closed reports after 6 and audit log entries after 12 months (daily via timer on the server) |
+| `pnpm data:cleanup` | Apply retention periods: old rate-limit entries, expired sessions, codes and CAPTCHA entries, moderation decisions without an appeal once the deadline has passed and closed appeals after 6 months, accounts unconfirmed after 7 days, closed reports after 6 and audit log entries after 12 months (daily via timer on the server) |
 
 **Sample data:** All creators and projects from the seed are fictional, marked with `isSample = true`, labelled as "Sample data" in the interface, excluded from search engines via `noindex` and only link to `example.com`. The illustrations under `public/samples/` were made specifically for this project. The seed creates **no admin accounts and no passwords**.
 
@@ -210,7 +211,7 @@ tests/
 
 ## Known limitations
 
-- **Moderation:** Admin rights are intentionally granted and revoked via CLI only; admins cannot be banned. A ban only hides projects on request, and lifting a ban does not automatically show them again. Categories can only be managed on one level (no parent category selectable); slugs of categories and tags are fixed once created. Banned users only see "This account has been suspended." when signing in, not the reason. The audit log shows the last 100 entries without filters.
+- **Moderation:** Admin rights are intentionally granted and revoked via CLI only; admins cannot be banned. A ban only hides projects on request, and lifting a ban does not automatically show them again. Categories can only be managed on one level (no parent category selectable); slugs of categories and tags are fixed once created. Banned users only see "This account has been suspended." when signing in; the reason and duration are in the suspension email. Bans and dismissed reports cannot be appealed through the site, only hidden or rejected projects. The audit log shows the last 100 entries without filters.
 - **Notifications** are sent in the background without a queue; if sending fails, this is only logged (no retry). Nothing is sent to sample accounts.
 - **Local image storage:** Uploads are stored on the file system (`UPLOAD_DIR`). Multiple server instances or serverless hosting require object storage (e.g. S3); the interface is encapsulated in `src/server/storage.ts`. Backups must include this directory.
 - **Screenshot order** cannot be changed yet (upload order); image descriptions can only be set when uploading.

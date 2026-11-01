@@ -11,6 +11,7 @@ describe("Löschfristen", () => {
     expect(cutoff.unverifiedAccountBefore.toISOString()).toBe("2026-10-12T12:00:00.000Z");
     expect(cutoff.closedReportBefore.toISOString()).toBe("2026-04-19T12:00:00.000Z");
     expect(cutoff.auditLogBefore.toISOString()).toBe("2025-10-19T12:00:00.000Z");
+    expect(cutoff.closedAppealBefore.toISOString()).toBe("2026-04-19T12:00:00.000Z");
   });
 
   it("löscht Rate-Limit-Einträge erst nach dem längsten Zeitfenster (1 Stunde)", () => {
