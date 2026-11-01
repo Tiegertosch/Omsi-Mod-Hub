@@ -10,8 +10,9 @@ import { db } from "@/lib/db";
  * darf die Adresse ändern – ohne Passwort könnte jeder, der die Adresse eines
  * unbestätigten Kontos kennt, es auf seine eigene umleiten und übernehmen.
  *
- * - "denied":    kein unbestätigtes Konto mit diesem Namen oder falsches
- *                Passwort; der Aufrufer meldet „Benutzername vergeben“.
+ * - "denied":    kein unbestätigtes Konto mit diesem Namen, falsches Passwort
+ *                oder das Konto wurde inzwischen bestätigt; der Aufrufer
+ *                meldet „Benutzername vergeben“.
  * - "changed":   Adresse geändert, alter Code verworfen.
  * - "unchanged": Die neue Adresse gehört einem anderen Konto. Nach außen wie
  *                "changed" behandeln (kein Ausspähen von Adressen); es geht
@@ -39,11 +40,20 @@ export async function changeUnverifiedEmail(input: {
   if (user.email === input.newEmail) return "changed";
 
   try {
-    await db.$transaction([
-      db.user.update({ where: { id: user.id }, data: { email: input.newEmail } }),
+    const changed = await db.$transaction(async (tx) => {
+      // Bedingt auf den gelesenen Stand: Bestätigt jemand die alte Adresse,
+      // während das Passwort geprüft wird, darf die neue Adresse den Status
+      // „bestätigt“ nicht erben.
+      const result = await tx.user.updateMany({
+        where: { id: user.id, email: user.email, emailVerified: false },
+        data: { email: input.newEmail, emailVerified: false },
+      });
+      if (result.count === 0) return false;
       // Offener Code der alten Adresse (Bezeichner des emailOTP-Plugins).
-      db.verification.deleteMany({ where: { identifier: `email-verification-otp-${user.email}` } }),
-    ]);
+      await tx.verification.deleteMany({ where: { identifier: `email-verification-otp-${user.email}` } });
+      return true;
+    });
+    if (!changed) return "denied";
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return "unchanged";
     throw error;

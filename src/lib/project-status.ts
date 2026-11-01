@@ -34,8 +34,10 @@ export function availableCreatorActions(current: ProjectStatus, options: { revie
 }
 
 /** Projekte in Prüfung oder in Moderation sind für Creator nicht bearbeitbar. */
+export const CREATOR_LOCKED_STATUSES: ProjectStatus[] = ["PENDING_REVIEW", "HIDDEN"];
+
 export function isEditableByCreator(status: ProjectStatus): boolean {
-  return status !== "PENDING_REVIEW" && status !== "HIDDEN";
+  return !CREATOR_LOCKED_STATUSES.includes(status);
 }
 
 export type ChecklistKey = "translation" | "category" | "license" | "version" | "link" | "cover";

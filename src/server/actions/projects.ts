@@ -4,6 +4,7 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { Prisma } from "@/generated/prisma/client";
 import type { ProjectStatus } from "@/generated/prisma/enums";
 import { routing } from "@/i18n/routing";
 import { db } from "@/lib/db";
@@ -20,7 +21,12 @@ import {
   type EditorFieldCode,
 } from "@/lib/project-form";
 import { isReviewRequired, PROJECT_LIMITS } from "@/lib/project-rules";
-import { isEditableByCreator, nextStatusForCreator, publishChecklist } from "@/lib/project-status";
+import {
+  CREATOR_LOCKED_STATUSES,
+  isEditableByCreator,
+  nextStatusForCreator,
+  publishChecklist,
+} from "@/lib/project-status";
 import { isValidSlug, slugify } from "@/lib/slug";
 import { canManageProjects } from "@/server/creator";
 import { processImageUpload } from "@/server/images";
@@ -59,8 +65,47 @@ async function ownProject(user: CurrentUser, projectId: string) {
   });
 }
 
-async function audit(actorId: string, action: string, projectId: string, metadata?: Record<string, unknown>) {
-  await db.auditLog.create({
+/**
+ * Sperrt das Projekt bis zum Ende der Transaktion und prüft dabei erneut, ob es
+ * dem Creator gehört und bearbeitbar ist. Die Prüfung über ownProject allein
+ * reicht nicht: Ein Admin könnte das Projekt zwischen Lesen und Schreiben
+ * ausblenden. Admin-Entscheidungen warten auf die Sperre und sehen danach den
+ * neuen Stand. Muss die erste Schreibanweisung der Transaktion sein; bei
+ * `false` wurde nichts geändert.
+ */
+async function lockEditable(
+  tx: Prisma.TransactionClient,
+  projectId: string,
+  creatorId: string,
+  data: Prisma.ProjectUncheckedUpdateManyInput = {},
+) {
+  const result = await tx.project.updateMany({
+    where: { id: projectId, creatorId, status: { notIn: CREATOR_LOCKED_STATUSES } },
+    data: { updatedAt: new Date(), ...data },
+  });
+  return result.count > 0;
+}
+
+/** Transaktion an einem bearbeitbaren Projekt; `null`, wenn es inzwischen gesperrt ist. */
+function editProject<T>(
+  projectId: string,
+  creatorId: string,
+  fn: (tx: Prisma.TransactionClient) => Promise<T>,
+): Promise<{ value: T } | null> {
+  return db.$transaction(async (tx) => {
+    if (!(await lockEditable(tx, projectId, creatorId))) return null;
+    return { value: await fn(tx) };
+  });
+}
+
+async function audit(
+  actorId: string,
+  action: string,
+  projectId: string,
+  metadata?: Record<string, unknown>,
+  client: Prisma.TransactionClient = db,
+) {
+  await client.auditLog.create({
     data: {
       actorId,
       action,
@@ -145,9 +190,13 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
   };
 
   const id = await db.$transaction(async (tx) => {
-    const project = existing
-      ? await tx.project.update({ where: { id: existing.id }, data: core, select: { id: true } })
-      : await tx.project.create({ data: { ...core, creatorId: user.id, status: "DRAFT" }, select: { id: true } });
+    let project: { id: string };
+    if (existing) {
+      if (!(await lockEditable(tx, existing.id, user.id, core))) return null;
+      project = { id: existing.id };
+    } else {
+      project = await tx.project.create({ data: { ...core, creatorId: user.id, status: "DRAFT" }, select: { id: true } });
+    }
 
     // Übersetzungen: vorhandene aktualisieren, neue anlegen, geleerte entfernen.
     await tx.projectTranslation.deleteMany({
@@ -189,6 +238,7 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
     await rebuildSearchText(tx, project.id);
     return project.id;
   });
+  if (!id) return fail("not_editable");
 
   if (!existing) {
     await audit(user.id, "project.create", id);
@@ -227,11 +277,21 @@ export async function uploadCoverAction(_prev: EditorState, formData: FormData):
   if (!image.ok) return fail("validation", { file: image.error });
 
   const key = await storeMedia(image.data);
-  await db.project.update({
-    where: { id: ctx.project.id },
-    data: { coverImageUrl: mediaUrlFromKey(key), coverImageAlt: alt.data || null },
+  // Altes Titelbild erst unter der Sperre lesen, sonst bleibt bei parallelen
+  // Uploads eine Datei verwaist.
+  const previous = await editProject(ctx.project.id, ctx.user.id, async (tx) => {
+    const current = await tx.project.findUniqueOrThrow({ where: { id: ctx.project.id }, select: { coverImageUrl: true } });
+    await tx.project.update({
+      where: { id: ctx.project.id },
+      data: { coverImageUrl: mediaUrlFromKey(key), coverImageAlt: alt.data || null },
+    });
+    return current.coverImageUrl;
   });
-  await deleteMedia(mediaKeyFromUrl(ctx.project.coverImageUrl));
+  if (!previous) {
+    await deleteMedia(key);
+    return fail("not_editable");
+  }
+  await deleteMedia(mediaKeyFromUrl(previous.value));
   projectsChanged([ctx.project.slug]);
   refresh();
   return { status: "success" };
@@ -240,8 +300,13 @@ export async function uploadCoverAction(_prev: EditorState, formData: FormData):
 export async function removeCoverAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
   const ctx = await editableProjectForUpload(formData);
   if (!ctx.ok) return ctx.error;
-  await db.project.update({ where: { id: ctx.project.id }, data: { coverImageUrl: null, coverImageAlt: null } });
-  await deleteMedia(mediaKeyFromUrl(ctx.project.coverImageUrl));
+  const previous = await editProject(ctx.project.id, ctx.user.id, async (tx) => {
+    const current = await tx.project.findUniqueOrThrow({ where: { id: ctx.project.id }, select: { coverImageUrl: true } });
+    await tx.project.update({ where: { id: ctx.project.id }, data: { coverImageUrl: null, coverImageAlt: null } });
+    return current.coverImageUrl;
+  });
+  if (!previous) return fail("not_editable");
+  await deleteMedia(mediaKeyFromUrl(previous.value));
   projectsChanged([ctx.project.slug]);
   refresh();
   return { status: "success" };
@@ -261,9 +326,19 @@ export async function uploadScreenshotAction(_prev: EditorState, formData: FormD
   if (!image.ok) return fail("validation", { file: image.error });
 
   const key = await storeMedia(image.data);
-  await db.screenshot.create({
-    data: { projectId: ctx.project.id, imageUrl: mediaUrlFromKey(key), altText: alt.data, sortOrder: count },
+  // Unter der Sperre neu zählen, damit parallele Uploads das Limit nicht überschreiten.
+  const created = await editProject(ctx.project.id, ctx.user.id, async (tx) => {
+    const current = await tx.screenshot.count({ where: { projectId: ctx.project.id } });
+    if (current >= PROJECT_LIMITS.screenshots) return false;
+    await tx.screenshot.create({
+      data: { projectId: ctx.project.id, imageUrl: mediaUrlFromKey(key), altText: alt.data, sortOrder: current },
+    });
+    return true;
   });
+  if (!created?.value) {
+    await deleteMedia(key);
+    return fail(created ? "too_many_screenshots" : "not_editable");
+  }
   projectsChanged([ctx.project.slug]);
   refresh();
   return { status: "success" };
@@ -276,7 +351,10 @@ export async function deleteScreenshotAction(_prev: EditorState, formData: FormD
     where: { id: str(formData, "screenshotId"), projectId: ctx.project.id },
   });
   if (!screenshot) return fail("not_found");
-  await db.screenshot.delete({ where: { id: screenshot.id } });
+  const deleted = await editProject(ctx.project.id, ctx.user.id, (tx) =>
+    tx.screenshot.deleteMany({ where: { id: screenshot.id, projectId: ctx.project.id } }),
+  );
+  if (!deleted) return fail("not_editable");
   await deleteMedia(mediaKeyFromUrl(screenshot.imageUrl));
   projectsChanged([ctx.project.slug]);
   refresh();
@@ -330,7 +408,7 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
     });
 
   const now = new Date();
-  await db.$transaction(async (tx) => {
+  const saved = await editProject(project.id, user.id, async (tx) => {
     if (!existing) {
       await tx.projectVersion.create({
         data: {
@@ -370,6 +448,7 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
     // Im Formular entfernte Links löschen.
     await tx.externalLink.deleteMany({ where: { versionId: existing.id, id: { notIn: [...keep] } } });
   });
+  if (!saved) return fail("not_editable");
 
   projectsChanged([project.slug]);
   refresh();
@@ -389,10 +468,13 @@ export async function deleteVersionAction(_prev: EditorState, formData: FormData
   });
   if (!version) return fail("not_found");
 
-  const count = await db.projectVersion.count({ where: { projectId: project.id } });
-  if (count <= 1 && project.status === "PUBLISHED") return fail("last_version");
+  const result = await editProject(project.id, user.id, async (tx) => {
+    // Status und Anzahl erst unter der Sperre lesen: Zwei parallele Löschungen
+    // dürfen ein veröffentlichtes Projekt nicht ohne Version zurücklassen.
+    const { status } = await tx.project.findUniqueOrThrow({ where: { id: project.id }, select: { status: true } });
+    const count = await tx.projectVersion.count({ where: { projectId: project.id } });
+    if (count <= 1 && status === "PUBLISHED") return "last_version" as const;
 
-  await db.$transaction(async (tx) => {
     await tx.projectVersion.delete({ where: { id: version.id } });
     const latest = await tx.projectVersion.findFirst({
       where: { projectId: project.id },
@@ -400,7 +482,10 @@ export async function deleteVersionAction(_prev: EditorState, formData: FormData
       select: { releasedAt: true },
     });
     await tx.project.update({ where: { id: project.id }, data: { lastReleaseAt: latest?.releasedAt ?? null } });
+    return "deleted" as const;
   });
+  if (!result) return fail("not_editable");
+  if (result.value === "last_version") return fail("last_version");
   projectsChanged([project.slug]);
   refresh();
   return { status: "success" };
@@ -433,15 +518,23 @@ export async function changeProjectStatusAction(_prev: EditorState, formData: Fo
   if (action.data === "submit" && !publishChecklist(project).ready) return fail("checklist");
 
   const now = new Date();
-  await db.project.update({
-    where: { id: project.id },
-    data: {
-      status: next,
-      ...(next === "PENDING_REVIEW" ? { submittedAt: now } : {}),
-      ...(next === "PUBLISHED" ? { publishedAt: project.publishedAt ?? now, moderationNote: null } : {}),
-    },
+  // Bedingtes Update auf den gelesenen Status: Hat ein Admin das Projekt
+  // inzwischen ausgeblendet oder entschieden, darf der Creator das nicht
+  // überschreiben (z. B. HIDDEN → ARCHIVED → DRAFT).
+  const changed = await db.$transaction(async (tx) => {
+    const result = await tx.project.updateMany({
+      where: { id: project.id, creatorId: user.id, status: project.status },
+      data: {
+        status: next,
+        ...(next === "PENDING_REVIEW" ? { submittedAt: now } : {}),
+        ...(next === "PUBLISHED" ? { publishedAt: project.publishedAt ?? now, moderationNote: null } : {}),
+      },
+    });
+    if (result.count === 0) return false;
+    await audit(user.id, `project.${action.data}`, project.id, { from: project.status, to: next }, tx);
+    return true;
   });
-  await audit(user.id, `project.${action.data}`, project.id, { from: project.status, to: next });
+  if (!changed) return fail("invalid_transition");
   projectsChanged([project.slug]);
   refresh();
   return { status: "success" };
