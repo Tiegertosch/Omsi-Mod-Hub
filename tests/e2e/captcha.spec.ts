@@ -50,7 +50,7 @@ test("Cap: ohne JavaScript Hinweis und gesperrter Button, ohne Token lehnt der S
   expect(html).toContain("Dieses Formular braucht JavaScript");
   expect(html).toMatch(/<button type="submit" disabled=""[^>]*>Link anfordern<\/button>/);
 
-  // Absenden ohne Token: requestSubmit() umgeht den Klick, den der Floating-Modus abfängt.
+  // Absenden ohne Token: requestSubmit() umgeht den Klick, der die Prüfung auslöst.
   await page.goto("/de/forgot-password");
   const submit = page.getByRole("button", { name: "Link anfordern" });
   await expect(submit).toBeEnabled();
@@ -59,7 +59,7 @@ test("Cap: ohne JavaScript Hinweis und gesperrter Button, ohne Token lehnt der S
   await expect(page.getByText("Die Prüfung, ob du ein Mensch bist, ist fehlgeschlagen")).toBeVisible();
 });
 
-test("Cap: wiederholtes Klicken startet die Prüfung nicht neu und sendet nur einmal ab", async ({ page }) => {
+test("Cap: Prüfung läuft im Button, wiederholtes Klicken startet sie nicht neu und sendet nur einmal ab", async ({ page }) => {
   const counts = { challenge: 0, redeem: 0, action: 0 };
   page.on("request", (request) => {
     const { pathname } = new URL(request.url());
@@ -68,6 +68,11 @@ test("Cap: wiederholtes Klicken startet die Prüfung nicht neu und sendet nur ei
     if (request.method() === "POST" && request.headers()["next-action"]) counts.action++;
   });
 
+  // Einlösen verzögern, damit der Zwischenzustand im Button sicher sichtbar ist
+  await page.route("**/api/cap/reset/redeem", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await route.continue();
+  });
   await page.goto("/de/forgot-password");
   const submit = page.getByRole("button", { name: "Link anfordern" });
   await expect(submit).toBeEnabled();
@@ -76,6 +81,9 @@ test("Cap: wiederholtes Klicken startet die Prüfung nicht neu und sendet nur ei
   await submit.evaluate((button: HTMLButtonElement) => {
     for (let i = 0; i < 5; i++) button.click();
   });
+  // Die Prüfung läuft sichtbar im Button, ein Widget erscheint nicht
+  await expect(page.getByRole("button", { name: "Wird geprüft …" })).toBeDisabled();
+  await expect(page.locator("cap-widget")).toBeHidden();
   await expect(page.getByText("Falls ein Konto mit dieser Adresse existiert")).toBeVisible();
   // Ein weiterer Klick in der Zwischenzeit hätte eine neue Challenge geholt
   await page.waitForTimeout(1000);

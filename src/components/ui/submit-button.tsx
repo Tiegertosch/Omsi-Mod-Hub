@@ -4,6 +4,7 @@ import { LoaderCircle } from "lucide-react";
 import { useFormStatus } from "react-dom";
 
 import { buttonStyles, type ButtonVariant } from "./button";
+import type { useCaptcha } from "./captcha";
 
 /** Absende-Button, der während der Verarbeitung deaktiviert ist. */
 export function SubmitButton({
@@ -17,23 +18,26 @@ export function SubmitButton({
   pendingLabel: string;
   variant?: ButtonVariant;
   className?: string;
-  /** Ergebnis von useCaptcha: Der Klick löst zuerst das Cap-Widget aus; gesperrt, bis es geladen ist. */
-  captcha?: { widget: React.ReactNode; trigger: { onClick: React.MouseEventHandler<HTMLButtonElement> }; ready: boolean };
+  /** Ergebnis von useCaptcha: Der Klick löst zuerst die Prüfung aus (Anzeige „Wird geprüft …“). */
+  captcha?: ReturnType<typeof useCaptcha>;
 }) {
   const { pending } = useFormStatus();
-  const disabled = pending || captcha?.ready === false;
+  const solving = captcha?.solving === true;
+  const disabled = pending || solving || captcha?.ready === false;
+  const busyLabel = pending ? pendingLabel : solving ? captcha?.verifyingLabel : null;
   const button = (
     <button
       type="submit"
       disabled={disabled}
       aria-disabled={disabled}
       className={buttonStyles({ variant, size: "lg", className })}
+      aria-busy={busyLabel ? true : undefined}
       onClick={captcha?.trigger.onClick}
     >
-      {pending ? (
+      {busyLabel ? (
         <>
           <LoaderCircle aria-hidden className="size-4 animate-spin" />
-          {pendingLabel}
+          {busyLabel}
         </>
       ) : (
         children
@@ -42,9 +46,10 @@ export function SubmitButton({
   );
   if (!captcha) return button;
   return (
-    <div className="relative">
+    <div>
       {captcha.widget}
       {button}
+      {captcha.error}
     </div>
   );
 }

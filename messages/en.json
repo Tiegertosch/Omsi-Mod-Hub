@@ -867,18 +867,8 @@
     "back": "Back"
   },
   "Captcha": {
-    "initial-state": "I'm a human",
-    "verifying-label": "Verifying …",
-    "solved-label": "You're a human",
-    "error-label": "Error. Please try again.",
-    "required-label": "Please verify that you're human",
-    "troubleshooting-label": "Troubleshoot",
-    "group-aria-label": "Human verification",
-    "verify-aria-label": "Click to verify that you're human",
-    "verifying-aria-label": "Verifying that you're human, please wait",
-    "verified-aria-label": "Verified: you're human and may continue",
-    "error-aria-label": "An error occurred, please try again",
-    "wasm-disabled": "Enable WebAssembly for a much faster check",
+    "verifying": "Verifying …",
+    "error": "The check that you are human did not work. Please try again.",
     "noscript": "This form needs JavaScript: when you submit it, your browser briefly checks that you are human (Cap, no third-party services). Please enable JavaScript."
   }
 }

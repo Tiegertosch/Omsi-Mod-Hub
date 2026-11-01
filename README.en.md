@@ -36,7 +36,7 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Caching of public data (`use cache` with tags), real HTTP 404 for unknown projects, categories, creators and pages | ✅ |
 | Two-step registration with progress indicator: account details, then a 6-digit code from the email (one box per digit, resend, correct the address), login (email or username), logout | ✅ Better Auth |
 | Forgot / reset password via email link | ✅ |
-| Self-hosted CAPTCHA [Cap](https://trycap.dev) (proof of work in the browser, floating mode) for registration, login, “forgot password” and reports; no data sent to third parties | ✅ |
+| Self-hosted CAPTCHA [Cap](https://trycap.dev) (proof of work in the browser, “Verifying …” shown directly in the submit button) for registration, login, “forgot password” and reports; no data sent to third parties | ✅ |
 | Dashboard and settings (display name, preferred language, change password) | ✅ |
 | Account: change email address (confirmed via old and new address), list and sign out signed-in devices, delete account including all projects | ✅ |
 | Roles `user` / `creator` / `admin`, checked server-side; admin overview (key figures, reports, new accounts) | ✅ |

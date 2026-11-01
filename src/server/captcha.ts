@@ -18,7 +18,7 @@ import { db } from "@/lib/db";
  * mit `consumeCaptcha` genau einmal.
  */
 
-/** Gültigkeit eines eingelösten Tokens. Der Floating-Modus löst erst beim Absenden, das reicht also knapp. */
+/** Gültigkeit eines eingelösten Tokens. Gelöst wird erst beim Absenden, das reicht also knapp. */
 const TOKEN_TTL_MS = 5 * 60 * 1000;
 
 function captchaSecret(): string {

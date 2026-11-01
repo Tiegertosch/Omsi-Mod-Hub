@@ -867,18 +867,8 @@
     "back": "Zurück"
   },
   "Captcha": {
-    "initial-state": "Ich bin ein Mensch",
-    "verifying-label": "Wird geprüft …",
-    "solved-label": "Du bist ein Mensch",
-    "error-label": "Fehler. Bitte erneut versuchen.",
-    "required-label": "Bitte bestätige, dass du ein Mensch bist",
-    "troubleshooting-label": "Hilfe bei Problemen",
-    "group-aria-label": "Prüfung, ob du ein Mensch bist",
-    "verify-aria-label": "Klicken, um zu bestätigen, dass du ein Mensch bist",
-    "verifying-aria-label": "Es wird geprüft, ob du ein Mensch bist, bitte warten",
-    "verified-aria-label": "Geprüft: Du bist ein Mensch und kannst fortfahren",
-    "error-aria-label": "Ein Fehler ist aufgetreten, bitte erneut versuchen",
-    "wasm-disabled": "Aktiviere WebAssembly, dann geht die Prüfung deutlich schneller",
+    "verifying": "Wird geprüft …",
+    "error": "Die Prüfung, ob du ein Mensch bist, hat nicht geklappt. Bitte versuche es erneut.",
     "noscript": "Dieses Formular braucht JavaScript: Beim Absenden prüft dein Browser kurz, ob du ein Mensch bist (Cap, ohne Dienste Dritter). Bitte aktiviere JavaScript."
   }
 }

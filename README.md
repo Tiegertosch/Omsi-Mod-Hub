@@ -34,7 +34,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Zwischenspeicherung öffentlicher Daten (`use cache` mit Tags), echte HTTP-404 für unbekannte Projekte, Kategorien, Creator und Seiten | ✅ |
 | Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code aus der E-Mail (eine Box pro Ziffer, erneut senden, Adresse korrigieren), Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
 | Passwort vergessen / zurücksetzen per E-Mail-Link | ✅ |
-| Selbst gehostetes CAPTCHA [Cap](https://trycap.dev) (Proof-of-Work im Browser, Floating-Modus) für Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen; keine Daten an Dritte | ✅ |
+| Selbst gehostetes CAPTCHA [Cap](https://trycap.dev) (Proof-of-Work im Browser, Anzeige „Wird geprüft …“ direkt im Absende-Button) für Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen; keine Daten an Dritte | ✅ |
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
 | Konto: E-Mail-Adresse ändern (Bestätigung über alte und neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto mit allen Projekten löschen | ✅ |
 | Rollen `user` / `creator` / `admin`, serverseitig geprüft; Adminübersicht (Kennzahlen, Meldungen, neue Konten) | ✅ |

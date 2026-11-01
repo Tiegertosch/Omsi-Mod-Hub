@@ -27,6 +27,6 @@
     document.head.appendChild(script);
   }
 
-  // Den Floating-Modus übernimmt useCaptcha selbst (statt cap-floating.js).
+  // Die Prüfung startet useCaptcha beim Klick auf den Absende-Button.
   load("/cap/widget.js", ready);
 })();
