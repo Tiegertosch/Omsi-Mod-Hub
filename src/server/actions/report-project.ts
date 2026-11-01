@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { ReportReason } from "@/generated/prisma/enums";
 import { db } from "@/lib/db";
+import { consumeCaptcha } from "@/server/captcha";
 import { clientKey, consumeRateLimit } from "@/server/rate-limit";
 import { needsTermsConsent } from "@/lib/legal";
 import { getCurrentUser } from "@/server/session";
@@ -11,7 +12,7 @@ import { getCurrentUser } from "@/server/session";
 export type ReportFormState =
   | { status: "idle" }
   | { status: "success" }
-  | { status: "error"; code: "validation" | "rate_limit" | "not_found" | "terms_required" | "generic" };
+  | { status: "error"; code: "validation" | "captcha" | "rate_limit" | "not_found" | "terms_required" | "generic" };
 
 const reportSchema = z.object({
   projectId: z.string().min(1).max(64),
@@ -43,6 +44,7 @@ export async function reportProject(_prev: ReportFormState, formData: FormData):
   }
 
   try {
+    if (!(await consumeCaptcha("report", formData))) return { status: "error", code: "captcha" };
     if (!(await consumeRateLimit(await clientKey("report"), REPORTS_PER_WINDOW, REPORT_WINDOW_MS))) {
       return { status: "error", code: "rate_limit" };
     }

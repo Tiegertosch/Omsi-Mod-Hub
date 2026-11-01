@@ -3,6 +3,7 @@
 import { useLocale } from "next-intl";
 import { useActionState } from "react";
 
+import { useCaptcha } from "@/components/ui/captcha";
 import { FormAlert, TextField } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Link } from "@/i18n/navigation";
@@ -17,6 +18,7 @@ export function RegisterForm({ initial }: { initial?: { username: string; email:
   const locale = useLocale();
   const [state, formAction] = useActionState(registerAction, idleState);
   const { t, fieldError, formError, value } = useFormMessages(state);
+  const captcha = useCaptcha("register");
 
   const termsError = fieldError("acceptTerms");
 
@@ -111,7 +113,8 @@ export function RegisterForm({ initial }: { initial?: { username: string; email:
         ) : null}
       </div>
 
-      <SubmitButton pendingLabel={t("submitting")} className="w-full">
+      {captcha.widget}
+      <SubmitButton pendingLabel={t("submitting")} className="w-full" captcha={captcha}>
         {t("submitRegister")}
       </SubmitButton>
 

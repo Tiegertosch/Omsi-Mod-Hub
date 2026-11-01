@@ -31,6 +31,11 @@ log() { printf '\n==> %s\n' "$*"; }
 export COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 
 [[ -r "$ENV_FILE" ]] || { echo "Env-Datei $ENV_FILE fehlt oder ist nicht lesbar." >&2; exit 1; }
+# Ohne CAP_SECRET schlagen Registrierung, Anmeldung und Meldungen fehl; der Health-Check merkt das nicht.
+grep -qE '^CAP_SECRET="?[^"[:space:]]{32,}' "$ENV_FILE" || {
+  echo "CAP_SECRET fehlt in $ENV_FILE oder ist kürzer als 32 Zeichen (siehe docs/DEPLOYMENT.md)." >&2
+  exit 1
+}
 
 RELEASES="$APP_DIR/releases"
 CURRENT="$APP_DIR/current"

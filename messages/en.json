@@ -184,7 +184,8 @@
     "errorRateLimit": "Too many reports in a short time. Please try again later.",
     "errorNotFound": "This project can no longer be reported.",
     "errorGeneric": "The report could not be saved. Please try again.",
-    "errorTerms": "Please accept the current terms of use first. Reload the page to see them."
+    "errorTerms": "Please accept the current terms of use first. Reload the page to see them.",
+    "errorCaptcha": "The check that you are human failed or expired. Please submit the report again."
   },
   "Creators": {
     "title": "Creators",
@@ -302,7 +303,8 @@
       "code_expired": "The code has expired. Please request a new one.",
       "code_attempts": "Too many incorrect attempts. Please request a new code.",
       "resend_cooldown": "Please wait until you can request a new code.",
-      "terms_required": "Please accept the current terms of use first. Reload the page to see them."
+      "terms_required": "Please accept the current terms of use first. Reload the page to see them.",
+      "captcha": "The check that you are human failed or expired. Please submit the form again."
     },
     "fieldErrors": {
       "username": "This username is not valid.",
@@ -863,5 +865,20 @@
     "password": "Password to confirm",
     "declineSubmit": "Permanently close account",
     "back": "Back"
+  },
+  "Captcha": {
+    "initial-state": "I'm a human",
+    "verifying-label": "Verifying …",
+    "solved-label": "You're a human",
+    "error-label": "Error. Please try again.",
+    "required-label": "Please verify that you're human",
+    "troubleshooting-label": "Troubleshoot",
+    "group-aria-label": "Human verification",
+    "verify-aria-label": "Click to verify that you're human",
+    "verifying-aria-label": "Verifying that you're human, please wait",
+    "verified-aria-label": "Verified: you're human and may continue",
+    "error-aria-label": "An error occurred, please try again",
+    "wasm-disabled": "Enable WebAssembly for a much faster check",
+    "noscript": "This form needs JavaScript: when you submit it, your browser briefly checks that you are human (Cap, no third-party services). Please enable JavaScript."
   }
 }

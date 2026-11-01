@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useCaptcha } from "@/components/ui/captcha";
 import { reportProject, type ReportFormState } from "@/server/actions/report-project";
 
 const REASONS = [
@@ -19,6 +20,7 @@ const REASONS = [
 
 const ERROR_KEYS = {
   validation: "errorValidation",
+  captcha: "errorCaptcha",
   rate_limit: "errorRateLimit",
   not_found: "errorNotFound",
   terms_required: "errorTerms",
@@ -30,6 +32,7 @@ export function ReportForm({ projectId }: { projectId: string }) {
   const [state, formAction, pending] = useActionState<ReportFormState, FormData>(reportProject, {
     status: "idle",
   });
+  const captcha = useCaptcha("report");
 
   return (
     <details className="group rounded-[var(--radius-card)] border border-border bg-surface">
@@ -101,7 +104,8 @@ export function ReportForm({ projectId }: { projectId: string }) {
               </p>
             ) : null}
 
-            <Button type="submit" variant="secondary" disabled={pending}>
+            {captcha.widget}
+            <Button type="submit" variant="secondary" disabled={pending || !captcha.ready} {...captcha.trigger}>
               {pending ? t("submitting") : t("submit")}
             </Button>
           </form>

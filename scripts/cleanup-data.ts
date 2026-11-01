@@ -27,10 +27,11 @@ async function main() {
   const cutoff = retentionCutoffs(now);
   const db = createPrismaClient();
   try {
-    const [rateLimits, sessions, verifications, accounts, reports, auditLogs] = await db.$transaction([
+    const [rateLimits, sessions, verifications, captchas, accounts, reports, auditLogs] = await db.$transaction([
       db.rateLimit.deleteMany({ where: { lastRequest: { lt: cutoff.rateLimitBefore } } }),
       db.session.deleteMany({ where: { expiresAt: { lt: now } } }),
       db.verification.deleteMany({ where: { expiresAt: { lt: now } } }),
+      db.captchaUse.deleteMany({ where: { expiresAt: { lt: now } } }),
       // Unbestätigte Konten können sich nicht anmelden und daher weder Projekte
       // noch ein Creator-Profil haben; die Bedingungen sichern das zusätzlich ab.
       db.user.deleteMany({
@@ -58,7 +59,8 @@ async function main() {
     ]);
     console.log(
       `Aufgeräumt: ${rateLimits.count} Rate-Limit-Einträge, ${sessions.count} abgelaufene Sitzungen, ` +
-        `${verifications.count} abgelaufene Codes/Links, ${accounts.count} unbestätigte Konten, ` +
+        `${verifications.count} abgelaufene Codes/Links, ${captchas.count} abgelaufene Captcha-Einträge, ` +
+        `${accounts.count} unbestätigte Konten, ` +
         `${reports.count} abgeschlossene Meldungen, ${auditLogs.count} Protokolleinträge.`,
     );
   } finally {

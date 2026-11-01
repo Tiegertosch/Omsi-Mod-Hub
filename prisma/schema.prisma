@@ -171,6 +171,16 @@ model RateLimit {
   lastRequest BigInt
 }
 
+/// Cap (Proof-of-Work-CAPTCHA, src/server/captcha.ts): eingelöste Challenges
+/// gegen Wiederverwendung und ausgegebene Einmal-Tokens. Keine personenbezogenen Daten.
+model CaptchaUse {
+  /// "challenge:<Signatur>" oder "token:<Bereich>:<id>:<SHA-256 des Geheimteils>"
+  key       String   @id
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
 model CreatorProfile {
   userId       String             @id
   displayName  String

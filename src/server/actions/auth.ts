@@ -18,6 +18,7 @@ import { db } from "@/lib/db";
 import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 import { mapAuthError } from "@/server/auth-errors";
+import { consumeCaptcha } from "@/server/captcha";
 import {
   clearPendingRegistration,
   readPendingRegistration,
@@ -82,6 +83,7 @@ export async function registerAction(_prev: FormState, formData: FormData): Prom
   if (!parsed.success) {
     return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom(parsed.error), values };
   }
+  if (!(await consumeCaptcha("register", formData))) return { status: "error", code: "captcha", values };
 
   const allowed = await consumeRateLimits([{ key: await clientKey("register"), limit: 5, windowMs: HOUR }]);
   if (!allowed) return { status: "error", code: "rate_limit", values };
@@ -237,6 +239,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   if (!parsed.success) {
     return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom(parsed.error), values };
   }
+  if (!(await consumeCaptcha("login", formData))) return { status: "error", code: "captcha", values };
 
   const identifier = parsed.data.identifier.toLowerCase();
   const allowed = await consumeRateLimits([
@@ -305,6 +308,7 @@ export async function requestPasswordResetAction(_prev: FormState, formData: For
   if (!parsed.success) {
     return { status: "error", code: "validation", fieldErrors: fieldErrorsFrom(parsed.error), values };
   }
+  if (!(await consumeCaptcha("reset", formData))) return { status: "error", code: "captcha", values };
 
   const allowed = await consumeRateLimits([
     { key: await clientKey("reset"), limit: 5, windowMs: HOUR },

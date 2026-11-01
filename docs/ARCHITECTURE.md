@@ -119,6 +119,17 @@ Auth.js v5 ist seit Jahren im Beta-Stadium, die stabile v4 ist nicht für den Ap
 - **Suchtext** wird nach jeder Text- oder Tag-Änderung in derselben Transaktion neu berechnet (`rebuildSearchText`).
 - **Downloadlinks** werden beim Speichern normalisiert, der Anbieter serverseitig aus der URL abgeleitet; geänderte Ziele gelten wieder als „nicht geprüft“, Klickzahlen bleiben erhalten.
 
+### CAPTCHA: Cap, selbst gehostet
+
+Zusätzlicher Schutz neben Rate-Limits und Honeypots für Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen. Cap ist ein Proof-of-Work-CAPTCHA (Apache-2.0): Der Browser rechnet kurz, statt Bilder zu lösen. Gewählt, weil es vollständig selbst gehostet läuft – keine Daten an Google, Cloudflare & Co., keine Cookies.
+
+- **Server in Next.js statt Cap Standalone:** Standalone bräuchte Docker und Redis/Valkey auf dem Server. Stattdessen erzeugt und prüft `capjs-core` (zustandslos, Challenges sind signierte JWTs mit `CAP_SECRET`) die Aufgaben in `src/server/captcha.ts`; die Routen `src/app/api/cap/[scope]/{challenge,redeem}` bedient das Widget. Gespeichert wird in der Tabelle `CaptchaUse`: eingelöste Challenge-Signaturen (jede Challenge nur einmal, atomar über `createMany … skipDuplicates`) und ausgegebene Einmal-Tokens, nur als SHA-256 des Geheimteils. Abgelaufene Einträge entfernt `pnpm data:cleanup`.
+- **Bereiche:** Challenge und Token sind an das Formular gebunden (`register`, `login`, `reset`, `report`, `src/lib/captcha.ts`). Die Server Action verbraucht das Token mit `consumeCaptcha()` per `deleteMany` genau einmal – nach der Eingabeprüfung, vor Rate-Limit und Passwort-Hashing. Tokens gelten 5 Minuten, Challenges 10 Minuten (Standard von capjs-core). Challenge und Einlösen haben je ein Limit von 30 pro Minute und IP.
+- **Floating-Modus:** Das Widget (`useCaptcha()` in `src/components/ui/captcha.tsx`) ist unsichtbar, bis der Absende-Button geklickt wird; dann löst es die Aufgabe, schreibt das Token in das Feld `cap-token` und sendet das Formular selbst ab. Die Widget-ID kommt aus `useId`, weil per `<Activity>` mehrere Seiten mit demselben Formular im DOM liegen können.
+- **Auslieferung und CSP:** Widget, Floating-Skript und WebAssembly liegen unter `public/cap` (kopiert mit `pnpm cap:assets`, ein Unit-Test vergleicht die Kopien mit `node_modules`). Der eigene Loader `public/cap/load.js` setzt die lokalen WASM-Pfade; ohne sie lädt das Widget von jsDelivr. Die CSP braucht dafür `worker-src 'self' blob:` (Worker aus einer blob:-URL) und `'wasm-unsafe-eval'` (nur WebAssembly-Kompilierung, kein `eval`).
+- **Ohne JavaScript** funktionieren diese vier Formulare bewusst nicht: Ein Hinweis (`<noscript>`) erklärt das, der Server lehnt ohne Token mit `captcha` ab. Ein Ausweichweg ohne Token wäre genau die Lücke, die Bots nutzen.
+- **Ohne Instrumentierung:** Die optionale Browser-Prüfung von Cap (Skript in einem `srcdoc`-iframe, erkennt automatisierte Browser) ist aus. Sie bräuchte `esbuild` zur Laufzeit und ein iframe, das die CSP (`frame-src 'none'`) bisher ausschließt; der Proof-of-Work allein verteuert Massenanfragen bereits deutlich.
+
 ### Bild-Uploads
 
 - Prüfung: Dateigröße ≤ 5 MB, Format anhand der Datei-Signatur (JPEG/PNG/WebP – Dateiname und MIME-Typ werden ignoriert, SVG ist ausgeschlossen), Mindestkantenlänge, Pixel-Limit gegen Dekompressionsbomben.

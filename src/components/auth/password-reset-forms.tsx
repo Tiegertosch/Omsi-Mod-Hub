@@ -3,6 +3,7 @@
 import { useLocale } from "next-intl";
 import { useActionState } from "react";
 
+import { useCaptcha } from "@/components/ui/captcha";
 import { FormAlert, TextField } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Link } from "@/i18n/navigation";
@@ -16,6 +17,7 @@ export function ForgotPasswordForm() {
   const locale = useLocale();
   const [state, formAction] = useActionState(requestPasswordResetAction, idleState);
   const { t, fieldError, formError, value } = useFormMessages(state);
+  const captcha = useCaptcha("reset");
 
   if (state.status === "success") {
     return (
@@ -43,7 +45,8 @@ export function ForgotPasswordForm() {
         defaultValue={value("email")}
         error={fieldError("email")}
       />
-      <SubmitButton pendingLabel={t("submitting")} className="w-full">
+      {captcha.widget}
+      <SubmitButton pendingLabel={t("submitting")} className="w-full" captcha={captcha}>
         {t("submitForgot")}
       </SubmitButton>
       <p className="text-center text-sm">

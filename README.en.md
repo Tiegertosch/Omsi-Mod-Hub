@@ -29,13 +29,14 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Requirements & add-ons as a list: name, optional link, freeware ("Download") or payware ("Visit shop") | ✅ |
 | Projects as freeware or payware: payware gets a badge on cards and the project page, download buttons read "Visit shop" | ✅ |
 | External download links with labelling, click counting via `/go/[id]` | ✅ |
-| Report function (Server Action, rate limit, honeypot) | ✅ handled under `/admin/reports` |
+| Report function (Server Action, rate limit, honeypot, CAPTCHA) | ✅ handled under `/admin/reports` |
 | Creator directory and profiles | ✅ |
 | German/English: language-specific routes, metadata, fallback for project texts | ✅ |
 | SEO: titles, descriptions, canonical, hreflang, Open Graph, sitemap, robots.txt | ✅ |
 | Caching of public data (`use cache` with tags), real HTTP 404 for unknown projects, categories, creators and pages | ✅ |
 | Two-step registration with progress indicator: account details, then a 6-digit code from the email (one box per digit, resend, correct the address), login (email or username), logout | ✅ Better Auth |
 | Forgot / reset password via email link | ✅ |
+| Self-hosted CAPTCHA [Cap](https://trycap.dev) (proof of work in the browser, floating mode) for registration, login, “forgot password” and reports; no data sent to third parties | ✅ |
 | Dashboard and settings (display name, preferred language, change password) | ✅ |
 | Account: change email address (confirmed via old and new address), list and sign out signed-in devices, delete account including all projects | ✅ |
 | Roles `user` / `creator` / `admin`, checked server-side; admin overview (key figures, reports, new accounts) | ✅ |
@@ -99,6 +100,7 @@ pnpm 12 only runs build scripts of dependencies after approval. The required app
 | `DATABASE_URL` | yes | PostgreSQL connection, e.g. `postgresql://omsi_mod_hub:PASSWORD@localhost:5432/omsi_mod_hub`. |
 | `NEXT_PUBLIC_SITE_URL` | recommended | Public base URL without a trailing slash; used for canonical URLs, sitemap and Open Graph. Default: `http://localhost:3000`. |
 | `BETTER_AUTH_SECRET` | yes | Random secret (≥ 32 characters) for signing sessions and tokens. Generate: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
+| `CAP_SECRET` | yes | Separate random secret (≥ 32 characters) for Cap, the self-hosted CAPTCHA. Signs the challenges; generate like `BETTER_AUTH_SECRET`. |
 | `BETTER_AUTH_URL` | yes | Public URL of the app. Links in emails point there; it must match the address being used. |
 | `MAIL_TRANSPORT` | yes in production | `file` (development: emails as JSON in `./.dev-mail`), `console` (development) or `smtp`. Without a value, `file` applies locally; in production, sending then fails. |
 | `SMTP_URL`, `MAIL_FROM` | with `smtp` | e.g. `smtps://user:pass@smtp.example.com:465` and `OMSI Mod Hub <no-reply@example.com>` |
@@ -132,7 +134,8 @@ Template: [.env.example](.env.example). Real credentials never belong in the rep
 | `pnpm db:studio` | Open Prisma Studio |
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Set the role of a confirmed account (local CLI, with audit log) |
 | `pnpm mail:test <email>` | Check the SMTP configuration and send a test email |
-| `pnpm data:cleanup` | Apply retention periods: old rate-limit entries, expired sessions and codes, accounts unconfirmed after 7 days, closed reports after 6 and audit log entries after 12 months (daily via timer on the server) |
+| `pnpm cap:assets` | Copy the Cap widget files from `node_modules` to `public/cap` (after updating `cap-widget` or `@cap.js/wasm`) |
+| `pnpm data:cleanup` | Apply retention periods: old rate-limit entries, expired sessions, codes and CAPTCHA entries, accounts unconfirmed after 7 days, closed reports after 6 and audit log entries after 12 months (daily via timer on the server) |
 
 **Sample data:** All creators and projects from the seed are fictional, marked with `isSample = true`, labelled as "Sample data" in the interface, excluded from search engines via `noindex` and only link to `example.com`. The illustrations under `public/samples/` were made specifically for this project. The seed creates **no admin accounts and no passwords**.
 
@@ -168,12 +171,14 @@ The first beta runs on its own Linux server (Node.js with systemd, Caddy as HTTP
 ```
 messages/              UI texts (de.json, en.json)
 prisma/                schema, migrations, seed
+public/cap/            Cap widget (copied from node_modules, plus own loader load.js)
 public/samples/        own illustrations for sample data
 src/
   app/
     [locale]/          localised pages (home, mods, creators, search, legal,
                        login, register, confirm-email, forgot-/reset-password, verify-email, dashboard, admin)
     api/auth/[...all]/ Better Auth endpoints
+    api/cap/[scope]/   Cap: issue challenges and redeem solutions for single-use tokens
     go/[linkId]/       redirect to external downloads (counts clicks)
     sitemap.ts, robots.ts, icon.svg
   components/
@@ -219,6 +224,7 @@ tests/
 - **Language switch:** until the page has loaded in the browser (hydration), the language link leads to the home page of the other language; afterwards to the same page including search parameters. The static page shell does not know the current path.
 - **Dark mode only**; a light theme is not planned as long as there is no demand.
 - **Legal texts:** The imprint contains the details from the imprint service (online-impressum.de). The privacy policy is based on the WBS Legal generator, extended with the details specific to OMSI Mod Hub (account, cookies, email delivery via checkdomain, retention periods, etc.), and stored as `content/legal/privacy.de.md`, the English version as `privacy.en.md` (new version: replace the files; if a language version is missing, the page shows the German text with a notice). The terms of use are versioned under `content/legal/terms/<version>.de.md` (binding) and `.en.md` (reading version); a new version is registered in `src/lib/legal.ts`, and signed-in users must then accept it via a popup or close their account. The terms have been legally reviewed. Registration from age 16 (confirmed via checkbox).
+- **CAPTCHA requires JavaScript:** registration, login, “forgot password” and reports only work with JavaScript (proof of work in the browser); without JavaScript a notice is shown and the server rejects the request. All other forms still work without JavaScript. Submitting takes about one to a few seconds depending on the device. Cap runs without the optional browser instrumentation (detection of automated browsers).
 - **Content Security Policy without nonces:** nonces would render every page dynamically and are incompatible with Partial Prerendering. Inline scripts are therefore allowed; scripts, connections, frames, plugins and form targets are restricted to the site's own origin (`next.config.ts`).
 
 ## Next steps

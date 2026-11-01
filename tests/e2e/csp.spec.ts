@@ -20,7 +20,9 @@ test("Content-Security-Policy: gesetzt, ohne Verstöße auf zentralen Seiten, fr
   expect(csp).toContain("object-src 'none'");
   expect(csp).toContain("frame-ancestors 'none'");
   expect(csp).toContain("form-action 'self'");
-  expect(csp).not.toContain("unsafe-eval");
+  // 'wasm-unsafe-eval' (Cap) erlaubt nur WebAssembly, kein eval für JavaScript.
+  expect(csp).not.toContain("'unsafe-eval'");
+  expect(csp).toContain("worker-src 'self' blob:");
 
   // Öffentliche Seiten, darunter Karussell, Filter, Suche und Formulare
   for (const path of [

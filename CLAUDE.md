@@ -61,15 +61,16 @@ Nach Codeänderungen erst `pnpm build`, dann `pnpm test:e2e`. Sonst testen die E
 - Uploads: Signaturprüfung, Neukodierung zu WebP und Auslieferung über `/media/[key]` (`src/server/images.ts`, `storage.ts`).
 - Keine personenbezogenen Daten in Logs. IP-Adressen nur gehasht speichern.
 - Keine Fremdskripte. Die CSP (`next.config.ts`) erlaubt nur die eigene Herkunft; `tests/e2e/csp.spec.ts` prüft das.
+- **CAPTCHA (Cap, selbst gehostet):** Öffentliche Formulare, die Konten anlegen, Mails auslösen oder Passwörter prüfen, nutzen `useCaptcha(scope)` und prüfen in der Action `consumeCaptcha(scope, formData)` nach der Validierung. Neue Bereiche in `CAPTCHA_SCOPES` (`src/lib/captcha.ts`) eintragen. Widget-Dateien nur über `pnpm cap:assets` aktualisieren.
 - Kein Ausspähen registrierter Adressen: Antworten und Antwortzeiten bei Registrierung, Reset und E-Mail-Änderung bleiben gleich, egal ob die Adresse vergeben ist.
 
 ## Konventionen
 
 - **Sprache:** Code-Kommentare, Docs und Commit-Messages auf Deutsch. Commit-Betreff kurz, ohne Präfix, beschreibt das Ergebnis (z. B. „Projekte als Freeware oder Payware kennzeichnen“).
-- **UI-Texte** stehen in `messages/de.json` **und** `messages/en.json`, immer beide pflegen. An den Client gehen nur die Namespaces `Report` und `Errors`.
+- **UI-Texte** stehen in `messages/de.json` **und** `messages/en.json`, immer beide pflegen. An den Client gehen nur die Namespaces aus `BASE_NAMESPACES` (`src/i18n/client-messages.ts`); Dashboard und Admin ergänzen eigene.
 - **Routen** haben immer ein Sprachpräfix (`/de/…`, `/en/…`). Fallback-Sprache für Gäste ist Englisch. Die Sprache wird über `next/root-params` gelesen.
 - **Docs mitpflegen:** Neue Funktionen oder Einschränkungen in `README.md` **und** `README.en.md` eintragen, Entscheidungen in `docs/ARCHITECTURE.md`, offene Punkte in `docs/PROJEKTSTAND.md`.
-- **UI:** eigene kleine Komponenten in `src/components/ui` (kein shadcn), Design-Tokens in `src/app/globals.css`, nur Dark Mode. Filter und Sortierung als Links oder GET-Formulare, Formulare funktionieren ohne JavaScript.
+- **UI:** eigene kleine Komponenten in `src/components/ui` (kein shadcn), Design-Tokens in `src/app/globals.css`, nur Dark Mode. Filter und Sortierung als Links oder GET-Formulare, Formulare funktionieren ohne JavaScript. Ausnahme: Formulare mit CAPTCHA (Registrierung, Anmeldung, Passwort vergessen, Meldungen), siehe unten.
 - **Rechtstexte** liegen in `content/legal/`. Eine neue Fassung der Nutzungsbedingungen wird in `TERMS_VERSIONS` (`src/lib/legal.ts`) eingetragen; den Ablauf beschreibt der Kommentar dort. Rechtstexte inhaltlich nur auf ausdrücklichen Wunsch ändern.
 
 ## Tests
@@ -86,7 +87,7 @@ Nach Codeänderungen erst `pnpm build`, dann `pnpm test:e2e`. Sonst testen die E
 
 ## Abhängigkeiten
 
-- `next`, `react`, `react-dom`, `better-auth`, `prisma`/`@prisma/*`, `zod`, `next-intl` und `sharp` sind **exakt** angeheftet. Updates nur gezielt und danach `check`, `build` und `test:e2e` laufen lassen.
+- `next`, `react`, `react-dom`, `better-auth`, `prisma`/`@prisma/*`, `zod`, `next-intl`, `sharp` sowie `capjs-core`, `cap-widget` und `@cap.js/wasm` sind **exakt** angeheftet. Nach einem Update der Cap-Pakete `pnpm cap:assets` ausführen. Updates nur gezielt und danach `check`, `build` und `test:e2e` laufen lassen.
 - `minimumReleaseAge` ist aktiv. Sehr frische Versionen brauchen eine Ausnahme in `pnpm-workspace.yaml`. Build-Skripte nur über `allowBuilds` freigeben.
 - Prisma bleibt auf 7.x, obwohl npm `latest` auf einen 8.0-RC zeigt. TypeScript 7, ESLint 10 und `@types/node` > 24 sind noch nicht freigegeben (Kompatibilität mit Next und Node 24 offen).
 

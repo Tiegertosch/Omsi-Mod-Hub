@@ -11,19 +11,24 @@ export function SubmitButton({
   pendingLabel,
   variant = "primary",
   className,
+  captcha,
 }: {
   children: React.ReactNode;
   pendingLabel: string;
   variant?: ButtonVariant;
   className?: string;
+  /** Ergebnis von useCaptcha: Der Klick löst zuerst das Cap-Widget aus; gesperrt, bis es geladen ist. */
+  captcha?: { trigger: Record<`data-${string}`, string>; ready: boolean };
 }) {
   const { pending } = useFormStatus();
+  const disabled = pending || captcha?.ready === false;
   return (
     <button
       type="submit"
-      disabled={pending}
-      aria-disabled={pending}
+      disabled={disabled}
+      aria-disabled={disabled}
       className={buttonStyles({ variant, size: "lg", className })}
+      {...captcha?.trigger}
     >
       {pending ? (
         <>

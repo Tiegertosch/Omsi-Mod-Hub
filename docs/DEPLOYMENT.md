@@ -170,6 +170,7 @@ sudo -u omsi nano /etc/omsi-mod-hub/env
 - `NEXT_PUBLIC_SITE_URL` und `BETTER_AUTH_URL`: `https://beta.DEINE-DOMAIN.de`
 - `BETTER_AUTH_SECRET`: **neu** erzeugen (nicht das lokale wiederverwenden):
   `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`
+- `CAP_SECRET`: genauso, ein eigenes zweites Secret für das CAPTCHA. Fehlt es, schlagen Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen fehl.
 - `SMTP_URL`: Port 465 → `smtps://BENUTZER:PASSWORT@SMTP-SERVER:465`, Port 587 → `smtp://…:587`. Sonderzeichen in Benutzer und Passwort URL-kodieren (`@` → `%40`, `:` → `%3A`, `#` → `%23`, `%` → `%25`). Ist der Benutzer die E-Mail-Adresse, wird daraus z. B. `no-reply%40DEINE-DOMAIN.de`.
 - `MAIL_FROM`: Absender mit derselben Adresse wie das Postfach.
 

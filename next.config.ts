@@ -11,10 +11,16 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
  * beschränkt – keine fremden Skripte, Verbindungen, Frames, Plugins oder
  * Formularziele. Schriften liefert next/font selbst aus, Bilder kommen aus
  * /_next/image, /media und /samples. 'unsafe-eval' nur für `next dev`.
+ *
+ * Cap (selbst gehostetes CAPTCHA, public/cap): Der Proof-of-Work läuft in Web
+ * Workern aus einer blob:-URL und kompiliert WebAssembly. Dafür
+ * `worker-src 'self' blob:` und 'wasm-unsafe-eval' (erlaubt nur
+ * WebAssembly-Kompilierung, kein eval für JavaScript).
  */
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,
+  "worker-src 'self' blob:",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
@@ -39,7 +45,8 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   poweredByHeader: false,
   // Native Module bzw. Treiber mit optionalen nativen Teilen nicht bündeln.
-  serverExternalPackages: ["sharp", "pg"],
+  // capjs-core lädt für die (nicht genutzte) Instrumentierung esbuild dynamisch nach.
+  serverExternalPackages: ["sharp", "pg", "capjs-core"],
   experimental: {
     // Bild-Uploads (max. 5 MB pro Datei) laufen über Server Actions; Standard wäre 1 MB.
     serverActions: { bodySizeLimit: "6mb" },

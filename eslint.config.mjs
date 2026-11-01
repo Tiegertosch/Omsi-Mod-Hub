@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generierter Prisma-Client
     "src/generated/**",
+    // Kopierte, minifizierte Dateien des Cap-Widgets (src/lib/cap-assets.ts)
+    "public/cap/widget.js",
+    "public/cap/floating.js",
   ]),
 ]);
 

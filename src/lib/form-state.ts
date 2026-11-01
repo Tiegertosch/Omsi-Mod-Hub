@@ -17,6 +17,7 @@ export type FormErrorCode =
   | "resend_cooldown"
   | "terms_required"
   | "unauthorized"
+  | "captcha"
   | "generic";
 
 /** Feldfehler; die Texte stehen unter Auth.fieldErrors. */

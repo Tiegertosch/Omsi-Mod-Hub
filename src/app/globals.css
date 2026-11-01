@@ -80,3 +80,19 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Cap-Widget (src/components/ui/captcha.tsx) im Dark-Mode; es rendert in einem Shadow Root, erreichbar nur über diese Variablen. */
+cap-widget {
+  --cap-background: var(--color-surface-2);
+  --cap-border-color: var(--color-border-strong);
+  --cap-border-radius: var(--radius-card);
+  --cap-color: var(--color-fg);
+  --cap-font: var(--font-sans);
+  --cap-checkbox-background: var(--color-surface-3);
+  --cap-checkbox-border: 1px solid var(--color-border-strong);
+  --cap-spinner-color: var(--color-accent);
+  --cap-spinner-background-color: var(--color-surface-3);
+  --cap-focus-ring: var(--color-accent);
+  --cap-troubleshoot-color: var(--color-muted);
+  --cap-invalid-border-color: var(--color-danger);
+}

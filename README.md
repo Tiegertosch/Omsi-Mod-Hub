@@ -27,13 +27,14 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Voraussetzungen & benötigte Add-ons als Liste: Name, optionaler Link, Freeware („Download“) oder Payware („Zum Shop“) | ✅ |
 | Projekte als Freeware oder Payware: Payware mit Badge auf Karten und Projektseite, Downloadbuttons „Zum Shop“ | ✅ |
 | Externe Downloadlinks mit Kennzeichnung, Zählung der Aufrufe über `/go/[id]` | ✅ |
-| Meldefunktion (Server Action, Rate-Limit, Honeypot) | ✅ Bearbeitung unter `/admin/reports` |
+| Meldefunktion (Server Action, Rate-Limit, Honeypot, CAPTCHA) | ✅ Bearbeitung unter `/admin/reports` |
 | Creator-Verzeichnis und -Profile | ✅ |
 | Deutsch/Englisch: sprachabhängige Routen, Metadaten, Fallback für Projekttexte | ✅ |
 | SEO: Titel, Beschreibungen, Canonical, hreflang, Open Graph, Sitemap, robots.txt | ✅ |
 | Zwischenspeicherung öffentlicher Daten (`use cache` mit Tags), echte HTTP-404 für unbekannte Projekte, Kategorien, Creator und Seiten | ✅ |
 | Registrierung in zwei Schritten mit Fortschrittsanzeige: Kontodaten, dann 6-stelliger Code aus der E-Mail (eine Box pro Ziffer, erneut senden, Adresse korrigieren), Anmeldung (E-Mail oder Benutzername), Abmeldung | ✅ Better Auth |
 | Passwort vergessen / zurücksetzen per E-Mail-Link | ✅ |
+| Selbst gehostetes CAPTCHA [Cap](https://trycap.dev) (Proof-of-Work im Browser, Floating-Modus) für Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen; keine Daten an Dritte | ✅ |
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
 | Konto: E-Mail-Adresse ändern (Bestätigung über alte und neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto mit allen Projekten löschen | ✅ |
 | Rollen `user` / `creator` / `admin`, serverseitig geprüft; Adminübersicht (Kennzahlen, Meldungen, neue Konten) | ✅ |
@@ -97,6 +98,7 @@ pnpm 12 führt Build-Skripte von Abhängigkeiten nur nach Freigabe aus. Die ben�
 | `DATABASE_URL` | ja | PostgreSQL-Verbindung, z. B. `postgresql://omsi_mod_hub:PASSWORT@localhost:5432/omsi_mod_hub`. |
 | `NEXT_PUBLIC_SITE_URL` | empfohlen | Öffentliche Basis-URL ohne abschließenden Slash; wird für Canonical-URLs, Sitemap und Open Graph verwendet. Standard: `http://localhost:3000`. |
 | `BETTER_AUTH_SECRET` | ja | Zufälliges Secret (≥ 32 Zeichen) zum Signieren von Sessions und Tokens. Erzeugen: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"` |
+| `CAP_SECRET` | ja | Eigenes zufälliges Secret (≥ 32 Zeichen) für Cap, das selbst gehostete CAPTCHA. Signiert die Challenges; erzeugen wie `BETTER_AUTH_SECRET`. |
 | `BETTER_AUTH_URL` | ja | Öffentliche URL der App. Links in E-Mails zeigen dorthin; muss zur aufgerufenen Adresse passen. |
 | `MAIL_TRANSPORT` | ja in Produktion | `file` (Entwicklung: Mails als JSON in `./.dev-mail`), `console` (Entwicklung) oder `smtp`. Ohne Angabe gilt lokal `file`; in Produktion schlägt der Versand dann fehl. |
 | `SMTP_URL`, `MAIL_FROM` | bei `smtp` | z. B. `smtps://user:pass@smtp.example.com:465` und `OMSI Mod Hub <no-reply@example.com>` |
@@ -130,7 +132,8 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm db:studio` | Prisma Studio öffnen |
 | `pnpm user:set-role <email> <user\|creator\|admin>` | Rolle eines bestätigten Kontos setzen (lokales CLI, mit Audit-Log) |
 | `pnpm mail:test <email>` | SMTP-Konfiguration prüfen und eine Testmail senden |
-| `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen und Codes, nach 7 Tagen unbestätigte Konten, abgeschlossene Meldungen nach 6 und Protokolleinträge nach 12 Monaten (auf dem Server täglich per Timer) |
+| `pnpm cap:assets` | Dateien des Cap-Widgets aus `node_modules` nach `public/cap` kopieren (nach einem Update von `cap-widget` oder `@cap.js/wasm`) |
+| `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen, Codes und CAPTCHA-Einträge, nach 7 Tagen unbestätigte Konten, abgeschlossene Meldungen nach 6 und Protokolleinträge nach 12 Monaten (auf dem Server täglich per Timer) |
 
 **Beispieldaten:** Alle Creator und Projekte aus dem Seed sind fiktiv, mit `isSample = true` markiert, in der Oberfläche als „Beispieldaten“ gekennzeichnet, per `noindex` von Suchmaschinen ausgeschlossen und verlinken nur auf `example.com`. Die Illustrationen unter `public/samples/` wurden eigens erstellt. Der Seed legt **keine Admin-Konten und keine Passwörter** an.
 
@@ -166,12 +169,14 @@ Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy
 ```
 messages/              UI-Texte (de.json, en.json)
 prisma/                Schema, Migrationen, Seed
+public/cap/            Cap-Widget (kopiert aus node_modules, plus eigener Loader load.js)
 public/samples/        eigene Illustrationen für Beispieldaten
 src/
   app/
     [locale]/          lokalisierte Seiten (Start, mods, creators, search, legal,
                        login, register, confirm-email, forgot-/reset-password, verify-email, dashboard, admin)
     api/auth/[...all]/ Better-Auth-Endpunkte
+    api/cap/[scope]/   Cap: Challenge ausgeben und Lösung gegen Einmal-Token einlösen
     go/[linkId]/       Weiterleitung zu externen Downloads (zählt Aufrufe)
     sitemap.ts, robots.ts, icon.svg
   components/
@@ -217,6 +222,7 @@ tests/
 - **Sprachumschaltung:** Bis die Seite im Browser geladen ist (Hydration), führt der Sprachlink zur Startseite der anderen Sprache; danach auf dieselbe Seite samt Suchparametern. Der statische Seitenrahmen kennt den aktuellen Pfad nicht.
 - **Nur Dark Mode**; ein helles Theme ist nicht geplant, solange es keinen Bedarf gibt.
 - **Rechtstexte:** Das Impressum enthält die Angaben aus dem Impressums-Service (online-impressum.de). Die Datenschutzerklärung basiert auf dem Generator von WBS Legal, ist um die Angaben zu OMSI Mod Hub ergänzt (Konto, Cookies, E-Mail-Versand über checkdomain, Löschfristen u. a.) und liegt als `content/legal/privacy.de.md`, die englische Fassung als `privacy.en.md` (neue Fassung: Dateien ersetzen; fehlt eine Sprachfassung, zeigt die Seite den deutschen Text mit Hinweis). Die Nutzungsbedingungen liegen versioniert unter `content/legal/terms/<fassung>.de.md` (maßgeblich) und `.en.md` (Lesefassung); eine neue Fassung wird in `src/lib/legal.ts` eingetragen, angemeldete Nutzer müssen ihr dann per Popup zustimmen oder ihr Konto schließen. Die Bedingungen sind rechtlich geprüft. Registrierung ab 16 Jahren (Bestätigung per Checkbox).
+- **CAPTCHA braucht JavaScript:** Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen funktionieren nur mit JavaScript (Proof-of-Work im Browser); ohne JavaScript erscheint ein Hinweis und der Server lehnt ab. Alle anderen Formulare funktionieren weiter ohne JavaScript. Das Absenden dauert je nach Gerät ein bis wenige Sekunden. Cap läuft ohne die optionale Browser-Instrumentierung (Erkennung automatisierter Browser).
 - **Content-Security-Policy ohne Nonces:** Nonces würden jede Seite dynamisch rendern und vertragen sich nicht mit Partial Prerendering. Inline-Skripte sind deshalb erlaubt; Skripte, Verbindungen, Frames, Plugins und Formularziele sind auf die eigene Herkunft beschränkt (`next.config.ts`).
 
 ## Nächste Schritte

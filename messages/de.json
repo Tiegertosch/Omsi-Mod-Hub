@@ -184,7 +184,8 @@
     "errorRateLimit": "Zu viele Meldungen in kurzer Zeit. Bitte versuche es später erneut.",
     "errorNotFound": "Dieses Projekt kann nicht mehr gemeldet werden.",
     "errorGeneric": "Die Meldung konnte nicht gespeichert werden. Bitte versuche es erneut.",
-    "errorTerms": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen."
+    "errorTerms": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen.",
+    "errorCaptcha": "Die Prüfung, ob du ein Mensch bist, ist fehlgeschlagen oder abgelaufen. Bitte sende die Meldung erneut ab."
   },
   "Creators": {
     "title": "Creator",
@@ -302,7 +303,8 @@
       "code_expired": "Der Code ist abgelaufen. Fordere bitte einen neuen an.",
       "code_attempts": "Zu viele falsche Eingaben. Fordere bitte einen neuen Code an.",
       "resend_cooldown": "Bitte warte, bis du einen neuen Code anfordern kannst.",
-      "terms_required": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen."
+      "terms_required": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen.",
+      "captcha": "Die Prüfung, ob du ein Mensch bist, ist fehlgeschlagen oder abgelaufen. Bitte sende das Formular erneut ab."
     },
     "fieldErrors": {
       "username": "Dieser Benutzername ist ungültig.",
@@ -863,5 +865,20 @@
     "password": "Passwort zur Bestätigung",
     "declineSubmit": "Konto endgültig schließen",
     "back": "Zurück"
+  },
+  "Captcha": {
+    "initial-state": "Ich bin ein Mensch",
+    "verifying-label": "Wird geprüft …",
+    "solved-label": "Du bist ein Mensch",
+    "error-label": "Fehler. Bitte erneut versuchen.",
+    "required-label": "Bitte bestätige, dass du ein Mensch bist",
+    "troubleshooting-label": "Hilfe bei Problemen",
+    "group-aria-label": "Prüfung, ob du ein Mensch bist",
+    "verify-aria-label": "Klicken, um zu bestätigen, dass du ein Mensch bist",
+    "verifying-aria-label": "Es wird geprüft, ob du ein Mensch bist, bitte warten",
+    "verified-aria-label": "Geprüft: Du bist ein Mensch und kannst fortfahren",
+    "error-aria-label": "Ein Fehler ist aufgetreten, bitte erneut versuchen",
+    "wasm-disabled": "Aktiviere WebAssembly, dann geht die Prüfung deutlich schneller",
+    "noscript": "Dieses Formular braucht JavaScript: Beim Absenden prüft dein Browser kurz, ob du ein Mensch bist (Cap, ohne Dienste Dritter). Bitte aktiviere JavaScript."
   }
 }

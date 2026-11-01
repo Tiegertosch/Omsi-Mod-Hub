@@ -4,7 +4,7 @@ import type { Messages } from "next-intl";
 import { getMessages } from "next-intl/server";
 
 /** Namespaces, die auf allen Seiten von Client-Komponenten benötigt werden. */
-const BASE_NAMESPACES = ["Report", "Errors", "Auth", "Account"] as const satisfies readonly (keyof Messages)[];
+const BASE_NAMESPACES = ["Report", "Errors", "Auth", "Account", "Captcha"] as const satisfies readonly (keyof Messages)[];
 
 /**
  * Wählt die Übersetzungen aus, die an den Browser gehen. Bereiche wie das
