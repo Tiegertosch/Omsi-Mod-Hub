@@ -16,7 +16,8 @@ import nodemailer, { type Transporter } from "nodemailer";
  * Ohne Angabe gilt in der Entwicklung "file"; in Produktion muss ein
  * Transport konfiguriert sein, sonst schlägt der Versand fehl.
  */
-export type MailMessage = { to: string; subject: string; text: string };
+/** `text` ist immer dabei; `html` ist die gestaltete Alternative (multipart/alternative). */
+export type MailMessage = { to: string; subject: string; text: string; html?: string };
 
 type Transport = "smtp" | "file" | "console";
 
@@ -41,7 +42,7 @@ export async function sendMail(message: MailMessage): Promise<void> {
     const from = process.env.MAIL_FROM;
     if (!url || !from) throw new Error("MAIL_TRANSPORT=smtp erfordert SMTP_URL und MAIL_FROM.");
     smtp ??= nodemailer.createTransport(url);
-    await smtp.sendMail({ from, to: message.to, subject: message.subject, text: message.text });
+    await smtp.sendMail({ from, to: message.to, subject: message.subject, text: message.text, html: message.html });
     return;
   }
 

@@ -923,6 +923,25 @@
         "subject": "Downloadlink als defekt markiert: {title} – OMSI Mod Hub",
         "body": "Hallo {name},\n\nein Downloadlink deines Projekts „{title}“ (Version {version}) wurde als defekt markiert. Besucher sehen dazu einen Hinweis:\n\n{url}\n\n{hasNote, select, yes {Hinweis der Moderation:\n\n{note}\n\n} other {}}Bitte prüfe den Link. Sobald du eine neue Adresse einträgst, entfällt der Hinweis.\n\n{editUrl}"
       }
+    },
+    "layout": {
+      "fallback": "Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:",
+      "footer": "Diese E-Mail hat OMSI Mod Hub automatisch verschickt, weil eine Aktion zu deinem Konto oder deiner Adresse ausgelöst wurde.",
+      "imprint": "Impressum",
+      "privacy": "Datenschutz"
+    },
+    "cta": {
+      "enterCode": "Code eingeben",
+      "login": "Anmelden",
+      "resetPassword": "Passwort zurücksetzen",
+      "confirmChange": "Änderung bestätigen",
+      "confirmAddress": "Adresse bestätigen",
+      "setPassword": "Neues Passwort festlegen",
+      "viewProject": "Projekt ansehen",
+      "openDashboard": "Zum Dashboard",
+      "appeal": "Widerspruch einlegen",
+      "openEditor": "Im Editor öffnen",
+      "contact": "Kontakt im Impressum"
     }
   },
   "Errors": {

@@ -49,6 +49,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Admin: Kategorien und Tags anlegen, bearbeiten, löschen `/admin/categories`, `/admin/tags`; Projekte einer anderen Kategorie zuordnen; Protokoll mit Filter nach Bereich und Aktion, seitenweise `/admin/audit` | ✅ |
 | Admin: Downloadlinks aus einer Meldung heraus als defekt markieren, sperren (mit Begründung, E-Mail an den Creator) oder freigeben; gesperrte Links verschwinden öffentlich, `/go` liefert 404, die Sperre bleibt auch bei einer URL-Änderung durch den Creator | ✅ |
 | E-Mail an Creator bei Freigabe, Zurückweisung, Ausblenden, Wiedereinblenden und nach der Entscheidung über einen Widerspruch | ✅ |
+| E-Mails als gestaltetes HTML im Stil der Website (dunkle Kopfzeile, Button für den Hauptlink) mit Klartext-Fassung | ✅ |
 | Rechtliche Seiten: Impressum, Datenschutzerklärung, versionierte Nutzungsbedingungen mit Zustimmung bei neuen Fassungen | ✅ |
 
 ## Technologie

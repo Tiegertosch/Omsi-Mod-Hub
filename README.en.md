@@ -51,6 +51,7 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Admin: create, edit, delete categories and tags `/admin/categories`, `/admin/tags`; move projects to another category; audit log with filters by area and action, paginated `/admin/audit` | ✅ |
 | Admin: mark download links as broken, block them (with reason, email to the creator) or release them directly from a report; blocked links disappear publicly, `/go` returns 404, and the block stays even if the creator changes the URL | ✅ |
 | Emails to creators on approval, rejection, hiding, unhiding and after an appeal has been decided | ✅ |
+| Emails as styled HTML matching the website (dark header, button for the main link) with a plain-text version | ✅ |
 | Legal pages: imprint, privacy policy, versioned terms of use with consent to new versions | ✅ |
 
 ## Technology

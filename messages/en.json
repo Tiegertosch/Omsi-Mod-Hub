@@ -923,6 +923,25 @@
         "subject": "Download link marked as broken: {title} – OMSI Mod Hub",
         "body": "Hi {name},\n\na download link of your project “{title}” (version {version}) has been marked as broken. Visitors see a notice next to it:\n\n{url}\n\n{hasNote, select, yes {Note from the moderators:\n\n{note}\n\n} other {}}Please check the link. As soon as you enter a new address, the notice disappears.\n\n{editUrl}"
       }
+    },
+    "layout": {
+      "fallback": "If the button doesn't work, copy this link into your browser:",
+      "footer": "OMSI Mod Hub sent this email automatically because an action was triggered for your account or address.",
+      "imprint": "Legal notice",
+      "privacy": "Privacy"
+    },
+    "cta": {
+      "enterCode": "Enter code",
+      "login": "Sign in",
+      "resetPassword": "Reset password",
+      "confirmChange": "Confirm change",
+      "confirmAddress": "Confirm address",
+      "setPassword": "Set new password",
+      "viewProject": "View project",
+      "openDashboard": "Open dashboard",
+      "appeal": "Submit an appeal",
+      "openEditor": "Open in editor",
+      "contact": "Contact details"
     }
   },
   "Errors": {
