@@ -5,3 +5,5 @@
 deploy/** text eol=lf
 # Migrationen: Prisma prüft Prüfsummen – überall mit denselben Zeilenenden
 prisma/migrations/** text eol=lf
+# Cap-Widget: byte-genaue Kopien aus node_modules (tests/unit/captcha.test.ts vergleicht sie)
+public/cap/** -text
