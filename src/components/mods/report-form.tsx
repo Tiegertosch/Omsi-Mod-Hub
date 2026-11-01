@@ -32,7 +32,7 @@ export function ReportForm({ projectId }: { projectId: string }) {
   const [state, formAction, pending] = useActionState<ReportFormState, FormData>(reportProject, {
     status: "idle",
   });
-  const captcha = useCaptcha("report");
+  const captcha = useCaptcha("report", { align: "start" });
 
   return (
     <details className="group rounded-[var(--radius-card)] border border-border bg-surface">
@@ -104,10 +104,12 @@ export function ReportForm({ projectId }: { projectId: string }) {
               </p>
             ) : null}
 
-            {captcha.widget}
-            <Button type="submit" variant="secondary" disabled={pending || !captcha.ready} {...captcha.trigger}>
-              {pending ? t("submitting") : t("submit")}
-            </Button>
+            <div className="relative w-fit">
+              {captcha.widget}
+              <Button type="submit" variant="secondary" disabled={pending || !captcha.ready} {...captcha.trigger}>
+                {pending ? t("submitting") : t("submit")}
+              </Button>
+            </div>
           </form>
         )}
       </div>

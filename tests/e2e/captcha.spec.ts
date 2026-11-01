@@ -34,7 +34,6 @@ test("Cap: Widget und WebAssembly kommen von der eigenen Domain, die Anmeldung l
     expect.arrayContaining([
       "/cap/load.js",
       "/cap/widget.js",
-      "/cap/floating.js",
       "/api/cap/register/challenge",
       "/api/cap/register/redeem",
       "/api/cap/login/challenge",
@@ -49,7 +48,7 @@ test("Cap: ohne JavaScript Hinweis und gesperrter Button, ohne Token lehnt der S
   const html = await (await request.get("/de/forgot-password")).text();
   expect(html).toContain("<noscript>");
   expect(html).toContain("Dieses Formular braucht JavaScript");
-  expect(html).toMatch(/<button type="submit" disabled=""[^>]*data-cap-floating="#cap-reset-/);
+  expect(html).toMatch(/<button type="submit" disabled=""[^>]*>Link anfordern<\/button>/);
 
   // Absenden ohne Token: requestSubmit() umgeht den Klick, den der Floating-Modus abfängt.
   await page.goto("/de/forgot-password");
@@ -58,6 +57,29 @@ test("Cap: ohne JavaScript Hinweis und gesperrter Button, ohne Token lehnt der S
   await page.getByLabel("E-Mail-Adresse").fill(uniqueUser("e2e-cap-notoken").email);
   await page.locator("form").filter({ has: submit }).evaluate((form: HTMLFormElement) => form.requestSubmit());
   await expect(page.getByText("Die Prüfung, ob du ein Mensch bist, ist fehlgeschlagen")).toBeVisible();
+});
+
+test("Cap: wiederholtes Klicken startet die Prüfung nicht neu und sendet nur einmal ab", async ({ page }) => {
+  const counts = { challenge: 0, redeem: 0, action: 0 };
+  page.on("request", (request) => {
+    const { pathname } = new URL(request.url());
+    if (pathname === "/api/cap/reset/challenge") counts.challenge++;
+    if (pathname === "/api/cap/reset/redeem") counts.redeem++;
+    if (request.method() === "POST" && request.headers()["next-action"]) counts.action++;
+  });
+
+  await page.goto("/de/forgot-password");
+  const submit = page.getByRole("button", { name: "Link anfordern" });
+  await expect(submit).toBeEnabled();
+  await page.getByLabel("E-Mail-Adresse").fill(uniqueUser("e2e-cap-spam").email);
+  // Fünf Klicks direkt hintereinander, wie beim schnellen Mehrfachklicken
+  await submit.evaluate((button: HTMLButtonElement) => {
+    for (let i = 0; i < 5; i++) button.click();
+  });
+  await expect(page.getByText("Falls ein Konto mit dieser Adresse existiert")).toBeVisible();
+  // Ein weiterer Klick in der Zwischenzeit hätte eine neue Challenge geholt
+  await page.waitForTimeout(1000);
+  expect(counts).toEqual({ challenge: 1, redeem: 1, action: 1 });
 });
 
 test("Cap: Endpunkte lehnen unbekannte Bereiche und falsche Lösungen ab", async ({ request }) => {

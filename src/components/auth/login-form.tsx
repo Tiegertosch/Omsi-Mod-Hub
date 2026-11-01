@@ -50,7 +50,6 @@ export function LoginForm({ next }: { next: string }) {
         </Link>
       </div>
 
-      {captcha.widget}
       <SubmitButton pendingLabel={t("submitting")} className="w-full" captcha={captcha}>
         {t("submitLogin")}
       </SubmitButton>

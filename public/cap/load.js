@@ -27,8 +27,6 @@
     document.head.appendChild(script);
   }
 
-  // Der Floating-Modus braucht das fertig registrierte <cap-widget>.
-  load("/cap/widget.js", function () {
-    load("/cap/floating.js", ready);
-  });
+  // Den Floating-Modus übernimmt useCaptcha selbst (statt cap-floating.js).
+  load("/cap/widget.js", ready);
 })();

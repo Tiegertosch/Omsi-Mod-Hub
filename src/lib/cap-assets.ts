@@ -7,7 +7,6 @@
  */
 export const CAP_ASSETS = [
   { from: "node_modules/cap-widget/cap.min.js", to: "public/cap/widget.js" },
-  { from: "node_modules/cap-widget/cap-floating.min.js", to: "public/cap/floating.js" },
   { from: "node_modules/cap-widget/LICENSE", to: "public/cap/LICENSE.txt" },
   { from: "node_modules/@cap.js/wasm/browser/cap_wasm_bg.wasm", to: "public/cap/cap_wasm_bg.wasm" },
   { from: "node_modules/@cap.js/wasm/browser/hashwx.wasm", to: "public/cap/hashwx.wasm" },

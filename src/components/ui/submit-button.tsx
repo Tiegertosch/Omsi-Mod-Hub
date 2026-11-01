@@ -18,17 +18,17 @@ export function SubmitButton({
   variant?: ButtonVariant;
   className?: string;
   /** Ergebnis von useCaptcha: Der Klick löst zuerst das Cap-Widget aus; gesperrt, bis es geladen ist. */
-  captcha?: { trigger: Record<`data-${string}`, string>; ready: boolean };
+  captcha?: { widget: React.ReactNode; trigger: { onClick: React.MouseEventHandler<HTMLButtonElement> }; ready: boolean };
 }) {
   const { pending } = useFormStatus();
   const disabled = pending || captcha?.ready === false;
-  return (
+  const button = (
     <button
       type="submit"
       disabled={disabled}
       aria-disabled={disabled}
       className={buttonStyles({ variant, size: "lg", className })}
-      {...captcha?.trigger}
+      onClick={captcha?.trigger.onClick}
     >
       {pending ? (
         <>
@@ -39,5 +39,12 @@ export function SubmitButton({
         children
       )}
     </button>
+  );
+  if (!captcha) return button;
+  return (
+    <div className="relative">
+      {captcha.widget}
+      {button}
+    </div>
   );
 }

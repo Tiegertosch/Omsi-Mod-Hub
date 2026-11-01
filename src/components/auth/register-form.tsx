@@ -113,7 +113,6 @@ export function RegisterForm({ initial }: { initial?: { username: string; email:
         ) : null}
       </div>
 
-      {captcha.widget}
       <SubmitButton pendingLabel={t("submitting")} className="w-full" captcha={captcha}>
         {t("submitRegister")}
       </SubmitButton>

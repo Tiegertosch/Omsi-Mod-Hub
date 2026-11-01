@@ -45,7 +45,6 @@ export function ForgotPasswordForm() {
         defaultValue={value("email")}
         error={fieldError("email")}
       />
-      {captcha.widget}
       <SubmitButton pendingLabel={t("submitting")} className="w-full" captcha={captcha}>
         {t("submitForgot")}
       </SubmitButton>

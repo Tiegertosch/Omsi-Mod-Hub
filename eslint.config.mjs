@@ -16,7 +16,6 @@ const eslintConfig = defineConfig([
     "src/generated/**",
     // Kopierte, minifizierte Dateien des Cap-Widgets (src/lib/cap-assets.ts)
     "public/cap/widget.js",
-    "public/cap/floating.js",
   ]),
 ]);
 
