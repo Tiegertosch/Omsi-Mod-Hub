@@ -438,9 +438,9 @@ Danach wie in Abschnitt 8 neu registrieren und die Admin-Rolle setzen, dann ein 
 
 - [x] Nutzungsbedingungen rechtlich geprüft, Entwurfshinweis entfernt
 - [x] Datenschutzerklärung um E-Mail-Versand (checkdomain), Cookies und Löschfristen ergänzt
-- [ ] Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
+- [x] Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
 - [x] Basic Auth und `X-Robots-Tag` im Caddyfile entfernt, Umzug auf die Hauptdomain; `robots.txt` und Sitemap geprüft
 - [x] Content-Security-Policy ergänzen
-- [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen
+- [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen – SPF, DKIM und DMARC bestehen bei Gmail (05.11.2026); Posteingang/Spam und Mails der Website noch prüfen
 - [x] Backup außerhalb des Servers eingerichtet (Hetzner Storage Box mit Snapshots) und Wiederherstellung getestet
 - [ ] Bei Wachstum: Objektspeicher für Bilder, gemeinsamer Cache-Handler, ggf. verwaltete Datenbank (siehe ARCHITECTURE.md)
