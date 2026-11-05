@@ -42,6 +42,25 @@ test("Cap: Widget und WebAssembly kommen von der eigenen Domain, die Anmeldung l
   );
 });
 
+test("Cap: Enter schickt die Anmeldung ab, auch bevor das Widget geladen ist", async ({ page }) => {
+  const user = uniqueUser("e2e-cap-enter");
+  await registerAndVerify(page, user);
+  await page.context().clearCookies();
+
+  // Langsames Laden nachstellen (z. B. Passwortmanager füllt sofort aus).
+  await page.route("**/cap/load.js", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await route.continue();
+  });
+  await page.goto("/de/login");
+  await page.getByLabel("E-Mail oder Benutzername").fill(user.email);
+  await page.getByLabel("Passwort", { exact: true }).fill(user.password);
+  expect(await page.evaluate(() => window.__omsiCapReady === true)).toBe(false);
+  await page.getByLabel("Passwort", { exact: true }).press("Enter");
+  await expect(page.getByRole("button", { name: "Wird geprüft …" })).toBeVisible();
+  await expect(page).toHaveURL(/\/de\/dashboard$/);
+});
+
 test("Cap: ohne JavaScript Hinweis und gesperrter Button, ohne Token lehnt der Server ab", async ({ page, request }) => {
   // Playwright schaltet JavaScript nur per Emulation ab, dabei bleibt <noscript>
   // unsichtbar; deshalb das ausgelieferte HTML prüfen.

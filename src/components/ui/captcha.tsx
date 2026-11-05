@@ -20,10 +20,26 @@ type CapWidgetElement = HTMLElement & {
 };
 
 const READY_EVENT = "omsi-cap-ready";
+/** So lange wartet ein Absenden höchstens darauf, dass das Widget geladen ist. */
+const LOAD_TIMEOUT_MS = 20_000;
 
-function subscribeReady(onChange: () => void) {
-  window.addEventListener(READY_EVENT, onChange);
-  return () => window.removeEventListener(READY_EVENT, onChange);
+const noop = () => () => {};
+
+/** Erfüllt, sobald public/cap/load.js das Widget registriert hat. */
+function widgetLoaded(): Promise<void> {
+  if (window.__omsiCapReady === true) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const done = () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(READY_EVENT, done);
+      resolve();
+    };
+    const timer = window.setTimeout(() => {
+      window.removeEventListener(READY_EVENT, done);
+      reject(new Error("Cap: Widget nicht geladen"));
+    }, LOAD_TIMEOUT_MS);
+    window.addEventListener(READY_EVENT, done);
+  });
 }
 
 /**
@@ -38,15 +54,19 @@ function subscribeReady(onChange: () => void) {
  * abgesendet wird per requestSubmit() (kein erneuter Klick).
  *
  * `widget` muss im Formular stehen (SubmitButton erledigt das), `trigger` an
- * den Button. Solange `ready` false ist (Skript noch nicht geladen, ohne
- * JavaScript immer), bleibt der Button gesperrt; sonst ginge ein schneller
- * Klick ohne Token raus.
+ * den Button. `ready` ist false, bis die Seite hydriert ist (ohne JavaScript
+ * immer): So lange bleibt der Button gesperrt, sonst ginge ein Klick ohne
+ * Token raus. Danach ist er immer aktiv – auch bevor das Widget geladen ist.
+ * Ein Klick oder Enter wartet dann auf das Widget (Anzeige „Wird geprüft …“);
+ * früher war der Button bis dahin gesperrt, und ein Enter direkt nach dem
+ * Ausfüllen (z. B. durch den Passwortmanager) verpuffte.
  */
 export function useCaptcha(scope: CaptchaScope) {
   const t = useTranslations("Captcha");
+  // true nur im Browser nach der Hydration (Server und erster Render: false).
   const ready = useSyncExternalStore(
-    subscribeReady,
-    () => window.__omsiCapReady === true,
+    noop,
+    () => true,
     () => false,
   );
   const widgetRef = useRef<CapWidgetElement | null>(null);
@@ -55,9 +75,6 @@ export function useCaptcha(scope: CaptchaScope) {
   const [failed, setFailed] = useState(false);
 
   const onClick = (event: MouseEvent<HTMLButtonElement>) => {
-    const widget = widgetRef.current;
-    // Widget nicht geladen: normal absenden, der Server lehnt ohne Token mit Hinweis ab.
-    if (!widget?.solve) return;
     event.preventDefault();
     if (busy.current) return;
 
@@ -65,10 +82,14 @@ export function useCaptcha(scope: CaptchaScope) {
     setSolving(true);
     setFailed(false);
     const form = event.currentTarget.form;
-    // Jede Anfrage braucht ein neues Token (der Server verbraucht es beim Absenden).
-    widget.reset?.();
-    widget
-      .solve()
+    widgetLoaded()
+      .then(() => {
+        const widget = widgetRef.current;
+        if (!widget?.solve) throw new Error("Cap: Widget fehlt");
+        // Jede Anfrage braucht ein neues Token (der Server verbraucht es beim Absenden).
+        widget.reset?.();
+        return widget.solve();
+      })
       .then((result) => {
         if (!result?.success) throw new Error("Cap: keine Lösung");
         // requestSubmit löst keinen Klick aus, also kein erneuter Durchlauf von onClick.
