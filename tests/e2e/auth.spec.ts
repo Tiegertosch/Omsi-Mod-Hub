@@ -201,6 +201,10 @@ test("Einstellungen: Anzeigename, Sprache und Passwort", async ({ page }) => {
   // Passwort unter „Security“; „Current password“ steht dort auch bei der Zwei-Faktor-Anmeldung.
   await page.getByRole("navigation", { name: "Settings sections" }).getByRole("link", { name: "Security" }).click();
   await expect(page).toHaveURL(/\/en\/dashboard\/settings\/security$/);
+  // Die Seitennavigation markiert „Settings“ auch auf Unterseiten, „Overview“ nur exakt.
+  const accountNav = page.getByRole("navigation", { name: "Account area" });
+  await expect(accountNav.getByRole("link", { name: "Settings" })).toHaveAttribute("aria-current", "page");
+  await expect(accountNav.getByRole("link", { name: "Overview" })).not.toHaveAttribute("aria-current", "page");
   const passwordSection = page.getByRole("region", { name: "Change password" });
   await passwordSection.getByLabel("Current password").fill("falsch-falsch-falsch");
   await passwordSection.getByLabel("New password", { exact: true }).fill("Noch-ein-Passwort-9");

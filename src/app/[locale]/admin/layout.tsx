@@ -3,8 +3,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 
-import { AdminNav } from "@/components/admin/admin-nav";
 import { Container } from "@/components/ui/container";
+import { SideNav } from "@/components/ui/side-nav";
 import { getClientMessages } from "@/i18n/client-messages";
 import { hasAdminAccess } from "@/lib/roles";
 import { getAdminBadgeCounts } from "@/server/data/admin";
@@ -18,8 +18,9 @@ async function AdminNavigation() {
   if (!user || !hasAdminAccess(user)) return null;
   const [t, counts] = await Promise.all([getTranslations("Admin"), getAdminBadgeCounts()]);
   return (
-    <AdminNav
+    <SideNav
       label={t("navLabel")}
+      root="/admin"
       items={[
         { href: "/admin", label: t("nav.overview") },
         { href: "/admin/projects", label: t("nav.projects"), count: counts.pendingReview },
