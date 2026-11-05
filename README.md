@@ -161,7 +161,7 @@ Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright inst
 Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy als HTTPS-Reverse-Proxy mit Basic Auth, PostgreSQL auf demselben Server, Bilder auf der Festplatte). Die Schritt-für-Schritt-Anleitung steht in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), die Dateien dazu unter [deploy/](deploy/):
 
 - `deploy.sh`: Deployment mit Release-Ordnern, Health-Check und automatischem Rollback
-- `backup.sh`: tägliches Backup von Datenbank und Bildern
+- `backup.sh`: tägliches Backup von Datenbank und Bildern, optional mit Kopie auf eine Hetzner Storage Box (`BACKUP_REMOTE`)
 - `omsi-mod-hub-cleanup.timer`: tägliche Datenbereinigung nach den Löschfristen
 - systemd-Units, `Caddyfile.example`, `env.production.example`
 

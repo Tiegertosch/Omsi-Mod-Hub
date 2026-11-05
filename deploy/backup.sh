@@ -6,8 +6,8 @@
 # - PostgreSQL über pg_dump (Custom-Format, konsistent im laufenden Betrieb)
 # - Uploads als tar.gz
 # - behält BACKUP_KEEP_DAYS Tage
-# Wichtig: Diese Backups liegen auf demselben Server. Zusätzlich regelmäßig
-# an einen anderen Ort kopieren (siehe docs/DEPLOYMENT.md).
+# - kopiert sie, wenn BACKUP_REMOTE gesetzt ist, per rsync außerhalb des
+#   Servers (Hetzner Storage Box, Einrichtung in docs/DEPLOYMENT.md)
 #
 # Wiederherstellen (Dienst vorher stoppen):
 #   sudo systemctl stop omsi-mod-hub
@@ -54,3 +54,27 @@ fi
 find "$BACKUP_DIR" -maxdepth 1 -type f \( -name 'omsi-*.dump' -o -name 'uploads-*.tar.gz' \) -mtime +"$BACKUP_KEEP_DAYS" -delete
 
 echo "Backup $stamp erstellt in $BACKUP_DIR"
+
+# Kopie außerhalb des Servers (z. B. Hetzner Storage Box), nur wenn
+# BACKUP_REMOTE gesetzt ist, etwa "u12345@u12345.your-storagebox.de:omsi-mod-hub/".
+# Spiegelt den lokalen Stand nach dem Aufräumen (--delete), damit die
+# Aufbewahrungsfrist auch dort gilt; gegen Löschen vom Server aus schützen die
+# Snapshots der Storage Box. BatchMode: ohne Terminal nie auf Eingaben warten,
+# unbekannte Host-Schlüssel abweisen (known_hosts vorab befüllen, siehe docs/DEPLOYMENT.md).
+if [[ -n "${BACKUP_REMOTE:-}" ]]; then
+  if ! command -v rsync >/dev/null; then
+    echo "rsync ist nicht installiert; Kopie nach $BACKUP_REMOTE übersprungen." >&2
+    exit 1
+  fi
+  ssh_cmd="ssh -p ${BACKUP_REMOTE_PORT:-23} -o BatchMode=yes -o ConnectTimeout=30"
+  if [[ -n "${BACKUP_SSH_KEY:-}" ]]; then ssh_cmd+=" -i ${BACKUP_SSH_KEY}"; fi
+  # Lokales Backup bleibt bei einem Fehler erhalten; der Exit-Code macht den
+  # Fehler in `systemctl status omsi-mod-hub-backup` sichtbar.
+  if ! rsync -az --delete \
+    --include='omsi-*.dump' --include='uploads-*.tar.gz' --exclude='*' \
+    -e "$ssh_cmd" "$BACKUP_DIR/" "$BACKUP_REMOTE"; then
+    echo "Kopie nach $BACKUP_REMOTE fehlgeschlagen; das lokale Backup $stamp ist vorhanden." >&2
+    exit 1
+  fi
+  echo "Backup $stamp nach $BACKUP_REMOTE kopiert"
+fi

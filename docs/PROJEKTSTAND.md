@@ -76,7 +76,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
 1. **Vor einem öffentlichen Start:**
    - Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
    - Basic Auth und noindex entfernen
-   - Backup außerhalb des Servers einrichten (Storage Box) und die Wiederherstellung auf dem Server testen
+   - Backup außerhalb des Servers einrichten (Storage Box; `backup.sh` kopiert per rsync, sobald `BACKUP_REMOTE` gesetzt ist, Anleitung in DEPLOYMENT.md) und die Wiederherstellung testen. Danach Abschnitt 10 der Datenschutzerklärung um die Snapshot-Aufbewahrung ergänzen
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
 2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte. Linkstatus „gesperrt“ mit Begründung ist umgesetzt. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären), Datenschutzerklärung um Widersprüche und deren Löschfristen ergänzen.
 3. **Moderation:** Kategorie ändern, Protokollfilter und Linkstatus aus Meldungen sind umgesetzt. Offen: Link-Moderation auch außerhalb von Meldungen.

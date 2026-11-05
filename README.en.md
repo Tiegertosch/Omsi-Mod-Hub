@@ -163,7 +163,7 @@ Install the browser for the E2E tests once: `pnpm exec playwright install chromi
 The first beta runs on its own Linux server (Node.js with systemd, Caddy as HTTPS reverse proxy with basic auth, PostgreSQL on the same server, images on disk). The step-by-step guide is in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (German), the related files under [deploy/](deploy/):
 
 - `deploy.sh`: deployment with release folders, health check and automatic rollback
-- `backup.sh`: daily backup of database and images
+- `backup.sh`: daily backup of database and images, optionally copied to a Hetzner Storage Box (`BACKUP_REMOTE`)
 - `omsi-mod-hub-cleanup.timer`: daily data cleanup according to the retention periods
 - systemd units, `Caddyfile.example`, `env.production.example`
 

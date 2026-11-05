@@ -302,14 +302,50 @@ sudo systemctl reload caddy
 
 **Backups:** täglich um 03:30 Uhr nach `/var/lib/omsi-mod-hub/backups` (14 Tage). Manuell: `sudo -iu omsi /opt/omsi-mod-hub/backup.sh`. Wiederherstellen steht im Kopf von `deploy/backup.sh`.
 
-Diese Backups liegen auf demselben Server. Für den Fall, dass er ausfällt oder gelöscht wird, zusätzlich **außerhalb** sichern, z. B. Hetzner-Server-Backups (bereits aktiviert) und/oder eine Hetzner Storage Box per `rsync`:
+Diese Backups liegen auf demselben Server. Für den Fall, dass er ausfällt, gelöscht oder übernommen wird, kopiert `backup.sh` sie zusätzlich auf eine **Hetzner Storage Box**, sobald `BACKUP_REMOTE` gesetzt ist. Die Kopie spiegelt den lokalen Stand (14 Tage); gegen Löschen vom Server aus schützen die Snapshots der Storage Box, an die der Server nicht herankommt.
+
+**Storage Box einrichten** (einmalig; Angaben in der Hetzner Console beim Einrichten prüfen):
+
+1. Storage Box bestellen (kleinste Stufe reicht), Standort möglichst ein anderes Rechenzentrum als der Server, aber in Deutschland.
+2. Einstellungen: **SSH-Support an**; SMB- und WebDAV-Support aus. „Externe Erreichbarkeit“ zunächst aus lassen (nur aus dem Hetzner-Netz erreichbar); bricht der Verbindungstest in Schritt 5 mit einem Timeout ab, einschalten.
+3. **Snapshots:** automatische Snapshots täglich, z. B. 05:00 Uhr (nach dem Backup um 03:30), höchstens 10 behalten.
+4. Auf dem Server einen eigenen Schlüssel ohne Passphrase für den Backup-Nutzer anlegen und hochladen (die Storage Box hat keine Shell, deshalb `-s` für den Upload per SFTP):
+   ```bash
+   sudo -iu omsi
+   ssh-keygen -t ed25519 -N "" -f ~/.ssh/storagebox_ed25519 -C "omsi-mod-hub-backup"
+   ssh-copy-id -p 23 -s -i ~/.ssh/storagebox_ed25519 uXXXXX@uXXXXX.your-storagebox.de   # fragt einmal das Storage-Box-Passwort
+   ```
+5. Verbindung testen und dabei den Host-Schlüssel bestätigen (der nächtliche Lauf läuft ohne Terminal und weist unbekannte Host-Schlüssel ab):
+   ```bash
+   ssh -p 23 -i ~/.ssh/storagebox_ed25519 uXXXXX@uXXXXX.your-storagebox.de ls   # Fingerprint mit der Hetzner Console abgleichen, „yes“
+   ssh -p 23 -i ~/.ssh/storagebox_ed25519 uXXXXX@uXXXXX.your-storagebox.de mkdir omsi-mod-hub
+   exit
+   ```
+6. In `/etc/omsi-mod-hub/env` eintragen (Vorlage: `deploy/env.production.example`):
+   ```bash
+   BACKUP_REMOTE="uXXXXX@uXXXXX.your-storagebox.de:omsi-mod-hub/"
+   BACKUP_SSH_KEY="/home/omsi/.ssh/storagebox_ed25519"
+   ```
+7. Das neue `backup.sh` übernehmen, einmal von Hand ausführen und den Lauf prüfen (`rsync` ist bei Ubuntu meist installiert, sonst `sudo apt install rsync`):
+   ```bash
+   sudo -iu omsi cp /opt/omsi-mod-hub/current/deploy/backup.sh /opt/omsi-mod-hub/
+   sudo systemctl start omsi-mod-hub-backup
+   systemctl status omsi-mod-hub-backup --no-pager     # „… nach uXXXXX@… kopiert“, kein Fehler
+   ```
+
+Ein fehlgeschlagener Kopierschritt lässt das lokale Backup bestehen, der Dienst endet dann aber mit Fehler (sichtbar in `systemctl --failed`).
+
+**Wiederherstellung testen:** Einmal eine Datei von der Storage Box zurückholen und prüfen, auch aus einem Snapshot (liegen im Verzeichnis `.zfs/snapshot/` der Storage Box; Hetzner-Doku prüfen):
 
 ```bash
-# Beispiel (als omsi, nach Einrichten eines SSH-Schlüssels für die Storage Box):
-rsync -az --delete -e 'ssh -p 23' /var/lib/omsi-mod-hub/backups/ uXXXXX@uXXXXX.your-storagebox.de:omsi-mod-hub/
+sudo -iu omsi
+mkdir -p /tmp/restore-test && cd /tmp/restore-test
+rsync -av -e 'ssh -p 23 -i ~/.ssh/storagebox_ed25519' 'uXXXXX@uXXXXX.your-storagebox.de:omsi-mod-hub/omsi-*.dump' .
+pg_restore --list "$(ls -t omsi-*.dump | head -1)" | head    # Inhaltsverzeichnis des Dumps
+rm -rf /tmp/restore-test
 ```
 
-Einmal testweise wiederherstellen, um sicherzugehen, dass die Backups brauchbar sind.
+Die vollständige Wiederherstellung (Dienst stoppen, `pg_restore`, Bilder entpacken) steht im Kopf von `deploy/backup.sh`.
 
 **Monitoring:** Bei einem Dienst wie UptimeRobot `https://beta.DEINE-DOMAIN.de/api/health` alle 5 Minuten prüfen lassen; der Pfad ist von der Basic Auth ausgenommen.
 
