@@ -51,7 +51,11 @@ if [[ -d "$DATA_DIR/uploads" ]]; then
   tar -czf "$BACKUP_DIR/uploads-$stamp.tar.gz" -C "$DATA_DIR" uploads
 fi
 
-find "$BACKUP_DIR" -maxdepth 1 -type f \( -name 'omsi-*.dump' -o -name 'uploads-*.tar.gz' \) -mtime +"$BACKUP_KEEP_DAYS" -delete
+# Höchstens BACKUP_KEEP_DAYS Tage aufbewahren: Beim täglichen Lauf alles löschen,
+# was älter als (BACKUP_KEEP_DAYS - 1) Tage ist; bis zum nächsten Lauf wird keine
+# Datei älter als die Frist. (-mtime +N hätte erst ab N+1 vollen Tagen gelöscht.)
+find "$BACKUP_DIR" -maxdepth 1 -type f \( -name 'omsi-*.dump' -o -name 'uploads-*.tar.gz' \) \
+  -mmin +$(((BACKUP_KEEP_DAYS - 1) * 24 * 60)) -delete
 
 echo "Backup $stamp erstellt in $BACKUP_DIR"
 

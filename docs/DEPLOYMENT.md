@@ -340,7 +340,8 @@ Ein fehlgeschlagener Kopierschritt lässt das lokale Backup bestehen, der Dienst
 ```bash
 sudo -iu omsi
 mkdir -p /tmp/restore-test && cd /tmp/restore-test
-rsync -av -e 'ssh -p 23 -i ~/.ssh/storagebox_ed25519' 'uXXXXX@uXXXXX.your-storagebox.de:omsi-mod-hub/omsi-*.dump' .
+# Platzhalter im entfernten Pfad erweitert rsync nicht; deshalb filtern statt omsi-*.dump im Pfad
+rsync -av -e 'ssh -p 23 -i ~/.ssh/storagebox_ed25519' --include='omsi-*.dump' --exclude='*' 'uXXXXX@uXXXXX.your-storagebox.de:omsi-mod-hub/' .
 pg_restore --list "$(ls -t omsi-*.dump | head -1)" | head    # Inhaltsverzeichnis des Dumps
 rm -rf /tmp/restore-test
 ```
@@ -398,5 +399,5 @@ Danach wie in Abschnitt 8 neu registrieren und die Admin-Rolle setzen, dann ein 
 - [ ] Basic Auth und `X-Robots-Tag` im Caddyfile entfernen; `robots.txt` und Sitemap prüfen
 - [x] Content-Security-Policy ergänzen
 - [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen
-- [ ] Backup außerhalb des Servers eingerichtet und Wiederherstellung getestet
+- [x] Backup außerhalb des Servers eingerichtet (Hetzner Storage Box mit Snapshots) und Wiederherstellung getestet
 - [ ] Bei Wachstum: Objektspeicher für Bilder, gemeinsamer Cache-Handler, ggf. verwaltete Datenbank (siehe ARCHITECTURE.md)
