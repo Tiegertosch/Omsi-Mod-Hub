@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { createHmac } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -162,14 +163,63 @@ export async function createSubmittableProject(page: Page, title: string) {
   return { id, slug: slugify(title) };
 }
 
-/** Neuer Browser-Kontext mit frisch registriertem Admin (Rolle per CLI). */
+/** Base32 (RFC 4648) wie im otpauth-Link der Authenticator-Apps. */
+function base32Decode(input: string): Buffer {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let value = 0;
+  const bytes: number[] = [];
+  for (const char of input.replace(/[\s=]/g, "").toUpperCase()) {
+    const index = alphabet.indexOf(char);
+    if (index < 0) throw new Error(`Ungültiges Base32-Zeichen: ${char}`);
+    value = ((value << 5) | index) & 0xffff;
+    bits += 5;
+    if (bits >= 8) {
+      bytes.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(bytes);
+}
+
+/** TOTP nach RFC 6238 (SHA-1, 6 Ziffern, 30 Sekunden) – wie eine Authenticator-App. */
+export function totp(secret: string, at = Date.now()): string {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(at / 30_000)));
+  const hmac = createHmac("sha1", base32Decode(secret)).update(counter).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const code = (hmac.readUInt32BE(offset) & 0x7fffffff) % 1_000_000;
+  return code.toString().padStart(6, "0");
+}
+
+/**
+ * Richtet in den Einstellungen die Zwei-Faktor-Anmeldung ein (angemeldet).
+ * Liefert das Secret (für weitere Codes) und die Backup-Codes.
+ */
+export async function enableTwoFactor(page: Page, password: string) {
+  await page.goto("/de/dashboard/settings");
+  const section = page.getByRole("region", { name: "Zwei-Faktor-Anmeldung" });
+  await section.getByLabel("Aktuelles Passwort").fill(password);
+  await section.getByRole("button", { name: "Zwei-Faktor-Anmeldung einrichten" }).click();
+  const secretText = await section.getByTestId("totp-secret").textContent();
+  const secret = (secretText ?? "").replace(/\s/g, "");
+  const backupCodes = await section.getByRole("list", { name: "Backup-Codes" }).getByRole("listitem").allTextContents();
+  await section.getByLabel("Code aus der App").fill(totp(secret));
+  await section.getByRole("button", { name: "Bestätigen und einschalten" }).click();
+  await expect(section.getByText("Die Zwei-Faktor-Anmeldung ist aktiv.")).toBeVisible();
+  return { secret, backupCodes };
+}
+
+/** Neuer Browser-Kontext mit frisch registriertem Admin (Rolle per CLI, 2FA eingerichtet). */
 export async function createAdmin(browser: Browser) {
   const context = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
   const page = await context.newPage();
   const user = uniqueUser("e2e-admin");
   await registerAndVerify(page, user);
   execSync(`pnpm user:set-role ${user.email} admin`, { stdio: "pipe" });
-  return { page, user };
+  // Admin-Rechte gelten erst mit Zwei-Faktor-Anmeldung.
+  const twoFactor = await enableTwoFactor(page, user.password);
+  return { page, user, twoFactor };
 }
 
 export async function adminPage(browser: Browser) {

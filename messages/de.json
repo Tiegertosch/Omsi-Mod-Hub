@@ -304,7 +304,11 @@
       "code_attempts": "Zu viele falsche Eingaben. Fordere bitte einen neuen Code an.",
       "resend_cooldown": "Bitte warte, bis du einen neuen Code anfordern kannst.",
       "terms_required": "Bitte stimme zuerst den aktuellen Nutzungsbedingungen zu. Lade die Seite neu, um sie anzuzeigen.",
-      "captcha": "Die Prüfung, ob du ein Mensch bist, ist fehlgeschlagen oder abgelaufen. Bitte sende das Formular erneut ab."
+      "captcha": "Die Prüfung, ob du ein Mensch bist, ist fehlgeschlagen oder abgelaufen. Bitte sende das Formular erneut ab.",
+      "two_factor_expired": "Die Anmeldung ist abgelaufen oder es gab zu viele falsche Codes. Bitte melde dich erneut mit deinem Passwort an.",
+      "two_factor_locked": "Zu viele falsche Codes. Die Anmeldung mit zweitem Faktor ist für 15 Minuten gesperrt.",
+      "two_factor_active": "Die Zwei-Faktor-Anmeldung ist bereits eingerichtet.",
+      "session_not_fresh": "Aus Sicherheitsgründen geht das nur kurz nach einer Anmeldung. Bitte melde dich ab, wieder an und versuche es dann erneut."
     },
     "fieldErrors": {
       "username": "Dieser Benutzername ist ungültig.",
@@ -317,7 +321,8 @@
       "locale": "Bitte wähle eine Sprache.",
       "emailSame": "Das ist bereits deine aktuelle Adresse.",
       "confirmUsername": "Der Benutzername stimmt nicht überein.",
-      "code": "Bitte gib den 6-stelligen Code aus der E-Mail ein."
+      "code": "Bitte gib den 6-stelligen Code aus der E-Mail ein.",
+      "otp": "Bitte gib den 6-stelligen Code aus der App oder einen Backup-Code (z. B. abcde-12345) ein."
     },
     "confirmTitle": "E-Mail-Adresse bestätigen",
     "codeSentTo": "Wir haben einen {length}-stelligen Code geschickt an:",
@@ -337,7 +342,20 @@
     "stepOf": "Schritt {step} von {total}:",
     "codeDigit": "Ziffer {index} von {total}",
     "editEmail": "E-Mail-Adresse bearbeiten",
-    "editEmailNotice": "Korrigiere deine E-Mail-Adresse und gib zur Sicherheit dein Passwort erneut ein. Lass den Benutzernamen unverändert, damit dein angelegtes Konto übernommen wird."
+    "editEmailNotice": "Korrigiere deine E-Mail-Adresse und gib zur Sicherheit dein Passwort erneut ein. Lass den Benutzernamen unverändert, damit dein angelegtes Konto übernommen wird.",
+    "twoFactor": {
+      "title": "Zweiter Faktor",
+      "description": "Gib den Code aus deiner Authenticator-App ein, um die Anmeldung abzuschließen.",
+      "codeLabel": "Code aus der App",
+      "codeHint": "6 Ziffern, ändern sich alle 30 Sekunden.",
+      "backupLabel": "Backup-Code",
+      "backupHint": "Jeder Backup-Code funktioniert nur einmal.",
+      "submit": "Anmelden",
+      "useBackup": "Kein Zugriff auf die App? Backup-Code verwenden",
+      "useApp": "Code aus der App verwenden",
+      "backToLogin": "Zurück zur Anmeldung"
+    },
+    "verifyLoginRequired": "Dein Konto ist mit Zwei-Faktor-Anmeldung geschützt. Melde dich bitte zuerst an und öffne den Link aus der E-Mail danach erneut."
   },
   "Account": {
     "menuLabel": "Konto",
@@ -411,7 +429,36 @@
     "deleteAdminBlocked": "Admin-Konten können nicht selbst gelöscht werden. Entziehe die Admin-Rolle zuerst auf dem Server mit pnpm user:set-role.",
     "deletedTitle": "Konto gelöscht",
     "deletedText": "Dein Konto und deine Inhalte wurden gelöscht. Danke, dass du dabei warst.",
-    "backHome": "Zur Startseite"
+    "backHome": "Zur Startseite",
+    "twoFactor": {
+      "section": "Zwei-Faktor-Anmeldung",
+      "text": "Zusätzlich zum Passwort fragt die Anmeldung einen Code aus einer Authenticator-App ab (z. B. Aegis, Google Authenticator, Microsoft Authenticator oder einem Passwortmanager).",
+      "requiredAdmin": "Für Admin-Konten ist die Zwei-Faktor-Anmeldung Pflicht. Bis sie eingerichtet ist, bleibt der Adminbereich gesperrt.",
+      "requiredRedirect": "Der Adminbereich ist erst mit Zwei-Faktor-Anmeldung zugänglich. Richte sie hier ein.",
+      "start": "Zwei-Faktor-Anmeldung einrichten",
+      "stepScan": "Scanne den QR-Code mit deiner Authenticator-App.",
+      "qrLabel": "QR-Code für die Authenticator-App",
+      "manualEntry": "Oder gib diesen Schlüssel von Hand ein:",
+      "openInApp": "In der Authenticator-App öffnen",
+      "stepBackup": "Bewahre diese {count} Backup-Codes sicher auf, z. B. im Passwortmanager oder ausgedruckt. Jeder funktioniert einmal, falls du keinen Zugriff auf die App hast. Sie werden nur jetzt angezeigt.",
+      "backupCodesLabel": "Backup-Codes",
+      "backupCodesHint": "Groß- und Kleinschreibung beachten.",
+      "stepConfirm": "Gib zur Bestätigung den aktuellen Code aus der App ein. Danach werden alle anderen Geräte abgemeldet.",
+      "codeLabel": "Code aus der App",
+      "backupLabel": "Backup-Code",
+      "confirm": "Bestätigen und einschalten",
+      "active": "Die Zwei-Faktor-Anmeldung ist aktiv.",
+      "backupCodesLeft": "{count, plural, =0 {Keine Backup-Codes mehr übrig – erzeuge bitte neue.} =1 {Noch 1 unbenutzter Backup-Code.} other {Noch # unbenutzte Backup-Codes.}}",
+      "regenerateOpen": "Neue Backup-Codes erzeugen",
+      "regenerate": "Neue Backup-Codes erzeugen",
+      "newCodes": "Neue Backup-Codes erzeugt. Die bisherigen gelten nicht mehr.",
+      "disableOpen": "Zwei-Faktor-Anmeldung abschalten",
+      "disableMethod": "Bestätigen mit",
+      "methodApp": "Authenticator-App",
+      "methodBackup": "Backup-Code",
+      "disable": "Abschalten",
+      "disableAdminWarning": "Ohne Zwei-Faktor-Anmeldung verlierst du den Zugang zum Adminbereich, bis du sie neu einrichtest."
+    }
   },
   "Admin": {
     "title": "Administration",
@@ -954,10 +1001,21 @@
       "openDashboard": "Zum Dashboard",
       "appeal": "Widerspruch einlegen",
       "openEditor": "Im Editor öffnen",
-      "contact": "Kontakt im Impressum"
+      "contact": "Kontakt im Impressum",
+      "openSettings": "Einstellungen öffnen"
     },
     "projectDeleteSubject": "{code} ist dein Code zum Löschen von „{title}“ – OMSI Mod Hub",
-    "projectDeleteBody": "Hallo {name},\n\ndu möchtest dein Projekt „{title}“ bei OMSI Mod Hub löschen. Dein Code zur Bestätigung lautet:\n\n{code}\n\nGib ihn im Editor des Projekts ein:\n\n{url}\n\nDer Code ist {minutes} Minuten gültig. Das Löschen lässt sich nicht rückgängig machen.\n\nWenn du das nicht angefordert hast, gib den Code nicht ein; das Projekt bleibt dann bestehen. Ändere bitte trotzdem dein Passwort, denn die Anfrage kam aus deinem angemeldeten Konto."
+    "projectDeleteBody": "Hallo {name},\n\ndu möchtest dein Projekt „{title}“ bei OMSI Mod Hub löschen. Dein Code zur Bestätigung lautet:\n\n{code}\n\nGib ihn im Editor des Projekts ein:\n\n{url}\n\nDer Code ist {minutes} Minuten gültig. Das Löschen lässt sich nicht rückgängig machen.\n\nWenn du das nicht angefordert hast, gib den Code nicht ein; das Projekt bleibt dann bestehen. Ändere bitte trotzdem dein Passwort, denn die Anfrage kam aus deinem angemeldeten Konto.",
+    "twoFactor": {
+      "enabled": {
+        "subject": "Zwei-Faktor-Anmeldung eingeschaltet – OMSI Mod Hub",
+        "body": "Hallo {name},\n\nfür dein Konto bei OMSI Mod Hub ist ab sofort die Zwei-Faktor-Anmeldung aktiv. Bei jeder Anmeldung brauchst du zusätzlich einen Code aus deiner Authenticator-App oder einen Backup-Code. Alle anderen Geräte wurden abgemeldet.\n\n{url}\n\nWenn du das nicht selbst warst, ändere bitte sofort dein Passwort und wende dich über die Kontaktangaben auf der Website an uns."
+      },
+      "disabled": {
+        "subject": "Zwei-Faktor-Anmeldung abgeschaltet – OMSI Mod Hub",
+        "body": "Hallo {name},\n\nfür dein Konto bei OMSI Mod Hub wurde die Zwei-Faktor-Anmeldung abgeschaltet. Zum Anmelden genügt jetzt wieder das Passwort.\n\n{url}\n\nWenn du das nicht selbst warst, ändere bitte sofort dein Passwort, richte die Zwei-Faktor-Anmeldung neu ein und wende dich über die Kontaktangaben auf der Website an uns."
+      }
+    }
   },
   "Errors": {
     "notFoundTitle": "Seite nicht gefunden",

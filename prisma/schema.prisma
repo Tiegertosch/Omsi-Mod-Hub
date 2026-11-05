@@ -77,30 +77,33 @@ enum ReportStatus {
 // ---------------------------------------------------------------------------
 
 model User {
-  id              String    @id @default(cuid())
+  id               String    @id @default(cuid())
   /// Anzeigename
-  name            String
-  email           String    @unique
-  emailVerified   Boolean   @default(false)
-  image           String?
+  name             String
+  email            String    @unique
+  emailVerified    Boolean   @default(false)
+  image            String?
   /// immer kleingeschrieben, [a-z0-9_-], 3–32 Zeichen; unveränderlich (URLs)
-  username        String    @unique
-  displayUsername String?
+  username         String    @unique
+  displayUsername  String?
   /// "user" | "creator" | "admin" – wird nur serverseitig gesetzt
-  role            String    @default("user")
-  banned          Boolean   @default(false)
-  banReason       String?
-  banExpires      DateTime?
-  preferredLocale String?
+  role             String    @default("user")
+  banned           Boolean   @default(false)
+  banReason        String?
+  banExpires       DateTime?
+  preferredLocale  String?
   /// Entwicklungs-Beispieldaten, per `pnpm db:clear-samples` entfernbar
-  isSample        Boolean   @default(false)
+  isSample         Boolean   @default(false)
   /// Fassung der Nutzungsbedingungen, der bei der Registrierung zugestimmt wurde (src/lib/legal.ts)
-  termsVersion    String?
-  termsAcceptedAt DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  termsVersion     String?
+  termsAcceptedAt  DateTime?
+  /// Zwei-Faktor-Anmeldung aktiv (Better-Auth-Plugin twoFactor, Pflicht für Admins)
+  twoFactorEnabled Boolean?  @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   sessions        Session[]
+  twoFactors      TwoFactor[]
   accounts        Account[]
   creatorProfile  CreatorProfile?
   projects        Project[]
@@ -112,6 +115,25 @@ model User {
 
   @@index([role])
   @@index([banned])
+}
+
+/// Zweiter Faktor (Better-Auth-Plugin twoFactor): TOTP-Secret und Backup-Codes,
+/// beide mit BETTER_AUTH_SECRET verschlüsselt. Wird mit dem Konto gelöscht.
+model TwoFactor {
+  id                      String    @id @default(cuid())
+  secret                  String
+  backupCodes             String
+  userId                  String
+  /// false, solange die Einrichtung nicht mit einem Code bestätigt ist
+  verified                Boolean?  @default(true)
+  /// Fehlversuche in Folge; ab 10 ist die Anmeldung 15 Minuten gesperrt
+  failedVerificationCount Int?      @default(0)
+  lockedUntil             DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([secret])
+  @@index([userId])
 }
 
 model Session {

@@ -255,7 +255,19 @@ cd /opt/omsi-mod-hub/current && pnpm user:set-role DEINE@ADRESSE.de admin
 exit
 ```
 
+3. Im Browser unter *Konto → Einstellungen* die Zwei-Faktor-Anmeldung mit einer Authenticator-App einrichten und die Backup-Codes sicher aufbewahren. Für Admins ist sie Pflicht; bis dahin leitet `/admin` zur Einrichtung.
+
 Danach ist unter *Konto → Administration* der Adminbereich erreichbar.
+
+**`BETTER_AUTH_SECRET` sicher aufbewahren:** Damit sind die Schlüssel der Authenticator-Apps und die Backup-Codes verschlüsselt. Geht er verloren oder wird er geändert, kommt kein Konto mit Zwei-Faktor-Anmeldung mehr herein (nur noch über das Skript unten). Die Env-Datei ist nicht Teil der Backups auf der Storage Box – den Wert zusätzlich im Passwortmanager ablegen.
+
+**Notfall – App und Backup-Codes verloren:** Nach geprüfter Identität (Anfrage von der hinterlegten Adresse, Rückfrage) schaltet dieses Skript die Zwei-Faktor-Anmeldung ab und meldet alle Geräte ab:
+
+```bash
+sudo -iu omsi
+cd /opt/omsi-mod-hub/current && pnpm user:disable-2fa ADRESSE@BEISPIEL.de
+exit
+```
 
 ## Betrieb
 

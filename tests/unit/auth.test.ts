@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { USERNAME_PATTERN } from "@/lib/auth-rules";
-import { hasRole, isAdmin, isAppRole } from "@/lib/roles";
+import { hasAdminAccess, hasRole, isAdmin, isAppRole } from "@/lib/roles";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 
 describe("safeRedirectPath", () => {
@@ -59,6 +59,13 @@ describe("Rollen", () => {
     expect(isAdmin("notadmin")).toBe(false);
     expect(isAdmin(null)).toBe(false);
     expect(hasRole("creator", "creator")).toBe(true);
+  });
+
+  it("gewährt Admin-Rechte nur mit Zwei-Faktor-Anmeldung", () => {
+    expect(hasAdminAccess({ role: "admin", twoFactorEnabled: true })).toBe(true);
+    expect(hasAdminAccess({ role: "admin", twoFactorEnabled: false })).toBe(false);
+    expect(hasAdminAccess({ role: "creator", twoFactorEnabled: true })).toBe(false);
+    expect(hasAdminAccess({ role: null, twoFactorEnabled: true })).toBe(false);
   });
 });
 

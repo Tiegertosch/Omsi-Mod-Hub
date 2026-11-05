@@ -18,6 +18,10 @@ export type FormErrorCode =
   | "terms_required"
   | "unauthorized"
   | "captcha"
+  | "two_factor_expired"
+  | "two_factor_locked"
+  | "two_factor_active"
+  | "session_not_fresh"
   | "generic";
 
 /** Feldfehler; die Texte stehen unter Auth.fieldErrors. */
@@ -32,7 +36,8 @@ export type FieldErrorCode =
   | "locale"
   | "emailSame"
   | "confirmUsername"
-  | "code";
+  | "code"
+  | "otp";
 
 export type FormState<E extends string = FormErrorCode, F extends string = FieldErrorCode> =
   | { status: "idle" }

@@ -7,7 +7,7 @@ import { cache } from "react";
 
 import { auth } from "@/lib/auth";
 import { needsTermsConsent } from "@/lib/legal";
-import { hasRole, isAdmin, type AppRole } from "@/lib/roles";
+import { hasAdminAccess, hasRole, isAdmin, type AppRole } from "@/lib/roles";
 
 /**
  * Data Access Layer für die Anmeldung. Liest die Session pro Request (nie
@@ -27,6 +27,8 @@ export type CurrentUser = {
   sessionId: string;
   /** Fassung der Nutzungsbedingungen, der zugestimmt wurde (null = noch keiner) */
   termsVersion: string | null;
+  /** Zwei-Faktor-Anmeldung aktiv (Pflicht für Admin-Rechte) */
+  twoFactorEnabled: boolean;
 };
 
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
@@ -56,6 +58,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     createdAt: user.createdAt,
     sessionId: session.session.id,
     termsVersion: user.termsVersion ?? null,
+    twoFactorEnabled: user.twoFactorEnabled === true,
   };
 });
 
@@ -84,17 +87,21 @@ export async function requireUser(locale: string, returnTo: string): Promise<Cur
   return user;
 }
 
-/** Nicht-Admins erhalten eine 404, damit der Adminbereich nicht auffällt. */
+/**
+ * Nicht-Admins erhalten eine 404, damit der Adminbereich nicht auffällt.
+ * Admins ohne Zwei-Faktor-Anmeldung landen bei deren Einrichtung.
+ */
 export async function requireAdmin(locale: string, returnTo: string): Promise<CurrentUser> {
   const user = await requireUser(locale, returnTo);
   if (!isAdmin(user.role)) notFound();
+  if (!hasAdminAccess(user)) redirect(`/${locale}/dashboard/settings?twoFactor=required#two-factor`);
   return user;
 }
 
-/** Für Datenfunktionen: wirft 404, wenn kein Admin angemeldet ist (ohne Weiterleitung). */
+/** Für Datenfunktionen: wirft 404 ohne Admin-Rechte (inkl. 2FA), ohne Weiterleitung. */
 export async function assertAdmin(): Promise<CurrentUser> {
   const user = await getCurrentUser();
-  if (!user || !isAdmin(user.role)) notFound();
+  if (!user || !hasAdminAccess(user)) notFound();
   return user;
 }
 

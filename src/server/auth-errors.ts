@@ -22,6 +22,14 @@ const CODE_MAP: Record<string, FormErrorCode> = {
   INVALID_OTP: "code_invalid",
   OTP_EXPIRED: "code_expired",
   TOO_MANY_ATTEMPTS: "code_attempts",
+  // Zwei-Faktor-Plugin
+  INVALID_CODE: "code_invalid",
+  INVALID_BACKUP_CODE: "code_invalid",
+  INVALID_TWO_FACTOR_COOKIE: "two_factor_expired",
+  TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE: "two_factor_expired",
+  ACCOUNT_TEMPORARILY_LOCKED: "two_factor_locked",
+  TOTP_ALREADY_ENABLED: "two_factor_active",
+  SESSION_NOT_FRESH: "session_not_fresh",
 };
 
 /** Übersetzt Better-Auth-Fehler in eigene Codes, ohne interne Details preiszugeben. */

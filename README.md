@@ -37,6 +37,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Selbst gehostetes CAPTCHA [Cap](https://trycap.dev) (Proof-of-Work im Browser, Anzeige „Wird geprüft …“ direkt im Absende-Button) für Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen; keine Daten an Dritte | ✅ |
 | Dashboard und Einstellungen (Anzeigename, bevorzugte Sprache, Passwort ändern) | ✅ |
 | Konto: E-Mail-Adresse ändern (Bestätigung über alte und neue Adresse), angemeldete Geräte anzeigen und abmelden, Konto mit allen Projekten löschen | ✅ |
+| Zwei-Faktor-Anmeldung mit Authenticator-App und Backup-Codes (freiwillig, Pflicht für Admins) | ✅ |
 | Rollen `user` / `creator` / `admin`, serverseitig geprüft; Adminübersicht (Kennzahlen, Meldungen, neue Konten) | ✅ |
 | Creator werden (Creator-Profil), Projektliste, Editor in Tabs: Texte DE/EN mit Formatierung, Kategorie, Tags, Lizenz, Add-ons, Mitwirkende, Bilder, Downloads | ✅ |
 | Titelbild und Screenshots: sicherer Upload (Signaturprüfung, ≤ 5 MB, Neukodierung zu WebP ohne Metadaten); auf der Projektseite gemeinsam in einem Karussell (Wischen, Pfeile, Vorschaubilder), Vorschaukarten zeigen nur das Titelbild | ✅ |
@@ -134,7 +135,8 @@ Vorlage: [.env.example](.env.example). Echte Zugangsdaten gehören nie ins Repos
 | `pnpm db:clear-samples` | Alle Beispieldaten (`isSample = true`) entfernen |
 | `pnpm db:reset` | Datenbank zurücksetzen, alle Migrationen und den Seed neu ausführen (**löscht alle Daten**) |
 | `pnpm db:studio` | Prisma Studio öffnen |
-| `pnpm user:set-role <email> <user\|creator\|admin>` | Rolle eines bestätigten Kontos setzen (lokales CLI, mit Audit-Log) |
+| `pnpm user:set-role <email> <user\|creator\|admin>` | Rolle eines bestätigten Kontos setzen (lokales CLI, mit Audit-Log). Admins müssen danach in den Einstellungen die Zwei-Faktor-Anmeldung einrichten. |
+| `pnpm user:disable-2fa <email>` | Notfall: Zwei-Faktor-Anmeldung eines Kontos abschalten, wenn App und Backup-Codes verloren sind (meldet alle Geräte ab, mit Audit-Log) |
 | `pnpm mail:test <email>` | SMTP-Konfiguration prüfen und eine Testmail senden |
 | `pnpm cap:assets` | Dateien des Cap-Widgets aus `node_modules` nach `public/cap` kopieren (nach einem Update von `cap-widget` oder `@cap.js/wasm`) |
 | `pnpm data:cleanup` | Löschfristen anwenden: alte Rate-Limit-Einträge, abgelaufene Sitzungen, Codes und CAPTCHA-Einträge, Moderationsentscheidungen ohne Widerspruch nach Fristablauf bzw. abgeschlossene Widersprüche nach 6 Monaten, nach 7 Tagen unbestätigte Konten, abgeschlossene Meldungen nach 6 und Protokolleinträge nach 12 Monaten (auf dem Server täglich per Timer) |

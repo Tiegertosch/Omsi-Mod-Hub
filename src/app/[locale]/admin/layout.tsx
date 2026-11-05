@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { Container } from "@/components/ui/container";
 import { getClientMessages } from "@/i18n/client-messages";
-import { isAdmin } from "@/lib/roles";
+import { hasAdminAccess } from "@/lib/roles";
 import { getAdminBadgeCounts } from "@/server/data/admin";
 import { getCurrentUser } from "@/server/session";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 /** Navigation nur für Admins rendern, damit der Bereich für andere nicht sichtbar wird. */
 async function AdminNavigation() {
   const user = await getCurrentUser();
-  if (!user || !isAdmin(user.role)) return null;
+  if (!user || !hasAdminAccess(user)) return null;
   const [t, counts] = await Promise.all([getTranslations("Admin"), getAdminBadgeCounts()]);
   return (
     <AdminNav

@@ -39,6 +39,7 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Self-hosted CAPTCHA [Cap](https://trycap.dev) (proof of work in the browser, “Verifying …” shown directly in the submit button) for registration, login, “forgot password” and reports; no data sent to third parties | ✅ |
 | Dashboard and settings (display name, preferred language, change password) | ✅ |
 | Account: change email address (confirmed via old and new address), list and sign out signed-in devices, delete account including all projects | ✅ |
+| Two-factor authentication with an authenticator app and backup codes (optional, mandatory for admins) | ✅ |
 | Roles `user` / `creator` / `admin`, checked server-side; admin overview (key figures, reports, new accounts) | ✅ |
 | Become a creator (creator profile), project list, tabbed editor: DE/EN texts with formatting, category, tags, licence, add-ons, contributors, images, downloads | ✅ |
 | Cover image and screenshots: secure upload (signature check, ≤ 5 MB, re-encoded to WebP without metadata); shown together in a carousel on the project page (swipe, arrows, thumbnails), preview cards show only the cover | ✅ |
@@ -136,7 +137,8 @@ Template: [.env.example](.env.example). Real credentials never belong in the rep
 | `pnpm db:clear-samples` | Remove all sample data (`isSample = true`) |
 | `pnpm db:reset` | Reset the database, re-run all migrations and the seed (**deletes all data**) |
 | `pnpm db:studio` | Open Prisma Studio |
-| `pnpm user:set-role <email> <user\|creator\|admin>` | Set the role of a confirmed account (local CLI, with audit log) |
+| `pnpm user:set-role <email> <user\|creator\|admin>` | Set the role of a confirmed account (local CLI, with audit log). Admins then have to set up two-factor authentication in their settings. |
+| `pnpm user:disable-2fa <email>` | Emergency: turn off two-factor authentication for an account whose app and backup codes are lost (signs out all devices, with audit log) |
 | `pnpm mail:test <email>` | Check the SMTP configuration and send a test email |
 | `pnpm cap:assets` | Copy the Cap widget files from `node_modules` to `public/cap` (after updating `cap-widget` or `@cap.js/wasm`) |
 | `pnpm data:cleanup` | Apply retention periods: old rate-limit entries, expired sessions, codes and CAPTCHA entries, moderation decisions without an appeal once the deadline has passed and closed appeals after 6 months, accounts unconfirmed after 7 days, closed reports after 6 and audit log entries after 12 months (daily via timer on the server) |

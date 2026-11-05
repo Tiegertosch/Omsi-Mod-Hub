@@ -24,6 +24,7 @@
     "db:clear-samples": "tsx prisma/seed.ts --clear-samples",
     "db:studio": "prisma studio",
     "user:set-role": "tsx scripts/set-role.ts",
+    "user:disable-2fa": "tsx scripts/disable-two-factor.ts",
     "mail:test": "tsx scripts/send-test-mail.ts",
     "data:cleanup": "tsx scripts/cleanup-data.ts",
     "cap:assets": "tsx scripts/copy-cap-assets.ts"
@@ -46,6 +47,7 @@
     "server-only": "^0.0.1",
     "sharp": "0.35.5",
     "tailwind-merge": "^3.7.0",
+    "uqr": "0.1.3",
     "zod": "4.6.7"
   },
   "devDependencies": {

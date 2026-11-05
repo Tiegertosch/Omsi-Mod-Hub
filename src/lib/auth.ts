@@ -2,12 +2,13 @@ import "server-only";
 
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { APIError } from "better-auth/api";
+import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
-import { admin, emailOTP, username } from "better-auth/plugins";
+import { admin, emailOTP, twoFactor, username } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import { adminAc, defaultStatements, userAc } from "better-auth/plugins/admin/access";
 
+import { routing } from "@/i18n/routing";
 import {
   changeEmailConfirmationEmail,
   changeEmailVerificationEmail,
@@ -29,6 +30,7 @@ import {
 import { db } from "./db";
 import { TERMS_VERSION } from "./legal";
 import { siteConfig } from "./site";
+import { emailOfVerificationToken, TWO_FACTOR_BACKUP_CODES, TWO_FACTOR_LOGIN_MINUTES } from "./two-factor";
 
 /**
  * Rollen: "user" (Standard), "creator", "admin". Nur "admin" darf die
@@ -43,6 +45,41 @@ const roles = {
 };
 
 const RATE_LIMIT_STRICT = { window: 60, max: 5 };
+
+/**
+ * Admin-Endpunkte des admin-Plugins: Die App nutzt sie nicht (Moderation läuft
+ * über eigene Server Actions mit Protokoll). Per HTTP gesperrt, damit eine
+ * Admin-Session ohne zweiten Faktor sie nicht direkt aufrufen kann.
+ */
+const ADMIN_PLUGIN_PATHS = [
+  "/admin/ban-user",
+  "/admin/create-user",
+  "/admin/get-user",
+  "/admin/has-permission",
+  "/admin/impersonate-user",
+  "/admin/list-user-sessions",
+  "/admin/list-users",
+  "/admin/remove-user",
+  "/admin/revoke-user-session",
+  "/admin/revoke-user-sessions",
+  "/admin/set-role",
+  "/admin/set-user-password",
+  "/admin/stop-impersonating",
+  "/admin/unban-user",
+  "/admin/update-user",
+];
+
+/** 2FA nur über Server Actions (src/server/actions/two-factor.ts) mit eigenen Limits. */
+const TWO_FACTOR_PATHS = [
+  "/two-factor/enable",
+  "/two-factor/disable",
+  "/two-factor/get-totp-uri",
+  "/two-factor/verify-totp",
+  "/two-factor/verify-backup-code",
+  "/two-factor/generate-backup-codes",
+  "/two-factor/send-otp",
+  "/two-factor/verify-otp",
+];
 
 export const auth = betterAuth({
   appName: siteConfig.name,
@@ -132,6 +169,8 @@ export const auth = betterAuth({
     "/email-otp/reset-password",
     "/email-otp/request-email-change",
     "/email-otp/change-email",
+    ...TWO_FACTOR_PATHS,
+    ...ADMIN_PLUGIN_PATHS,
   ],
   // Gilt für alle HTTP-Anfragen an /api/auth/*. Server Actions haben eigene Limits.
   rateLimit: {
@@ -146,6 +185,37 @@ export const auth = betterAuth({
       "/reset-password": RATE_LIMIT_STRICT,
       "/change-password": RATE_LIMIT_STRICT,
     },
+  },
+  hooks: {
+    /**
+     * Zwei Wege, die eine Session ohne /sign-in/* anlegen (dort greift die
+     * Zwei-Faktor-Abfrage), werden hier abgesichert.
+     */
+    before: createAuthMiddleware(async (ctx) => {
+      // Code-Bestätigung der Registrierung meldet an. Better Auth speichert
+      // Codes auch für bestätigte Konten (unser Callback verschickt sie nur
+      // nicht) – ein erratener Code wäre eine Anmeldung ohne Passwort und 2FA.
+      // Bestätigte Konten deshalb abweisen, mit derselben Antwort wie ein
+      // falscher Code.
+      if (ctx.path === "/email-otp/verify-email") {
+        const email = typeof ctx.body?.email === "string" ? ctx.body.email.toLowerCase() : "";
+        const user = email ? await db.user.findUnique({ where: { email }, select: { emailVerified: true } }) : null;
+        if (user?.emailVerified) throw new APIError("BAD_REQUEST", { code: "INVALID_OTP", message: "Invalid OTP" });
+        return;
+      }
+      // Der Bestätigungslink aus Schritt 2 der E-Mail-Änderung meldet ohne
+      // bestehende Session automatisch an. Für Konten mit 2FA nur mit Session;
+      // sonst zurück zur Ergebnisseite mit Hinweis zum Anmelden.
+      if (ctx.path !== "/verify-email") return;
+      const email = emailOfVerificationToken(ctx.query?.token);
+      if (!email) return;
+      if (await getSessionFromCtx(ctx)) return;
+      const user = await db.user.findUnique({ where: { email }, select: { twoFactorEnabled: true } });
+      if (!user?.twoFactorEnabled) return;
+      const callback = typeof ctx.query?.callbackURL === "string" ? ctx.query.callbackURL : "";
+      const locale = routing.locales.find((l) => new RegExp(`^/${l}(?:[/?#]|$)`).test(callback)) ?? routing.defaultLocale;
+      throw ctx.redirect(`/${locale}/verify-email?error=LOGIN_REQUIRED`);
+    }),
   },
   databaseHooks: {
     user: {
@@ -188,6 +258,15 @@ export const auth = betterAuth({
         if (!user || user.emailVerified) return;
         sendMailInBackground(verificationCodeEmail(user, otp, VERIFICATION_CODE_MINUTES));
       },
+    }),
+    twoFactor({
+      issuer: siteConfig.name,
+      // Nur Authenticator-App und Backup-Codes; Codes per E-Mail bleiben aus
+      // (wer das Postfach hat, kann ohnehin das Passwort zurücksetzen).
+      backupCodeOptions: { amount: TWO_FACTOR_BACKUP_CODES, storeBackupCodes: "encrypted" },
+      twoFactorCookieMaxAge: TWO_FACTOR_LOGIN_MINUTES * 60,
+      // Kein „Gerät merken“: Jede Anmeldung fragt den zweiten Faktor ab.
+      accountLockout: { enabled: true, maxFailedAttempts: 10, durationSeconds: 15 * 60 },
     }),
     // Muss das letzte Plugin sein: setzt Cookies bei Aufrufen aus Server Actions.
     nextCookies(),

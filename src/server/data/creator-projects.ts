@@ -2,7 +2,7 @@ import "server-only";
 
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/db";
-import { isAdmin } from "@/lib/roles";
+import { hasAdminAccess } from "@/lib/roles";
 import { pickTranslation } from "@/lib/translation";
 import type { CurrentUser } from "@/server/session";
 
@@ -67,7 +67,7 @@ export async function getOwnProjectForEditor(user: CurrentUser, projectId: strin
 export async function getProjectForPreview(user: CurrentUser, projectId: string): Promise<ProjectDetail | null> {
   if (projectId.length > 64) return null;
   return db.project.findFirst({
-    where: { id: projectId, ...(isAdmin(user.role) ? {} : { creatorId: user.id }) },
+    where: { id: projectId, ...(hasAdminAccess(user) ? {} : { creatorId: user.id }) },
     include: detailInclude,
   });
 }

@@ -130,6 +130,16 @@ export function projectDeletionCodeEmail(
   });
 }
 
+/** Sicherheitshinweis: Zwei-Faktor-Anmeldung wurde ein- oder ausgeschaltet. */
+export function twoFactorChangedEmail(user: MailUser, change: "enabled" | "disabled"): MailMessage {
+  const locale = mailLocale(user);
+  const t = translator(locale);
+  const url = absoluteUrl(`/${locale}/dashboard/settings#two-factor`);
+  return compose(locale, user.email, t(`twoFactor.${change}.subject`), t(`twoFactor.${change}.body`, { name: user.name, url }), {
+    cta: { url, label: t("cta.openSettings") },
+  });
+}
+
 export function accountDeletedEmail(user: MailUser): MailMessage {
   const locale = mailLocale(user);
   const t = translator(locale);

@@ -9,7 +9,7 @@ import { db } from "@/lib/db";
 import type { FormState } from "@/lib/form-state";
 import { nextStatusForAdmin, requiresModerationNote, type AdminProjectAction } from "@/lib/moderation";
 import type { EditorErrorCode, EditorFieldCode } from "@/lib/project-form";
-import { isAdmin } from "@/lib/roles";
+import { hasAdminAccess } from "@/lib/roles";
 import { pickTranslation } from "@/lib/translation";
 import { newAppealToken } from "@/server/appeals";
 import { projectDecisionEmail } from "@/server/emails";
@@ -23,7 +23,7 @@ type ReviewState = FormState<EditorErrorCode, EditorFieldCode>;
 async function currentAdmin(): Promise<{ admin: CurrentUser; error?: never } | { admin?: never; error: EditorErrorCode }> {
   const acting = await getActingUser();
   if (!acting.ok) return { error: acting.reason };
-  return isAdmin(acting.user.role) ? { admin: acting.user } : { error: "unauthorized" };
+  return hasAdminAccess(acting.user) ? { admin: acting.user } : { error: "unauthorized" };
 }
 
 const idSchema = z.string().min(1).max(64);

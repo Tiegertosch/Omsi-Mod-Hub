@@ -249,6 +249,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
   if (!allowed) return { status: "error", code: "rate_limit", values };
 
   let preferredLocale: string | null | undefined;
+  let twoFactorPending = false;
   try {
     const requestHeaders = await headers();
     const result = identifier.includes("@")
@@ -260,7 +261,10 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
           body: { username: identifier, password: parsed.data.password },
           headers: requestHeaders,
         });
-    preferredLocale = (result.user as { preferredLocale?: string | null }).preferredLocale;
+    // Mit Zwei-Faktor-Anmeldung gibt es noch keine Session, nur das
+    // Challenge-Cookie des Plugins; der Code folgt auf /login/two-factor.
+    if ("twoFactorRedirect" in result && result.twoFactorRedirect) twoFactorPending = true;
+    else preferredLocale = (result.user as { preferredLocale?: string | null }).preferredLocale;
   } catch (error) {
     const code = mapAuthError(error);
     if (code !== "email_not_verified") return { status: "error", code, values };
@@ -275,6 +279,11 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     await rememberPendingRegistration(account);
     const next = safeRedirectPath(text(formData, "next"), "");
     redirect(`/${locale}/confirm-email?unverified=1${next ? `&next=${encodeURIComponent(next)}` : ""}`);
+  }
+
+  if (twoFactorPending) {
+    const next = safeRedirectPath(text(formData, "next"), "");
+    redirect(`/${locale}/login/two-factor${next ? `?next=${encodeURIComponent(next)}` : ""}`);
   }
 
   const homeLocale = preferredLocale && (routing.locales as readonly string[]).includes(preferredLocale) ? preferredLocale : locale;

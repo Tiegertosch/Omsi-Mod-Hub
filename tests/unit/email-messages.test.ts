@@ -30,6 +30,15 @@ describe.each([
     expect(text).toContain("https://example.com/de/appeal?token=x");
   });
 
+  it("Zwei-Faktor-Hinweise und Löschcode", () => {
+    for (const change of ["enabled", "disabled"] as const) {
+      expect(t(`twoFactor.${change}.body`, { name: "Anna", url: "https://example.com/s" })).toContain("https://example.com/s");
+    }
+    const deletion = t("projectDeleteBody", { name: "Anna", title: "Bus X", code: "012345", minutes: 15, url: "https://e/x" });
+    expect(deletion).toContain("012345");
+    expect(deletion).toContain("15");
+  });
+
   it("Linkstatus mit und ohne Begründung", () => {
     const values = { name: "Anna", title: "Bus X", version: "1.0", url: "https://example.com/x", editUrl: "https://e/x" };
     expect(t("link.blocked.body", { ...values, note: "Schadsoftware", hasNote: "yes" })).toContain("Schadsoftware");

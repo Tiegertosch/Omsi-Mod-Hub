@@ -304,7 +304,11 @@
       "code_attempts": "Too many incorrect attempts. Please request a new code.",
       "resend_cooldown": "Please wait until you can request a new code.",
       "terms_required": "Please accept the current terms of use first. Reload the page to see them.",
-      "captcha": "The check that you are human failed or expired. Please submit the form again."
+      "captcha": "The check that you are human failed or expired. Please submit the form again.",
+      "two_factor_expired": "The sign-in has expired or there were too many wrong codes. Please sign in again with your password.",
+      "two_factor_locked": "Too many wrong codes. Two-factor sign-in is locked for 15 minutes.",
+      "two_factor_active": "Two-factor authentication is already set up.",
+      "session_not_fresh": "For security reasons this only works shortly after signing in. Please sign out, sign in again and then try again."
     },
     "fieldErrors": {
       "username": "This username is not valid.",
@@ -317,7 +321,8 @@
       "locale": "Please choose a language.",
       "emailSame": "This is already your current address.",
       "confirmUsername": "The username does not match.",
-      "code": "Please enter the 6-digit code from the email."
+      "code": "Please enter the 6-digit code from the email.",
+      "otp": "Please enter the 6-digit code from the app or a backup code (e.g. abcde-12345)."
     },
     "confirmTitle": "Confirm your email address",
     "codeSentTo": "We sent a {length}-digit code to:",
@@ -337,7 +342,20 @@
     "stepOf": "Step {step} of {total}:",
     "codeDigit": "Digit {index} of {total}",
     "editEmail": "Edit email address",
-    "editEmailNotice": "Correct your email address and enter your password again for security. Keep the same username so your new account is reused."
+    "editEmailNotice": "Correct your email address and enter your password again for security. Keep the same username so your new account is reused.",
+    "twoFactor": {
+      "title": "Second factor",
+      "description": "Enter the code from your authenticator app to finish signing in.",
+      "codeLabel": "Code from the app",
+      "codeHint": "6 digits, changes every 30 seconds.",
+      "backupLabel": "Backup code",
+      "backupHint": "Each backup code works only once.",
+      "submit": "Sign in",
+      "useBackup": "No access to the app? Use a backup code",
+      "useApp": "Use a code from the app",
+      "backToLogin": "Back to sign-in"
+    },
+    "verifyLoginRequired": "Your account is protected with two-factor authentication. Please sign in first, then open the link from the email again."
   },
   "Account": {
     "menuLabel": "Account",
@@ -411,7 +429,36 @@
     "deleteAdminBlocked": "Admin accounts cannot delete themselves. Remove the admin role on the server first with pnpm user:set-role.",
     "deletedTitle": "Account deleted",
     "deletedText": "Your account and your content have been deleted. Thanks for being part of it.",
-    "backHome": "Back to the homepage"
+    "backHome": "Back to the homepage",
+    "twoFactor": {
+      "section": "Two-factor authentication",
+      "text": "In addition to your password, signing in asks for a code from an authenticator app (e.g. Aegis, Google Authenticator, Microsoft Authenticator or a password manager).",
+      "requiredAdmin": "Two-factor authentication is mandatory for admin accounts. The admin area stays locked until it is set up.",
+      "requiredRedirect": "The admin area requires two-factor authentication. Set it up here.",
+      "start": "Set up two-factor authentication",
+      "stepScan": "Scan the QR code with your authenticator app.",
+      "qrLabel": "QR code for the authenticator app",
+      "manualEntry": "Or enter this key manually:",
+      "openInApp": "Open in authenticator app",
+      "stepBackup": "Keep these {count} backup codes somewhere safe, e.g. in your password manager or printed out. Each works once if you can't access the app. They are only shown now.",
+      "backupCodesLabel": "Backup codes",
+      "backupCodesHint": "Codes are case-sensitive.",
+      "stepConfirm": "To confirm, enter the current code from the app. All other devices will then be signed out.",
+      "codeLabel": "Code from the app",
+      "backupLabel": "Backup code",
+      "confirm": "Confirm and turn on",
+      "active": "Two-factor authentication is on.",
+      "backupCodesLeft": "{count, plural, =0 {No backup codes left – please generate new ones.} =1 {1 unused backup code left.} other {# unused backup codes left.}}",
+      "regenerateOpen": "Generate new backup codes",
+      "regenerate": "Generate new backup codes",
+      "newCodes": "New backup codes generated. The previous ones no longer work.",
+      "disableOpen": "Turn off two-factor authentication",
+      "disableMethod": "Confirm with",
+      "methodApp": "Authenticator app",
+      "methodBackup": "Backup code",
+      "disable": "Turn off",
+      "disableAdminWarning": "Without two-factor authentication you lose access to the admin area until you set it up again."
+    }
   },
   "Admin": {
     "title": "Administration",
@@ -954,10 +1001,21 @@
       "openDashboard": "Open dashboard",
       "appeal": "Submit an appeal",
       "openEditor": "Open in editor",
-      "contact": "Contact details"
+      "contact": "Contact details",
+      "openSettings": "Open settings"
     },
     "projectDeleteSubject": "{code} is your code to delete “{title}” – OMSI Mod Hub",
-    "projectDeleteBody": "Hi {name},\n\nyou want to delete your project “{title}” at OMSI Mod Hub. Your confirmation code is:\n\n{code}\n\nEnter it in the project editor:\n\n{url}\n\nThe code is valid for {minutes} minutes. Deleting cannot be undone.\n\nIf you didn't request this, don't enter the code; the project will stay. Please change your password anyway, because the request came from your signed-in account."
+    "projectDeleteBody": "Hi {name},\n\nyou want to delete your project “{title}” at OMSI Mod Hub. Your confirmation code is:\n\n{code}\n\nEnter it in the project editor:\n\n{url}\n\nThe code is valid for {minutes} minutes. Deleting cannot be undone.\n\nIf you didn't request this, don't enter the code; the project will stay. Please change your password anyway, because the request came from your signed-in account.",
+    "twoFactor": {
+      "enabled": {
+        "subject": "Two-factor authentication turned on – OMSI Mod Hub",
+        "body": "Hi {name},\n\ntwo-factor authentication is now on for your OMSI Mod Hub account. Every sign-in additionally needs a code from your authenticator app or a backup code. All other devices have been signed out.\n\n{url}\n\nIf you didn't do this yourself, please change your password right away and contact us using the details on the website."
+      },
+      "disabled": {
+        "subject": "Two-factor authentication turned off – OMSI Mod Hub",
+        "body": "Hi {name},\n\ntwo-factor authentication has been turned off for your OMSI Mod Hub account. Your password alone is now enough to sign in.\n\n{url}\n\nIf you didn't do this yourself, please change your password right away, set up two-factor authentication again and contact us using the details on the website."
+      }
+    }
   },
   "Errors": {
     "notFoundTitle": "Page not found",

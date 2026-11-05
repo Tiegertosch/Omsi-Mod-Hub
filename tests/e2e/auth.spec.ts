@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 
 import {
   codeFields,
+  enableTwoFactor,
   enterCode,
   login,
   randomIp,
@@ -123,6 +124,8 @@ test("Admin-Rolle per CLI: Adminbereich wird sichtbar", async ({ page }) => {
   await registerAndVerify(page, user);
 
   execSync(`pnpm user:set-role ${user.email} admin`, { stdio: "pipe" });
+  // Admin-Rechte gelten erst mit Zwei-Faktor-Anmeldung (eigener Test in two-factor.spec.ts).
+  await enableTwoFactor(page, user.password);
 
   await page.goto("/de/admin");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Administration");

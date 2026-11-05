@@ -6,13 +6,16 @@ import { Suspense, type ReactNode } from "react";
 
 import { DeleteAccountForm, RevokeOtherSessionsForm, RevokeSessionForm } from "@/components/account/account-security";
 import { EmailForm, PasswordForm, ProfileForm } from "@/components/account/settings-forms";
+import { TwoFactorSettings } from "@/components/account/two-factor-settings";
 import { FormSkeleton } from "@/components/auth/auth-shell";
 import { CreatorProfileForm } from "@/components/creator/creator-profile-form";
 import { Badge } from "@/components/ui/badge";
 import { FormAlert } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
 import { canDeleteOwnAccount } from "@/lib/account";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { isAdmin } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { getDeletionSummary, getOwnSessions } from "@/server/data/account";
 import { requireUser } from "@/server/session";
@@ -50,10 +53,21 @@ function Section({
 
 const MOBILE_SYSTEMS = new Set(["iOS", "Android"]);
 
+/** Anzahl der noch unbenutzten Backup-Codes (die Codes selbst werden nie angezeigt). */
+async function backupCodesLeft(userId: string, enabled: boolean): Promise<number> {
+  if (!enabled) return 0;
+  try {
+    const { backupCodes } = await auth.api.viewBackupCodes({ body: { userId } });
+    return backupCodes.length;
+  } catch {
+    return 0;
+  }
+}
+
 async function SettingsContent({ searchParams }: Pick<Props, "searchParams">) {
   const locale = await rootLocale();
   const user = await requireUser(locale, `/${locale}/dashboard/settings`);
-  const [{ emailChange, error }, t, creatorT, format, creatorProfile, sessions, deletion] = await Promise.all([
+  const [{ emailChange, error, twoFactor }, t, creatorT, format, creatorProfile, sessions, deletion, codesLeft] = await Promise.all([
     searchParams,
     getTranslations("Account"),
     getTranslations("Creator"),
@@ -61,7 +75,11 @@ async function SettingsContent({ searchParams }: Pick<Props, "searchParams">) {
     db.creatorProfile.findUnique({ where: { userId: user.id } }),
     getOwnSessions(user),
     getDeletionSummary(user.id),
+    backupCodesLeft(user.id, user.twoFactorEnabled),
   ]);
+  const admin = isAdmin(user.role);
+  // Admins ohne 2FA werden von requireAdmin hierher geleitet.
+  const twoFactorRequired = admin && !user.twoFactorEnabled;
   // Ziel der Bestätigungslinks; Better Auth hängt bei Fehlern ?error=… an.
   const emailChangeNotice = emailChange === "1" ? (typeof error === "string" && error ? "error" : "confirmed") : null;
   const canDelete = canDeleteOwnAccount(user.role);
@@ -111,6 +129,22 @@ async function SettingsContent({ searchParams }: Pick<Props, "searchParams">) {
 
       <Section id="password" title={t("passwordSection")}>
         <PasswordForm />
+      </Section>
+
+      <Section
+        id="two-factor"
+        title={t("twoFactor.section")}
+        description={t("twoFactor.text")}
+        className={cn("scroll-mt-24 xl:col-span-2", twoFactorRequired && "border-warning/50")}
+      >
+        {twoFactorRequired ? (
+          <p className="mb-5 rounded-lg border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-warning">
+            {twoFactor === "required" ? t("twoFactor.requiredRedirect") : t("twoFactor.requiredAdmin")}
+          </p>
+        ) : null}
+        <div className="max-w-2xl">
+          <TwoFactorSettings enabled={user.twoFactorEnabled} backupCodesLeft={codesLeft} isAdmin={admin} />
+        </div>
       </Section>
 
       <Section id="sessions" title={t("sessionsSection")} description={t("sessionsText")}>
