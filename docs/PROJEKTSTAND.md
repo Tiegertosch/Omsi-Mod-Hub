@@ -6,7 +6,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
 
 - Zweisprachiges (DE/EN) Katalogportal für OMSI-2-Mods. **Es werden keine Mod-Dateien gehostet**, nur externe Links. Zielgruppe ist international, die Standardsprache Englisch.
 - Fertig sind: öffentlicher Katalog, Konten (inklusive E-Mail ändern, Geräteübersicht, Konto löschen), Creator-Dashboard, Adminbereich, Caching mit echten 404-Statuscodes, Deployment, Datenbank PostgreSQL.
-- **Geschlossene Beta live** unter `https://beta.omsi-modhub.de`, hinter Basic Auth, nicht indexiert. Betrieb auf einem eigenen Server nach [DEPLOYMENT.md](DEPLOYMENT.md).
+- **Öffentliche Beta** unter `https://omsi-modhub.de` (seit 05.11.2026; `www.` und `beta.` leiten dorthin um, ohne Basic Auth und noindex). Betrieb auf einem eigenen Server nach [DEPLOYMENT.md](DEPLOYMENT.md).
 - Tests: 127 Unit-Tests (Vitest) und 52 E2E-Tests (Playwright) sind grün, gegen PostgreSQL 18.
 
 ## Technik
@@ -75,7 +75,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
 
 1. **Vor einem öffentlichen Start:**
    - Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
-   - Basic Auth und noindex entfernen
+   - Basic Auth und noindex entfernt, Umzug auf die Hauptdomain (05.11.2026)
    - Backup außerhalb des Servers: erledigt (Hetzner Storage Box, tägliche Kopie per rsync, Snapshots, Wiederherstellung am 05.11.2026 getestet), in der Datenschutzerklärung beschrieben (Abschnitte 10 und 16)
    - Datenschutzerklärung: Projekte löschen (Code per E-Mail) ist umgesetzt und in Abschnitt 10 und 19 beschrieben
    - Zwei-Faktor-Anmeldung (App + Backup-Codes, Pflicht für Admins) ist umgesetzt und in der Datenschutzerklärung beschrieben (Abschnitte 10, 17, 19, 20, 22, 23)

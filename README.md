@@ -12,7 +12,7 @@ Internationales Katalog- und Downloadportal für Mods des Omnibus-Simulators **O
 
 Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und gelangen zur Originalquelle des Erstellers. Das Portal **hostet selbst keine Mod-Archive** – Downloads verweisen immer auf externe Seiten, die klar als solche gekennzeichnet sind.
 
-> **Status:** Geschlossene Beta. Öffentlicher Bereich, Benutzerkonten, Creator-Dashboard und Adminbereich (Freigaben, Ausblenden, Meldungen, Sperren, Kategorien/Tags, Protokoll) sind umgesetzt. Was noch fehlt, steht in [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md#offene-punkte).
+> **Status:** Öffentliche Beta. Öffentlicher Bereich, Benutzerkonten, Creator-Dashboard und Adminbereich (Freigaben, Ausblenden, Meldungen, Sperren, Kategorien/Tags, Protokoll) sind umgesetzt. Was noch fehlt, steht in [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md#offene-punkte).
 >
 > OMSI ist eine Marke der jeweiligen Rechteinhaber. OMSI Mod Hub ist ein Community-Projekt und kein offizielles Angebot der Entwickler oder Publisher.
 
@@ -161,7 +161,7 @@ Für die E2E-Tests einmalig den Browser installieren: `pnpm exec playwright inst
 
 ## Betrieb / Deployment
 
-Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy als HTTPS-Reverse-Proxy mit Basic Auth, PostgreSQL auf demselben Server, Bilder auf der Festplatte). Die Schritt-für-Schritt-Anleitung steht in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), die Dateien dazu unter [deploy/](deploy/):
+Die erste Beta läuft auf einem eigenen Linux-Server (Node.js mit systemd, Caddy als HTTPS-Reverse-Proxy, PostgreSQL auf demselben Server, Bilder auf der Festplatte). Die Schritt-für-Schritt-Anleitung steht in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), die Dateien dazu unter [deploy/](deploy/):
 
 - `deploy.sh`: Deployment mit Release-Ordnern, Health-Check und automatischem Rollback
 - `backup.sh`: tägliches Backup von Datenbank und Bildern, optional mit Kopie auf eine Hetzner Storage Box (`BACKUP_REMOTE`)

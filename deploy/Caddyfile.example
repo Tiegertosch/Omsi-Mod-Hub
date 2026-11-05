@@ -1,23 +1,22 @@
-# Caddy-Konfiguration für die geschlossene Beta.
+# Caddy-Konfiguration (öffentlich erreichbar).
 # Kopieren nach /etc/caddy/Caddyfile, Platzhalter ersetzen, dann:
 #   sudo caddy validate --config /etc/caddy/Caddyfile
 #   sudo systemctl reload caddy
 #
-# Caddy holt das TLS-Zertifikat (Let's Encrypt) automatisch, sobald der
-# DNS-Eintrag auf den Server zeigt und die Ports 80/443 offen sind.
+# Caddy holt die TLS-Zertifikate (Let's Encrypt) automatisch, sobald die
+# DNS-Einträge auf den Server zeigen und die Ports 80/443 offen sind.
 
 {
 	# Kontaktadresse für Let's Encrypt (Ablaufwarnungen)
 	email ADMIN@EXAMPLE.COM
 }
 
-BETA.EXAMPLE.COM {
+# Hauptadresse – muss NEXT_PUBLIC_SITE_URL und BETTER_AUTH_URL entsprechen.
+EXAMPLE.COM {
 	encode zstd gzip
 
 	header {
 		Strict-Transport-Security "max-age=31536000"
-		# Beta nicht in Suchmaschinen aufnehmen (zusätzlich zur Basic Auth)
-		X-Robots-Tag "noindex, nofollow"
 		-Server
 	}
 
@@ -26,17 +25,7 @@ BETA.EXAMPLE.COM {
 		max_size 8MB
 	}
 
-	# Geschlossene Beta: alles außer dem Health-Check hinter Benutzername/Passwort.
-	# Hash erzeugen mit:  caddy hash-password
-	@geschuetzt not path /api/health
-	basic_auth @geschuetzt {
-		BETA_BENUTZER BCRYPT_HASH_AUS_CADDY_HASH_PASSWORD
-	}
-
-	reverse_proxy 127.0.0.1:3000 {
-		# Zugangsdaten der Basic Auth nicht an die App weitergeben
-		header_up -Authorization
-	}
+	reverse_proxy 127.0.0.1:3000
 
 	log {
 		output file /var/log/caddy/omsi-mod-hub.log {
@@ -47,4 +36,11 @@ BETA.EXAMPLE.COM {
 			roll_keep_for 336h
 		}
 	}
+}
+
+# Weitere Adressen leiten dauerhaft auf die Hauptadresse um; Pfad und Query
+# bleiben erhalten (z. B. Links aus Mails der früheren Beta-Subdomain).
+# Ohne frühere Beta die zweite Adresse einfach weglassen.
+www.EXAMPLE.COM, beta.EXAMPLE.COM {
+	redir https://EXAMPLE.COM{uri} permanent
 }

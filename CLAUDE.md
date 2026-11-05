@@ -2,7 +2,7 @@
 
 # CLAUDE.md – OMSI Mod Hub
 
-Katalog- und Downloadportal für Mods des Busimulators OMSI 2. Das Portal hostet **keine** Mod-Archive, Downloads verweisen immer auf externe, gekennzeichnete Seiten. Status: geschlossene Beta auf einem eigenen Linux-Server, Repo öffentlich (AGPL-3.0).
+Katalog- und Downloadportal für Mods des Busimulators OMSI 2. Das Portal hostet **keine** Mod-Archive, Downloads verweisen immer auf externe, gekennzeichnete Seiten. Status: öffentliche Beta auf einem eigenen Linux-Server, Repo öffentlich (AGPL-3.0).
 
 Ausführliche Begründungen stehen in den Docs, nicht hier:
 

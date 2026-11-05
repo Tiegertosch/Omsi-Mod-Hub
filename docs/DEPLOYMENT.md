@@ -1,13 +1,13 @@
-# Deployment: geschlossene Beta auf einem eigenen Server
+# Deployment: öffentliche Beta auf einem eigenen Server
 
-Diese Anleitung bringt OMSI Mod Hub auf einen eigenen Linux-Server (VPS). Die Beta ist **geschlossen**: Die ganze Seite liegt hinter einem gemeinsamen Benutzernamen und Passwort (HTTP Basic Auth) und wird nicht von Suchmaschinen indexiert.
+Diese Anleitung bringt OMSI Mod Hub auf einen eigenen Linux-Server (VPS). Die Seite ist **öffentlich** unter der Hauptdomain erreichbar; `www.` und die frühere Beta-Subdomain leiten dauerhaft dorthin um. Bis zum 05.11.2026 lag die Beta hinter HTTP Basic Auth und `noindex` (siehe Git-Historie von `deploy/Caddyfile.example`); der einmalige Umzug steht unter *Betrieb*.
 
 Ausgangspunkt: ein frisch angelegter Server mit **Ubuntu 24.04 LTS**. Alle Befehle sind zum Kopieren gedacht; Platzhalter in `GROSSBUCHSTABEN` ersetzen. Zeitbedarf beim ersten Mal: etwa 1–2 Stunden.
 
 ## Überblick
 
 ```
-Internet ─► Caddy :443  (HTTPS über Let's Encrypt, Basic Auth, noindex)
+Internet ─► Caddy :443  (HTTPS über Let's Encrypt, www → Hauptadresse)
               └─► Next.js 127.0.0.1:3000   (systemd-Dienst „omsi-mod-hub“, Nutzer „omsi“)
                     ├─ PostgreSQL 18 localhost:5432        Datenbank „omsi_mod_hub“
                     ├─ /var/lib/omsi-mod-hub/uploads/       hochgeladene Bilder
@@ -24,8 +24,8 @@ Internet ─► Caddy :443  (HTTPS über Let's Encrypt, Basic Auth, noindex)
 | Was | Hinweis |
 |---|---|
 | VPS | z. B. Hetzner Cloud **CX22** oder das aktuelle vergleichbare Modell (mind. 2 vCPU, 4 GB RAM, 40 GB SSD), Standort Deutschland, Ubuntu 24.04. Beim Anlegen deinen **SSH-Schlüssel** hinterlegen und **Backups** aktivieren. |
-| AV-Vertrag | In der Hetzner-Konsole den Vertrag zur Auftragsverarbeitung abschließen (der Server verarbeitet personenbezogene Daten der Tester). |
-| Subdomain | z. B. `beta.DEINE-DOMAIN.de`. Zugriff auf die DNS-Einstellungen der Domain. |
+| AV-Vertrag | In der Hetzner-Konsole den Vertrag zur Auftragsverarbeitung abschließen (der Server verarbeitet personenbezogene Daten der Nutzer). |
+| Domain | `DEINE-DOMAIN.de` als Hauptadresse und `www.DEINE-DOMAIN.de`. Zugriff auf die DNS-Einstellungen der Domain. |
 | E-Mail-Postfach | Ein Postfach für den Versand, z. B. `no-reply@DEINE-DOMAIN.de`, mit SMTP-Server, Port (465 oder 587), Benutzername und Passwort. |
 | GitHub | Admin-Zugriff auf das Repo, um einen Deploy Key einzutragen. |
 
@@ -167,7 +167,7 @@ sudo -u omsi nano /etc/omsi-mod-hub/env
 ```
 
 - `DATABASE_URL`: die Zeile aus Schritt 3 („Datenbank anlegen“)
-- `NEXT_PUBLIC_SITE_URL` und `BETTER_AUTH_URL`: `https://beta.DEINE-DOMAIN.de`
+- `NEXT_PUBLIC_SITE_URL` und `BETTER_AUTH_URL`: `https://DEINE-DOMAIN.de`
 - `BETTER_AUTH_SECRET`: **neu** erzeugen (nicht das lokale wiederverwenden):
   `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`
 - `CAP_SECRET`: genauso, ein eigenes zweites Secret für das CAPTCHA. Fehlt es, schlagen Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen fehl.
@@ -188,18 +188,17 @@ Die Ausgabe nennt bei Fehlern die wahrscheinliche Ursache (Anmeldung, TLS/Port, 
 
 ## 6. DNS, Caddy und Dienste
 
-**DNS:** Bei deinem Domain-Anbieter einen **A-Eintrag** `beta` → `SERVER-IP` anlegen (und, falls der Server IPv6 hat, einen **AAAA-Eintrag**). Prüfen, bis die IP erscheint:
+**DNS:** Bei deinem Domain-Anbieter für die Domain selbst (`@`) und für `www` je einen **A-Eintrag** → `SERVER-IP` anlegen (und, falls der Server IPv6 hat, je einen **AAAA-Eintrag**). MX-, SPF-, DKIM- und DMARC-Einträge des Mail-Anbieters bleiben unverändert. Prüfen, bis die IP erscheint:
 
 ```bash
-getent hosts beta.DEINE-DOMAIN.de
+getent hosts DEINE-DOMAIN.de www.DEINE-DOMAIN.de
 ```
 
 **Caddy** (erst wenn der DNS-Eintrag wirkt, sonst schlägt das Zertifikat fehl):
 
 ```bash
-caddy hash-password             # Beta-Passwort zweimal eingeben, Hash kopieren
 sudo cp /tmp/omsi-setup/deploy/Caddyfile.example /etc/caddy/Caddyfile
-sudo nano /etc/caddy/Caddyfile  # E-Mail, Domain, Benutzername und Hash eintragen
+sudo nano /etc/caddy/Caddyfile  # E-Mail und Domain eintragen (ohne frühere Beta: beta.… weglassen)
 sudo caddy fmt --overwrite /etc/caddy/Caddyfile
 sudo caddy validate --config /etc/caddy/Caddyfile
 # Die Prüfung läuft als root und legt dabei die Log-Datei an – danach dem
@@ -237,16 +236,16 @@ exit
 Prüfen:
 
 ```bash
-curl -I https://beta.DEINE-DOMAIN.de                   # 401 (Passwort nötig)
-curl -I -u BETA_BENUTZER https://beta.DEINE-DOMAIN.de  # 307 bzw. 200 nach Passworteingabe
-curl https://beta.DEINE-DOMAIN.de/api/health           # {"status":"ok"}
+curl -I https://DEINE-DOMAIN.de              # 307 (Weiterleitung auf /de oder /en)
+curl -I https://www.DEINE-DOMAIN.de          # 308 → https://DEINE-DOMAIN.de/
+curl https://DEINE-DOMAIN.de/api/health      # {"status":"ok"}
 ```
 
 Aufräumen: `sudo rm -rf /tmp/omsi-setup`
 
 ## 8. Erstes Admin-Konto
 
-1. Im Browser `https://beta.DEINE-DOMAIN.de` öffnen (Beta-Zugangsdaten eingeben), registrieren und die E-Mail bestätigen.
+1. Im Browser `https://DEINE-DOMAIN.de` öffnen, registrieren und die E-Mail bestätigen.
 2. Auf dem Server die Rolle setzen:
 
 ```bash
@@ -364,7 +363,7 @@ Die vollständige Wiederherstellung (Dienst stoppen, `pg_restore`, Bilder entpac
 
 1. Konto auf [betterstack.com](https://betterstack.com) anlegen (Bereich *Uptime*), in den Einstellungen die Benachrichtigung per E-Mail und optional die App einrichten.
 2. **Website:** *Monitors → Create monitor*
-   - URL: `https://beta.DEINE-DOMAIN.de/api/health` (von der Basic Auth ausgenommen; bleibt auch nach der Beta gleich)
+   - URL: `https://DEINE-DOMAIN.de/api/health`
    - Alarm, wenn die URL nicht erreichbar ist bzw. nicht mit 200 antwortet; prüfen alle 3 Minuten
    - Optional: Schlüsselwort `"status":"ok"` verlangen und die Warnung vor ablaufendem TLS-Zertifikat einschalten
 3. **Backup:** *Heartbeats → Create heartbeat*, Intervall **1 Tag**, Kulanzzeit **2 Stunden** (das Backup läuft um 03:30 Uhr). Die angezeigte URL kopieren.
@@ -384,6 +383,15 @@ Die vollständige Wiederherstellung (Dienst stoppen, `pg_restore`, Bilder entpac
    ```
 
 `backup.sh` meldet Erfolg erst nach der Kopie auf die Storage Box. Scheitert ein Schritt, ruft es sofort `<URL>/fail` auf; läuft es gar nicht (Timer, Server aus), warnt Better Stack nach Ablauf der Kulanzzeit. Die Heartbeat-URL ist ein Geheimnis (wer sie kennt, kann „alles in Ordnung“ melden) und erscheint deshalb in keiner Ausgabe des Skripts.
+
+**Umzug von der Beta-Subdomain auf die Hauptdomain (einmalig):**
+
+1. **DNS:** A-Einträge (und ggf. AAAA) für `@` und `www` auf die Server-IP setzen. Einen bestehenden A-Eintrag des Domain-Anbieters (Webspace, Parkseite) ersetzen; MX, SPF, DKIM und DMARC nicht anfassen. Warten, bis `getent hosts DEINE-DOMAIN.de www.DEINE-DOMAIN.de` die Server-IP zeigt.
+2. **Caddy:** Das neue `deploy/Caddyfile.example` übernehmen (Hauptadresse ohne Basic Auth und `noindex`, Umleitung von `www.` und `beta.`), dann `sudo caddy validate --config /etc/caddy/Caddyfile` und `sudo systemctl reload caddy`. Caddy holt die neuen Zertifikate beim ersten Aufruf.
+3. **Konfiguration:** In `/etc/omsi-mod-hub/env` `NEXT_PUBLIC_SITE_URL` und `BETTER_AUTH_URL` auf `https://DEINE-DOMAIN.de` setzen und neu deployen (`NEXT_PUBLIC_SITE_URL` wird beim Build eingebaut).
+4. **Monitoring:** In Better Stack die Monitor-URL auf `https://DEINE-DOMAIN.de/api/health` ändern.
+
+Alle bestehenden Anmeldungen enden dabei (Cookies gelten je Domain). Links aus früheren Mails funktionieren weiter, weil `beta.` mit Pfad und Query umleitet.
 
 **Beispieldaten:** Auf dem Server nie `pnpm db:seed` ohne `SEED_SAMPLES=false` ausführen – das legt fiktive Creator und Projekte an.
 
@@ -431,7 +439,7 @@ Danach wie in Abschnitt 8 neu registrieren und die Admin-Rolle setzen, dann ein 
 - [x] Nutzungsbedingungen rechtlich geprüft, Entwurfshinweis entfernt
 - [x] Datenschutzerklärung um E-Mail-Versand (checkdomain), Cookies und Löschfristen ergänzt
 - [ ] Impressum geprüft und das Postfach `kontakt@omsi-modhub.de` eingerichtet
-- [ ] Basic Auth und `X-Robots-Tag` im Caddyfile entfernen; `robots.txt` und Sitemap prüfen
+- [x] Basic Auth und `X-Robots-Tag` im Caddyfile entfernt, Umzug auf die Hauptdomain; `robots.txt` und Sitemap geprüft
 - [x] Content-Security-Policy ergänzen
 - [ ] Zustellbarkeit der E-Mails mit mehreren Anbietern (Gmail, GMX, Outlook) prüfen
 - [x] Backup außerhalb des Servers eingerichtet (Hetzner Storage Box mit Snapshots) und Wiederherstellung getestet

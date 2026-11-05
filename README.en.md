@@ -12,7 +12,7 @@ International catalogue and download portal for mods for the bus simulator **OMS
 
 Players find mods, see requirements, versions and compatibility, and get to the creator's original source. The portal **does not host any mod archives itself** – downloads always point to external sites that are clearly marked as such.
 
-> **Status:** Closed beta. The public area, user accounts, creator dashboard and admin area (approvals, hiding, reports, bans, categories/tags, audit log) are implemented. What is still missing is listed in [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md#offene-punkte) (German).
+> **Status:** Public beta. The public area, user accounts, creator dashboard and admin area (approvals, hiding, reports, bans, categories/tags, audit log) are implemented. What is still missing is listed in [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md#offene-punkte) (German).
 >
 > OMSI is a trademark of its respective owners. OMSI Mod Hub is a community project and not an official offering of the developers or publishers.
 
@@ -163,7 +163,7 @@ Install the browser for the E2E tests once: `pnpm exec playwright install chromi
 
 ## Operations / deployment
 
-The first beta runs on its own Linux server (Node.js with systemd, Caddy as HTTPS reverse proxy with basic auth, PostgreSQL on the same server, images on disk). The step-by-step guide is in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (German), the related files under [deploy/](deploy/):
+The first beta runs on its own Linux server (Node.js with systemd, Caddy as HTTPS reverse proxy, PostgreSQL on the same server, images on disk). The step-by-step guide is in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (German), the related files under [deploy/](deploy/):
 
 - `deploy.sh`: deployment with release folders, health check and automatic rollback
 - `backup.sh`: daily backup of database and images, optionally copied to a Hetzner Storage Box (`BACKUP_REMOTE`)
