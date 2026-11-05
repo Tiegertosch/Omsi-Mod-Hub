@@ -3,7 +3,7 @@ import { createHmac } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { expect, type Browser, type Page } from "@playwright/test";
+import { expect, type Browser, type Locator, type Page } from "@playwright/test";
 import sharp from "sharp";
 
 import { slugify } from "../../src/lib/slug";
@@ -163,6 +163,11 @@ export async function createSubmittableProject(page: Page, title: string) {
   return { id, slug: slugify(title) };
 }
 
+/** Füllt eine Ziffern-Eingabe (CodeInput); Einfügen ins erste Feld verteilt den Code. */
+export async function fillDigits(scope: Page | Locator, label: string, code: string) {
+  await scope.getByRole("group", { name: label }).getByRole("textbox").first().fill(code);
+}
+
 /** Base32 (RFC 4648) wie im otpauth-Link der Authenticator-Apps. */
 function base32Decode(input: string): Buffer {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -204,7 +209,7 @@ export async function enableTwoFactor(page: Page, password: string) {
   const secretText = await section.getByTestId("totp-secret").textContent();
   const secret = (secretText ?? "").replace(/\s/g, "");
   const backupCodes = await section.getByRole("list", { name: "Backup-Codes" }).getByRole("listitem").allTextContents();
-  await section.getByLabel("Code aus der App").fill(totp(secret));
+  await fillDigits(section, "Code aus der App", totp(secret));
   await section.getByRole("button", { name: "Bestätigen und einschalten" }).click();
   await expect(section.getByText("Die Zwei-Faktor-Anmeldung ist aktiv.")).toBeVisible();
   return { secret, backupCodes };

@@ -4,6 +4,7 @@ import {
   adminPage,
   becomeCreator,
   createSubmittableProject,
+  fillDigits,
   germanTexts,
   openEditorTab,
   randomIp,
@@ -269,7 +270,7 @@ async function requestDeletionCode(page: Page, email: string, title: string) {
   const panel = page.getByRole("region", { name: "Projekt löschen" });
   const since = Date.now() - 1000;
   await panel.getByRole("button", { name: "Löschcode per E-Mail anfordern" }).click();
-  await expect(panel.getByLabel("Löschcode aus der E-Mail")).toBeVisible();
+  await expect(panel.getByRole("group", { name: "Löschcode aus der E-Mail" })).toBeVisible();
   const mail = await waitForMail(email, /Code zum Löschen/, since);
   const code = /^(\d{6}) /.exec(mail.subject)?.[1] ?? "";
   expect(code).toMatch(/^\d{6}$/);
@@ -296,11 +297,11 @@ test("Projekt löschen: Code per E-Mail, falscher Code abgewiesen, danach echte 
   await page.goto(`/de/dashboard/projects/${project.id}/edit`);
   const { panel, code } = await requestDeletionCode(page, user.email, title);
 
-  await panel.getByLabel("Löschcode aus der E-Mail").fill(code === "000000" ? "111111" : "000000");
+  await fillDigits(panel, "Löschcode aus der E-Mail", code === "000000" ? "111111" : "000000");
   await panel.getByRole("button", { name: "Projekt endgültig löschen" }).click();
   await expect(panel.getByText("Der Code ist falsch oder abgelaufen.")).toBeVisible();
 
-  await panel.getByLabel("Löschcode aus der E-Mail").fill(code);
+  await fillDigits(panel, "Löschcode aus der E-Mail", code);
   await panel.getByRole("button", { name: "Projekt endgültig löschen" }).click();
   await expect(page).toHaveURL(/\/de\/dashboard\/projects\?deleted=1$/);
   await expect(page.getByText("Das Projekt wurde gelöscht.")).toBeVisible();
@@ -345,7 +346,7 @@ test("Projekt in Prüfung löschen; fremde Projekte lassen sich nicht löschen",
   // Der Besitzer kann das Projekt auch in Prüfung (für ihn gesperrt) löschen.
   await page.goto(`/de/dashboard/projects/${project.id}/edit`);
   const { panel, code } = await requestDeletionCode(page, owner.email, title);
-  await panel.getByLabel("Löschcode aus der E-Mail").fill(code);
+  await fillDigits(panel, "Löschcode aus der E-Mail", code);
   await panel.getByRole("button", { name: "Projekt endgültig löschen" }).click();
   await expect(page).toHaveURL(/\/de\/dashboard\/projects\?deleted=1$/);
   await expect(page.getByRole("heading", { name: "Noch keine Projekte" })).toBeVisible();

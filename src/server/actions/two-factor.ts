@@ -9,7 +9,7 @@ import { routing } from "@/i18n/routing";
 import { auth } from "@/lib/auth";
 import { PASSWORD_MAX } from "@/lib/auth-rules";
 import { db } from "@/lib/db";
-import type { FormState } from "@/lib/form-state";
+import { codeFromForm, type FormState } from "@/lib/form-state";
 import { qrPath, type QrPath } from "@/lib/qr";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 import { siteConfig } from "@/lib/site";
@@ -49,7 +49,8 @@ type CodeInput = { kind: "totp" | "backup"; code: string } | null;
 
 function readCode(formData: FormData): CodeInput {
   const kind = text(formData, "method") === "backup" ? "backup" : "totp";
-  const code = kind === "backup" ? normalizeBackupCode(text(formData, "code")) : normalizeTotpCode(text(formData, "code"));
+  const raw = codeFromForm(formData);
+  const code = kind === "backup" ? normalizeBackupCode(raw) : normalizeTotpCode(raw);
   return code ? { kind, code } : null;
 }
 
@@ -134,7 +135,7 @@ export async function confirmTwoFactorSetupAction(_prev: FormState, formData: Fo
   const user = await getCurrentUser();
   if (!user) return fail("unauthorized");
   if (user.twoFactorEnabled) return fail("two_factor_active");
-  const code = normalizeTotpCode(text(formData, "code"));
+  const code = normalizeTotpCode(codeFromForm(formData));
   if (!code) return badCode();
   if (!(await consumeRateLimits([{ key: `two-factor-confirm:user:${user.id}`, limit: 10, windowMs: 15 * MINUTE }]))) {
     return fail("rate_limit");

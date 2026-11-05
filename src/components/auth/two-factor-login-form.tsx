@@ -7,8 +7,10 @@ import { FormAlert, TextField } from "@/components/ui/form";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Link } from "@/i18n/navigation";
 import { idleState } from "@/lib/form-state";
+import { TOTP_DIGITS } from "@/lib/two-factor";
 import { verifyTwoFactorLoginAction } from "@/server/actions/two-factor";
 
+import { CodeInput } from "./code-input";
 import { useFormMessages } from "./use-form-messages";
 
 /**
@@ -48,20 +50,26 @@ export function TwoFactorLoginForm({ next, method }: { next: string; method: "to
         </FormAlert>
       ) : null}
 
-      <TextField
-        id="two-factor-code"
-        name="code"
-        label={method === "backup" ? t("twoFactor.backupLabel") : t("twoFactor.codeLabel")}
-        hint={method === "backup" ? t("twoFactor.backupHint") : t("twoFactor.codeHint")}
-        autoComplete="one-time-code"
-        inputMode={method === "backup" ? "text" : "numeric"}
-        autoCapitalize="none"
-        spellCheck={false}
-        maxLength={method === "backup" ? 13 : 8}
-        required
-        autoFocus
-        error={fieldError("code")}
-      />
+      {method === "backup" ? (
+        <TextField
+          id="two-factor-code"
+          name="code"
+          label={t("twoFactor.backupLabel")}
+          hint={t("twoFactor.backupHint")}
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          maxLength={13}
+          required
+          autoFocus
+          error={fieldError("code")}
+        />
+      ) : (
+        <div>
+          <CodeInput id="two-factor-code" length={TOTP_DIGITS} label={t("twoFactor.codeLabel")} error={fieldError("code")} />
+          <p className="mt-2 text-xs text-subtle">{t("twoFactor.codeHint")}</p>
+        </div>
+      )}
 
       <SubmitButton pendingLabel={t("submitting")} className="w-full">
         {t("twoFactor.submit")}

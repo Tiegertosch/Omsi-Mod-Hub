@@ -11,7 +11,20 @@ import { cn } from "@/lib/utils";
  * und nach dem Absenden leert React das Formular von selbst. Einfügen und
  * Autofill (`one-time-code`) verteilen einen ganzen Code auf die Felder.
  */
-export function CodeInput({ id, length, label, error }: { id: string; length: number; label: string; error?: string }) {
+export function CodeInput({
+  id,
+  length,
+  label,
+  error,
+  autoFocus = true,
+}: {
+  id: string;
+  length: number;
+  label: string;
+  error?: string;
+  /** Aus, wo das Feld nicht der Hauptinhalt der Seite ist (Einstellungen, Editor). */
+  autoFocus?: boolean;
+}) {
   const t = useTranslations("Auth");
   const fields = useRef<(HTMLInputElement | null)[]>([]);
   const labelId = `${id}-label`;
@@ -86,7 +99,7 @@ export function CodeInput({ id, length, label, error }: { id: string; length: nu
             inputMode="numeric"
             pattern="[0-9]*"
             autoComplete={index === 0 ? "one-time-code" : "off"}
-            autoFocus={index === 0}
+            autoFocus={autoFocus && index === 0}
             aria-label={t("codeDigit", { index: index + 1, total: length })}
             aria-invalid={error ? true : undefined}
             onChange={onChange(index)}

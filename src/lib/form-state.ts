@@ -59,6 +59,18 @@ export type FormState<E extends string = FormErrorCode, F extends string = Field
 
 export const idleState = { status: "idle" } as const;
 
+/**
+ * Code aus der Ziffern-Eingabe (CodeInput): Jedes Feld heißt `code`, ohne
+ * JavaScript kommt jede Ziffer einzeln. Ein einzelnes Textfeld (Backup-Code)
+ * liefert genau einen Wert.
+ */
+export function codeFromForm(formData: FormData, name = "code"): string {
+  return formData
+    .getAll(name)
+    .filter((part): part is string => typeof part === "string")
+    .join("");
+}
+
 /** Erster Fehler pro Feldpfad; der Fehlercode wird über die `message` des Zod-Checks gesetzt. */
 export function fieldErrorsFrom<F extends string = FieldErrorCode>(error: z.ZodError): Record<string, F> {
   const result: Record<string, F> = {};

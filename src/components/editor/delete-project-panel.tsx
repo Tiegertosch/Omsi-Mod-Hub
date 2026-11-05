@@ -2,7 +2,8 @@
 
 import { useLocale } from "next-intl";
 
-import { FormAlert, TextField } from "@/components/ui/form";
+import { CodeInput } from "@/components/auth/code-input";
+import { FormAlert } from "@/components/ui/form";
 import { PendingButton } from "@/components/ui/pending-button";
 import { PROJECT_DELETION_CODE_LENGTH, PROJECT_DELETION_CODE_MINUTES } from "@/lib/project-deletion-rules";
 import { confirmProjectDeletionAction, requestProjectDeletionAction } from "@/server/actions/projects";
@@ -37,17 +38,15 @@ export function DeleteProjectPanel({ projectId, codePending }: { projectId: stri
           {confirm.formError && confirm.state.status === "error" && confirm.state.code !== "validation" ? (
             <FormAlert tone="error">{confirm.formError}</FormAlert>
           ) : null}
-          <TextField
-            id="deletion-code"
-            name="code"
-            label={t("deletion.codeLabel")}
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={PROJECT_DELETION_CODE_LENGTH + 2}
-            required
-            className="max-w-xs"
-            error={confirm.fieldError("code")}
-          />
+          <div className="max-w-sm">
+            <CodeInput
+              id="deletion-code"
+              length={PROJECT_DELETION_CODE_LENGTH}
+              label={t("deletion.codeLabel")}
+              error={confirm.fieldError("code")}
+              autoFocus={false}
+            />
+          </div>
           <PendingButton pending={confirm.pending} pendingLabel={t("deletion.deleting")} variant="danger">
             {t("deletion.confirm")}
           </PendingButton>

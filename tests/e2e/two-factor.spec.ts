@@ -5,6 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   E2E_MAIL_DOMAIN,
   enableTwoFactor,
+  fillDigits,
   login,
   randomIp,
   registerAndVerify,
@@ -27,8 +28,13 @@ function wrongCode(secret: string) {
   }
 }
 
+/** App-Code in die Ziffernfelder, Backup-Code ins Textfeld – je nach angezeigtem Modus. */
 async function submitSecondFactor(page: Page, code: string) {
-  await page.getByLabel(/^(Code aus der App|Backup-Code)/).fill(code);
+  // Erst die Code-Seite abwarten; isVisible() unten wartet nicht.
+  await expect(page.getByRole("heading", { name: "Zweiter Faktor" })).toBeVisible();
+  const digits = page.getByRole("group", { name: "Code aus der App" });
+  if (await digits.isVisible()) await fillDigits(page, "Code aus der App", code);
+  else await page.getByLabel("Backup-Code").fill(code);
   await page.getByRole("button", { name: "Anmelden", exact: true }).click();
 }
 
@@ -82,11 +88,11 @@ test("2FA einrichten, Anmeldung mit App- und Backup-Code, Abschalten", async ({ 
   const disable = section.locator("details", { hasText: "Zwei-Faktor-Anmeldung abschalten" });
   await disable.getByText("Zwei-Faktor-Anmeldung abschalten").click();
   await disable.getByLabel("Aktuelles Passwort").fill(user.password);
-  await disable.getByRole("textbox", { name: "Code aus der App" }).fill(wrongCode(secret));
+  await fillDigits(disable, "Code aus der App", wrongCode(secret));
   await disable.getByRole("button", { name: "Abschalten" }).click();
   await expect(disable.getByRole("alert")).toContainText("Der Code ist falsch");
   await disable.getByLabel("Aktuelles Passwort").fill(user.password);
-  await disable.getByRole("textbox", { name: "Code aus der App" }).fill(totp(secret));
+  await fillDigits(disable, "Code aus der App", totp(secret));
   await disable.getByRole("button", { name: "Abschalten" }).click();
   await expect(section.getByRole("button", { name: "Zwei-Faktor-Anmeldung einrichten" })).toBeVisible();
   await waitForMail(user.email, /Zwei-Faktor-Anmeldung abgeschaltet/, disableSince);

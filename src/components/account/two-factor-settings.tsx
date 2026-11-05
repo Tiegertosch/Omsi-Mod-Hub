@@ -3,13 +3,14 @@
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 
+import { CodeInput } from "@/components/auth/code-input";
 import { useFormMessages } from "@/components/auth/use-form-messages";
 import { FormAlert, TextField } from "@/components/ui/form";
 import { PendingButton } from "@/components/ui/pending-button";
 import { PASSWORD_MAX } from "@/lib/auth-rules";
 import { idleState, type FormState } from "@/lib/form-state";
 import type { QrPath } from "@/lib/qr";
-import { TWO_FACTOR_BACKUP_CODES } from "@/lib/two-factor";
+import { TOTP_DIGITS, TWO_FACTOR_BACKUP_CODES } from "@/lib/two-factor";
 import {
   confirmTwoFactorSetupAction,
   disableTwoFactorAction,
@@ -117,17 +118,15 @@ function SetupFlow() {
             {done.formError && confirm.status === "error" && confirm.code !== "validation" ? (
               <FormAlert tone="error">{done.formError}</FormAlert>
             ) : null}
-            <TextField
-              id="two-factor-setup-code"
-              name="code"
-              label={t("twoFactor.codeLabel")}
-              autoComplete="one-time-code"
-              inputMode="numeric"
-              maxLength={8}
-              required
-              className="max-w-xs"
-              error={done.fieldError("code")}
-            />
+            <div className="max-w-sm">
+              <CodeInput
+                id="two-factor-setup-code"
+                length={TOTP_DIGITS}
+                label={t("twoFactor.codeLabel")}
+                error={done.fieldError("code")}
+                autoFocus={false}
+              />
+            </div>
             <PendingButton pending={confirming} pendingLabel={done.t("submitting")}>
               {t("twoFactor.confirm")}
             </PendingButton>
@@ -188,19 +187,30 @@ function DisableForm({ isAdmin }: { isAdmin: boolean }) {
           </label>
         ))}
       </fieldset>
-      <TextField
-        id="two-factor-disable-code"
-        name="code"
-        label={method === "backup" ? t("twoFactor.backupLabel") : t("twoFactor.codeLabel")}
-        autoComplete="one-time-code"
-        inputMode={method === "backup" ? "text" : "numeric"}
-        autoCapitalize="none"
-        spellCheck={false}
-        maxLength={13}
-        required
-        className="max-w-xs"
-        error={fieldError("code")}
-      />
+      {method === "backup" ? (
+        <TextField
+          id="two-factor-disable-code"
+          name="code"
+          label={t("twoFactor.backupLabel")}
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          maxLength={13}
+          required
+          className="max-w-xs"
+          error={fieldError("code")}
+        />
+      ) : (
+        <div className="max-w-sm">
+          <CodeInput
+            id="two-factor-disable-code"
+            length={TOTP_DIGITS}
+            label={t("twoFactor.codeLabel")}
+            error={fieldError("code")}
+            autoFocus={false}
+          />
+        </div>
+      )}
       <PendingButton pending={pending} pendingLabel={authT("submitting")} variant="danger" size="sm">
         {t("twoFactor.disable")}
       </PendingButton>

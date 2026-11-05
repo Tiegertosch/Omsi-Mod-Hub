@@ -9,7 +9,7 @@ import type { ProjectStatus } from "@/generated/prisma/enums";
 import { routing } from "@/i18n/routing";
 import { db } from "@/lib/db";
 import { parseExternalUrl } from "@/lib/external-url";
-import { fieldErrorsFrom, type FormState } from "@/lib/form-state";
+import { codeFromForm, fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { mediaKeyFromUrl, mediaUrlFromKey } from "@/lib/image-signature";
 import {
   filledRequirements,
@@ -606,7 +606,7 @@ export async function confirmProjectDeletionAction(_prev: EditorState, formData:
   const locale = z.enum(routing.locales).catch(routing.defaultLocale).parse(str(formData, "locale"));
   const projectId = str(formData, "projectId");
   if (!projectId || projectId.length > 64) return fail("not_found");
-  const code = normalizeDeletionCode(str(formData, "code"));
+  const code = normalizeDeletionCode(codeFromForm(formData));
   if (!code) return fail("validation", { code: "deletionCode" });
 
   let result;
