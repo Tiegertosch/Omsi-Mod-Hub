@@ -79,7 +79,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
    - Backup außerhalb des Servers: erledigt (Hetzner Storage Box, tägliche Kopie per rsync, Snapshots, Wiederherstellung am 05.11.2026 getestet), in der Datenschutzerklärung beschrieben (Abschnitte 10 und 16)
    - Datenschutzerklärung: Projekte löschen (Code per E-Mail) ist umgesetzt und in Abschnitt 10 und 19 beschrieben
    - Zwei-Faktor-Anmeldung (App + Backup-Codes, Pflicht für Admins) ist umgesetzt und in der Datenschutzerklärung beschrieben (Abschnitte 10, 17, 19, 20, 22, 23)
-   - Monitoring auf `/api/health`, z. B. mit UptimeRobot
+   - Monitoring: Anleitung für Better Stack (Website über `/api/health`, Backups per Heartbeat in `backup.sh`) in DEPLOYMENT.md; auf dem Server einrichten
 2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte. Linkstatus „gesperrt“ mit Begründung ist umgesetzt. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären), Datenschutzerklärung um Widersprüche und deren Löschfristen ergänzen.
 3. **Moderation:** Kategorie ändern, Protokollfilter und Linkstatus aus Meldungen sind umgesetzt. Offen: Link-Moderation auch außerhalb von Meldungen.
 4. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.

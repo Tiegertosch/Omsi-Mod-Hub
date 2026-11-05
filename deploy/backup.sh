@@ -8,6 +8,9 @@
 # - behält BACKUP_KEEP_DAYS Tage
 # - kopiert sie, wenn BACKUP_REMOTE gesetzt ist, per rsync außerhalb des
 #   Servers (Hetzner Storage Box, Einrichtung in docs/DEPLOYMENT.md)
+# - meldet sich, wenn BACKUP_HEARTBEAT_URL gesetzt ist, bei einem
+#   Monitoring-Dienst (z. B. Better Stack): nach Erfolg die URL, bei einem
+#   Fehler sofort <URL>/fail. Bleibt die Meldung aus, warnt der Dienst.
 #
 # Wiederherstellen (Dienst vorher stoppen):
 #   sudo systemctl stop omsi-mod-hub
@@ -30,6 +33,16 @@ if [[ -z "${DATABASE_URL:-}" && -r "$ENV_FILE" ]]; then
   . "$ENV_FILE"
   set +a
 fi
+# Heartbeat: Die URL enthält ein Geheimnis und erscheint deshalb in keiner Meldung.
+# Ein nicht erreichbarer Dienst lässt das Backup nicht scheitern.
+heartbeat() {
+  [[ -n "${BACKUP_HEARTBEAT_URL:-}" ]] || return 0
+  curl -fsS --max-time 30 --retry 3 -o /dev/null "${BACKUP_HEARTBEAT_URL}$1" \
+    || echo "Heartbeat an den Monitoring-Dienst konnte nicht gesendet werden." >&2
+}
+# Jeder Abbruch (Fehler oder exit 1 unten) meldet sofort einen Fehlschlag.
+trap 'status=$?; if (( status != 0 )); then heartbeat /fail; fi' EXIT
+
 [[ -n "${DATABASE_URL:-}" ]] || { echo "DATABASE_URL ist nicht gesetzt ($ENV_FILE)." >&2; exit 1; }
 # pg_dump kennt Prisma-spezifische Parameter wie ?schema= nicht
 PG_URL="${DATABASE_URL%%\?*}"
@@ -82,3 +95,6 @@ if [[ -n "${BACKUP_REMOTE:-}" ]]; then
   fi
   echo "Backup $stamp nach $BACKUP_REMOTE kopiert"
 fi
+
+# Erst nach dem vollständigen Lauf (inkl. Kopie) Erfolg melden.
+heartbeat ""

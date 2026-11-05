@@ -360,7 +360,30 @@ rm -rf /tmp/restore-test
 
 Die vollständige Wiederherstellung (Dienst stoppen, `pg_restore`, Bilder entpacken) steht im Kopf von `deploy/backup.sh`.
 
-**Monitoring:** Bei einem Dienst wie UptimeRobot `https://beta.DEINE-DOMAIN.de/api/health` alle 5 Minuten prüfen lassen; der Pfad ist von der Basic Auth ausgenommen.
+**Monitoring (Better Stack, kostenloser Tarif):** Der Dienst läuft außerhalb des Servers und warnt per Mail oder App, wenn die Website oder das nächtliche Backup ausfällt. Er bekommt keine Daten von Nutzern, nur die Antwort von `/api/health` bzw. den Heartbeat.
+
+1. Konto auf [betterstack.com](https://betterstack.com) anlegen (Bereich *Uptime*), in den Einstellungen die Benachrichtigung per E-Mail und optional die App einrichten.
+2. **Website:** *Monitors → Create monitor*
+   - URL: `https://beta.DEINE-DOMAIN.de/api/health` (von der Basic Auth ausgenommen; bleibt auch nach der Beta gleich)
+   - Alarm, wenn die URL nicht erreichbar ist bzw. nicht mit 200 antwortet; prüfen alle 3 Minuten
+   - Optional: Schlüsselwort `"status":"ok"` verlangen und die Warnung vor ablaufendem TLS-Zertifikat einschalten
+3. **Backup:** *Heartbeats → Create heartbeat*, Intervall **1 Tag**, Kulanzzeit **2 Stunden** (das Backup läuft um 03:30 Uhr). Die angezeigte URL kopieren.
+4. Auf dem Server in `/etc/omsi-mod-hub/env` eintragen (ohne Schrägstrich am Ende):
+
+   ```bash
+   BACKUP_HEARTBEAT_URL="https://uptime.betterstack.com/api/v1/heartbeat/…"
+   ```
+
+5. Aktuelles Skript kopieren und einmal von Hand laufen lassen – danach steht der Heartbeat in Better Stack auf „Up“:
+
+   ```bash
+   sudo -iu omsi
+   cp /opt/omsi-mod-hub/current/deploy/backup.sh /opt/omsi-mod-hub/
+   /opt/omsi-mod-hub/backup.sh
+   exit
+   ```
+
+`backup.sh` meldet Erfolg erst nach der Kopie auf die Storage Box. Scheitert ein Schritt, ruft es sofort `<URL>/fail` auf; läuft es gar nicht (Timer, Server aus), warnt Better Stack nach Ablauf der Kulanzzeit. Die Heartbeat-URL ist ein Geheimnis (wer sie kennt, kann „alles in Ordnung“ melden) und erscheint deshalb in keiner Ausgabe des Skripts.
 
 **Beispieldaten:** Auf dem Server nie `pnpm db:seed` ohne `SEED_SAMPLES=false` ausführen – das legt fiktive Creator und Projekte an.
 
