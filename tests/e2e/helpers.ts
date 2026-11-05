@@ -202,7 +202,7 @@ export function totp(secret: string, at = Date.now()): string {
  * Liefert das Secret (für weitere Codes) und die Backup-Codes.
  */
 export async function enableTwoFactor(page: Page, password: string) {
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/security");
   const section = page.getByRole("region", { name: "Zwei-Faktor-Anmeldung" });
   await section.getByLabel("Aktuelles Passwort").fill(password);
   await section.getByRole("button", { name: "Zwei-Faktor-Anmeldung einrichten" }).click();

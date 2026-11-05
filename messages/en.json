@@ -458,6 +458,12 @@
       "methodBackup": "Backup code",
       "disable": "Turn off",
       "disableAdminWarning": "Without two-factor authentication you lose access to the admin area until you set it up again."
+    },
+    "settingsNav": {
+      "label": "Settings sections",
+      "profile": "Profile",
+      "security": "Security",
+      "account": "Account"
     }
   },
   "Admin": {

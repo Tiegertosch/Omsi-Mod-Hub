@@ -157,7 +157,7 @@ export async function changeEmailAction(_prev: FormState, formData: FormData): P
     const requestHeaders = await headers();
     await auth.api.verifyPassword({ body: { password: parsed.data.currentPassword }, headers: requestHeaders });
     await auth.api.changeEmail({
-      body: { newEmail: parsed.data.newEmail, callbackURL: `/${locale}/dashboard/settings?emailChange=1` },
+      body: { newEmail: parsed.data.newEmail, callbackURL: `/${locale}/dashboard/settings/account?emailChange=1` },
       headers: requestHeaders,
     });
   } catch (error) {

@@ -134,7 +134,7 @@ export function projectDeletionCodeEmail(
 export function twoFactorChangedEmail(user: MailUser, change: "enabled" | "disabled"): MailMessage {
   const locale = mailLocale(user);
   const t = translator(locale);
-  const url = absoluteUrl(`/${locale}/dashboard/settings#two-factor`);
+  const url = absoluteUrl(`/${locale}/dashboard/settings/security#two-factor`);
   return compose(locale, user.email, t(`twoFactor.${change}.subject`), t(`twoFactor.${change}.body`, { name: user.name, url }), {
     cta: { url, label: t("cta.openSettings") },
   });

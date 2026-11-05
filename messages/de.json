@@ -458,6 +458,12 @@
       "methodBackup": "Backup-Code",
       "disable": "Abschalten",
       "disableAdminWarning": "Ohne Zwei-Faktor-Anmeldung verlierst du den Zugang zum Adminbereich, bis du sie neu einrichtest."
+    },
+    "settingsNav": {
+      "label": "Bereiche der Einstellungen",
+      "profile": "Profil",
+      "security": "Sicherheit",
+      "account": "Konto"
     }
   },
   "Admin": {

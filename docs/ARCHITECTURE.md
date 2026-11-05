@@ -172,6 +172,8 @@ Zusätzlicher Schutz neben Rate-Limits und Honeypots für Registrierung, Anmeldu
 
 Eigene, kleine Komponenten statt shadcn-CLI, um Abhängigkeiten gering zu halten: Button, Badge, Container, EmptyState/Skeleton/Notice, SectionHeading. Design-Tokens in `src/app/globals.css` (`@theme`). Sortierung und Filter sind Links bzw. GET-Formulare und funktionieren ohne JavaScript. Mit Cache Components bleiben vorherige Routen per React `<Activity>` versteckt im DOM erhalten – E2E-Tests müssen Locators daher eindeutig wählen.
 
+**Einstellungen** sind in drei Unterseiten mit Reitern geteilt (`/dashboard/settings` Profil und Creator-Profil, `/settings/security` Passwort, Zwei-Faktor-Anmeldung und Geräte, `/settings/account` E-Mail-Adresse und Konto löschen), je eine Spalte mit gleich breiten Bereichen (`SettingsSection`). Die Reiter sind Links (`SettingsNav`), das Layout liest keine Session. Rücksprung-Adressen aus älteren Mails (`?emailChange=1`, `?twoFactor=…`) leitet die Profilseite auf die passende Unterseite weiter.
+
 ## Geplante Tabellen
 
 `Favorite`, `Comment`, `Rating` und `ProjectDependency` (benötigte Add-ons als Beziehung statt Freitext) werden angelegt, sobald die jeweilige Funktion umgesetzt wird.

@@ -1,5 +1,6 @@
 "use client";
 
+import { ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 
@@ -233,8 +234,13 @@ export function TwoFactorSettings({
 
   return (
     <div className="space-y-6">
-      <FormAlert tone="success">{t("twoFactor.active")}</FormAlert>
-      <p className="text-sm text-muted">{t("twoFactor.backupCodesLeft", { count: backupCodesLeft })}</p>
+      <div className="flex gap-3 rounded-lg border border-success/30 bg-success/5 px-4 py-3">
+        <ShieldCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-success" />
+        <div className="text-sm">
+          <p className="font-medium text-fg">{t("twoFactor.active")}</p>
+          <p className="mt-0.5 text-muted">{t("twoFactor.backupCodesLeft", { count: backupCodesLeft })}</p>
+        </div>
+      </div>
       <details className="rounded-lg border border-border bg-surface-2">
         <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-fg">{t("twoFactor.regenerateOpen")}</summary>
         <div className="border-t border-border p-4">

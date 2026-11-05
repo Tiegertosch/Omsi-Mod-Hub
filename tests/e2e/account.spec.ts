@@ -27,7 +27,7 @@ test("E-Mail-Adresse ändern: Bestätigung über alte und neue Adresse", async (
   await registerAndVerify(page, user);
   const newEmail = `${user.username}-neu@${E2E_MAIL_DOMAIN}`;
 
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/account");
   const section = page.getByRole("region", { name: "E-Mail-Adresse" });
   await expect(section.getByLabel("Aktuelle Adresse")).toHaveValue(user.email);
 
@@ -51,9 +51,13 @@ test("E-Mail-Adresse ändern: Bestätigung über alte und neue Adresse", async (
   // Schritt 1: Link an die bisherige Adresse. Die Adresse ändert sich noch nicht.
   const confirmLink = await waitForMailLink(user.email, /ändern/i, since);
   await page.goto(confirmLink);
-  await expect(page).toHaveURL(/\/de\/dashboard\/settings\?emailChange=1$/);
+  await expect(page).toHaveURL(/\/de\/dashboard\/settings\/account\?emailChange=1$/);
   await expect(section.getByRole("status")).toContainText("Link bestätigt");
   await expect(section.getByLabel("Aktuelle Adresse")).toHaveValue(user.email);
+
+  // Rücksprung-Adresse aus Mails von vor der Aufteilung der Einstellungen wird weitergeleitet.
+  await page.goto("/de/dashboard/settings?emailChange=1");
+  await expect(page).toHaveURL(/\/de\/dashboard\/settings\/account\?emailChange=1$/);
 
   // Schritt 2: Link an die neue Adresse übernimmt sie.
   const verifyLink = await waitForMailLink(newEmail, /neue E-Mail-Adresse bestätigen/i, since);
@@ -81,7 +85,7 @@ test("Angemeldete Geräte anzeigen und ein anderes Gerät abmelden", async ({ pa
   await login(otherPage, user.username, user.password);
   await expect(otherPage).toHaveURL(/\/de\/dashboard$/);
 
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/security");
   const section = page.getByRole("region", { name: "Angemeldete Geräte" });
   const rows = section.getByRole("listitem");
   await expect(rows).toHaveCount(2);
@@ -95,7 +99,7 @@ test("Angemeldete Geräte anzeigen und ein anderes Gerät abmelden", async ({ pa
   await expect(section.getByRole("button", { name: "Alle anderen Geräte abmelden" })).toHaveCount(0);
 
   // Das andere Gerät ist sofort abgemeldet.
-  await otherPage.goto("/de/dashboard/settings");
+  await otherPage.goto("/de/dashboard/settings/security");
   await expect(otherPage).toHaveURL(/\/de\/login\?next=/);
   await other.close();
 
@@ -117,7 +121,7 @@ test("Alle anderen Geräte abmelden", async ({ page, browser }) => {
     await expect(otherPage).toHaveURL(/\/de\/dashboard$/);
   }
 
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/security");
   const section = page.getByRole("region", { name: "Angemeldete Geräte" });
   await expect(section.getByRole("listitem")).toHaveCount(3);
   await section.getByRole("button", { name: "Alle anderen Geräte abmelden" }).click();
@@ -151,7 +155,7 @@ test("Konto löschen entfernt Konto, Creator-Profil und Projekte", async ({ page
   expect((await page.request.get(`/de/creators/${user.username}`)).status()).toBe(200);
   expect((await page.request.get(`/de/mods/${project.slug}`)).status()).toBe(200);
 
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/account");
   const section = page.getByRole("region", { name: "Konto löschen" });
   await expect(section).toContainText("1 Projekt wird mitgelöscht, davon 1 veröffentlicht.");
   await section.getByText("Konto löschen …").click();
@@ -188,7 +192,7 @@ test("Admin-Konten können sich nicht selbst löschen", async ({ page }) => {
   await registerAndVerify(page, user);
   execSync(`pnpm user:set-role ${user.email} admin`, { stdio: "pipe" });
 
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/account");
   const section = page.getByRole("region", { name: "Konto löschen" });
   await expect(section).toContainText("Admin-Konten können nicht selbst gelöscht werden");
   await expect(section.getByRole("button", { name: "Konto endgültig löschen" })).toHaveCount(0);

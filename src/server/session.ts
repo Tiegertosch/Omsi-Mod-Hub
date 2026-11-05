@@ -94,7 +94,7 @@ export async function requireUser(locale: string, returnTo: string): Promise<Cur
 export async function requireAdmin(locale: string, returnTo: string): Promise<CurrentUser> {
   const user = await requireUser(locale, returnTo);
   if (!isAdmin(user.role)) notFound();
-  if (!hasAdminAccess(user)) redirect(`/${locale}/dashboard/settings?twoFactor=required#two-factor`);
+  if (!hasAdminAccess(user)) redirect(`/${locale}/dashboard/settings/security?twoFactor=required#two-factor`);
   return user;
 }
 

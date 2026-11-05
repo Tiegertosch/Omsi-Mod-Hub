@@ -198,7 +198,9 @@ test("Einstellungen: Anzeigename, Sprache und Passwort", async ({ page }) => {
   await expect(page).toHaveURL(/\/en\/dashboard\/settings$/);
   await expect(page.getByLabel("Display name")).toHaveValue("Busfahrerin Test");
 
-  // „Current password“ steht auch in den Formularen für E-Mail und Löschen.
+  // Passwort unter „Security“; „Current password“ steht dort auch bei der Zwei-Faktor-Anmeldung.
+  await page.getByRole("navigation", { name: "Settings sections" }).getByRole("link", { name: "Security" }).click();
+  await expect(page).toHaveURL(/\/en\/dashboard\/settings\/security$/);
   const passwordSection = page.getByRole("region", { name: "Change password" });
   await passwordSection.getByLabel("Current password").fill("falsch-falsch-falsch");
   await passwordSection.getByLabel("New password", { exact: true }).fill("Noch-ein-Passwort-9");
@@ -373,7 +375,7 @@ test("E-Mail-Adresse bearbeiten: zurück zu Schritt 1, Code an die neue Adresse"
   await expect(page).toHaveURL(/\/de\/dashboard$/);
 
   // Das Konto läuft jetzt auf die neue Adresse.
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/account");
   await expect(page.getByLabel("Aktuelle Adresse")).toHaveValue(user.email);
 });
 

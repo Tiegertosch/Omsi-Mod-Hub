@@ -79,7 +79,7 @@ test("2FA einrichten, Anmeldung mit App- und Backup-Code, Abschalten", async ({ 
     else await expect(page.getByRole("alert").filter({ hasText: "Der Code ist falsch" })).toBeVisible();
   }
 
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/security");
   const section = page.getByRole("region", { name: "Zwei-Faktor-Anmeldung" });
   await expect(section.getByText("Noch 8 unbenutzte Backup-Codes.")).toBeVisible();
 
@@ -161,7 +161,7 @@ test("Admins ohne 2FA landen bei der Einrichtung, danach ist der Adminbereich of
   execSync(`pnpm user:set-role ${user.email} admin`, { stdio: "pipe" });
 
   await page.goto("/de/admin");
-  await expect(page).toHaveURL(/\/de\/dashboard\/settings\?twoFactor=required/);
+  await expect(page).toHaveURL(/\/de\/dashboard\/settings\/security\?twoFactor=required/);
   await expect(page.getByText("Der Adminbereich ist erst mit Zwei-Faktor-Anmeldung zugänglich.")).toBeVisible();
 
   await enableTwoFactor(page, user.password);
@@ -177,7 +177,7 @@ test("Bestätigungslink der E-Mail-Änderung meldet Konten mit 2FA nicht an", as
   const newEmail = `${user.username}-neu@${E2E_MAIL_DOMAIN}`;
 
   const since = Date.now() - 1000;
-  await page.goto("/de/dashboard/settings");
+  await page.goto("/de/dashboard/settings/account");
   const section = page.getByRole("region", { name: "E-Mail-Adresse" });
   await section.getByLabel("Neue E-Mail-Adresse").fill(newEmail);
   await section.getByLabel("Aktuelles Passwort").fill(user.password);
@@ -199,7 +199,7 @@ test("Bestätigungslink der E-Mail-Änderung meldet Konten mit 2FA nicht an", as
   await submitSecondFactor(freshPage, totp(secret));
   await expect(freshPage).toHaveURL(/\/de\/dashboard$/);
   await freshPage.goto(verifyLink);
-  await freshPage.goto("/de/dashboard/settings");
+  await freshPage.goto("/de/dashboard/settings/account");
   await expect(freshPage.getByRole("region", { name: "E-Mail-Adresse" }).getByLabel("Aktuelle Adresse")).toHaveValue(newEmail);
   await fresh.close();
 });
