@@ -172,7 +172,7 @@ test("Datenschutzerklärung wird aus der Datei dargestellt", async ({ page }) =>
   // Cookie-Tabelle mit drei Zeilen
   const cookies = page.getByRole("main").getByRole("table");
   await expect(cookies.getByRole("columnheader")).toHaveText(["Cookie", "Zweck", "Dauer"]);
-  await expect(cookies.getByRole("row")).toHaveCount(4);
+  await expect(cookies.getByRole("row")).toHaveCount(5);
   await expect(cookies.getByRole("cell", { name: "NEXT_LOCALE" })).toBeVisible();
   await expect(page.getByRole("listitem").filter({ hasText: /^Nicht bestätigte Konten:/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Fachanwälten für Internetrecht" })).toHaveAttribute("href", "https://www.wbs.legal/");

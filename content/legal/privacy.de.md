@@ -247,10 +247,11 @@ Für OMSI Mod Hub gelten folgende vorgesehene Löschfristen:
 - **Nicht bestätigte Konten:** 7 Tage nach der Registrierung, wenn die E-Mail-Adresse bis dahin nicht bestätigt wurde.
 - **Bestätigungs-, Passwortzurücksetzungs- und E-Mail-Änderungscodes beziehungsweise -Links:** sobald sie abgelaufen sind.
 - **Löschcodes für Projekte:** werden ausschließlich als Hash gespeichert und sind 15 Minuten gültig. Nach Verwendung werden sie sofort gelöscht; abgelaufene Codes werden beim nächsten täglichen Aufräumlauf entfernt.
+- **Daten der Zwei-Faktor-Anmeldung:** Der verschlüsselt gespeicherte Authenticator-Schlüssel und die verschlüsselt gespeicherten Backup-Codes werden beim Abschalten der Zwei-Faktor-Anmeldung oder bei Löschung des Kontos gelöscht. Werden neue Backup-Codes erzeugt, sind die bisherigen Codes sofort ungültig. Eine begonnene, aber nicht bestätigte Einrichtung bleibt verschlüsselt gespeichert, bis die Einrichtung neu gestartet oder das Konto gelöscht wird. Der laufende Anmeldevorgang zwischen Passwort- und Code-Eingabe (Kontoverweis und Versuchszähler) ist zehn Minuten gültig und wird nach erfolgreicher Code-Eingabe sofort gelöscht; abgelaufene Einträge werden beim nächsten täglichen Aufräumlauf entfernt. Für in Datensicherungen enthaltene Daten gelten die unten genannten Backup-Fristen von bis zu 24 Tagen.
 - **Abgeschlossene Meldungen:** 6 Monate nach Abschluss. Offene Meldungen werden bis zur Bearbeitung gespeichert.
 - **Widersprüche gegen Projektmoderation:** Ohne Widerspruch werden die Daten nach Ablauf der sechsmonatigen Widerspruchsfrist beim nächsten täglichen Aufräumlauf gelöscht. Abgeschlossene Widersprüche werden sechs Monate nach der Widerspruchsentscheidung gelöscht; offene bleiben bis zur Entscheidung gespeichert. Bei Löschung des betroffenen Projekts oder Kontos werden die zugehörigen Widerspruchsdaten sofort aus dem aktiven System gelöscht. Für Backups gelten die unten genannten Fristen.
 - **Downloadlink-Moderation:** Status und Begründung bleiben grundsätzlich so lange gespeichert wie der Link. Bei Freigabe entfällt die Begründung; bei als defekt markierten Links auch dann, wenn der Creator eine neue Adresse einträgt.
-- **Protokolleinträge zu Moderations- und Verwaltungsaktionen, einschließlich Widersprüchen, Linkstatus und Kategoriewechseln:** 12 Monate.
+- **Protokolleinträge zu Moderations- und Verwaltungsaktionen sowie Kontosicherheit und Projektlöschungen, einschließlich Widersprüchen, Linkstatus, Kategoriewechseln und Änderungen an der Zwei-Faktor-Anmeldung:** 12 Monate.
 - **Benutzerkonten und zugehörige Inhalte:** bis zur Löschung des Kontos durch den Nutzer, vorbehaltlich einer erforderlichen weiteren Speicherung aufgrund gesetzlicher Pflichten oder zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen.
 - **Backups:** Die vollständige Datenbank und die hochgeladenen Bilder werden täglich um 03:30 Uhr lokal gesichert und anschließend auf eine Storage Box der Hetzner Online GmbH gespiegelt. Die lokalen Sicherungen und ihre Kopien auf der Storage Box werden jeweils höchstens 14 Tage aufbewahrt. Zusätzlich erstellt die Storage Box täglich schreibgeschützte Snapshots, von denen zehn aufbewahrt werden; Sicherungen können dadurch bis zu zehn weitere Tage enthalten sein. Gelöschte Daten können somit insgesamt bis zu 24 Tage in Datensicherungen enthalten sein. Zusätzlich aktivierte Hetzner-Server-Backups sichern den gesamten Server einschließlich lokaler Sicherungen und werden bis zu sieben Tage aufbewahrt. Datensicherungen werden ausschließlich zur Wiederherstellung nach Störungen verwendet.
 
@@ -327,6 +328,8 @@ Bei der Erstellung und Nutzung eines Benutzerkontos auf OMSI Mod Hub verarbeiten
 
 Die E-Mail-Adresse wird während der Registrierung durch einen sechsstelligen Bestätigungscode verifiziert. Dieser Code ist 15 Minuten gültig. Ein Benutzerkonto darf ab einem Alter von 16 Jahren erstellt werden.
 
+**Zwei-Faktor-Anmeldung (2FA):** Die Nutzung ist für reguläre Konten freiwillig und für Admin-Konten verpflichtend. Bei aktivierter Zwei-Faktor-Anmeldung wird nach dem Passwort zusätzlich ein sechsstelliger Code aus einer Authenticator-App abgefragt. Alternativ kann einer von zehn einmalig nutzbaren Backup-Codes verwendet werden. Wir speichern den geheimen Schlüssel der Authenticator-App und die Backup-Codes jeweils verschlüsselt, den Bestätigungsstatus der Einrichtung, einen Zähler für falsche Codes und das Merkmal „Zwei-Faktor-Anmeldung aktiv“ am Konto. Nach zehn aufeinanderfolgenden Fehlversuchen wird die Anmeldung mit zweitem Faktor für 15 Minuten gesperrt. Die Authenticator-App erzeugt die Codes auf dem Gerät des Nutzers; dabei werden keine Daten an den Anbieter der App übermittelt. Der QR-Code zur Einrichtung wird auf unserem eigenen Server ohne externen Dienst erzeugt. Beim Aktivieren der Zwei-Faktor-Anmeldung werden alle anderen angemeldeten Geräte abgemeldet. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse ist der Schutz der Benutzerkonten vor unbefugtem Zugriff und bei Admin-Konten zusätzlich der Schutz der Plattform.
+
 Nutzer können ihr Konto selbst löschen. Im Rahmen der Kontolöschung werden auch das Creator-Profil, Projekte, Bilder und Sitzungen entfernt, vorbehaltlich der unter Abschnitt 10 beschriebenen Backup-Fristen sowie etwaiger gesetzlicher Aufbewahrungspflichten.
 
 ## **18. Öffentliche Inhalte von Creatorn**
@@ -347,10 +350,14 @@ Es werden keine Newsletter und keine Werbe-E-Mails versendet. E-Mails werden nur
 - Mitteilung über eine Änderung der E-Mail-Adresse an die alte und die neue Adresse,
 - Bestätigung der Kontolöschung,
 - Code zum Löschen eines Projekts an den jeweiligen Creator, einschließlich des Projekttitels,
+- Benachrichtigung über die Aktivierung der Zwei-Faktor-Anmeldung,
+- Benachrichtigung über die Deaktivierung der Zwei-Faktor-Anmeldung,
 - Mitteilungen über Moderationsentscheidungen an Creator; bei ausgeblendeten oder zurückgewiesenen Projekten einschließlich geheimem Widerspruchslink und sechsmonatiger Frist.
 - Benachrichtigungen an jedes gesperrte Konto mit Sperrgrund, Dauer und Anzahl der dabei ausgeblendeten Projekte.
 - Benachrichtigungen an Creator über gesperrte oder als defekt markierte Downloadlinks einschließlich Begründung.
 - Mitteilungen über das Ergebnis eines Widerspruchs einschließlich Begründung.
+
+Die Benachrichtigungen über das Ein- und Ausschalten der Zwei-Faktor-Anmeldung enthalten einen Link zu den Kontoeinstellungen und empfehlen eine Passwortänderung, falls die Änderung nicht vom Kontoinhaber vorgenommen wurde.
 
 ## **20. Technisch notwendige Cookies**
 
@@ -361,6 +368,7 @@ OMSI Mod Hub verwendet nach aktuellem Stand ausschließlich technisch notwendige
 | `better-auth.session_token` beziehungsweise unter HTTPS `__Secure-better-auth.session_token` | Aufrechterhaltung der Anmeldung | 30 Tage; die Laufzeit verlängert sich bei Nutzung |
 | `omh-pending-registration` | Zwischenspeicherung von E-Mail-Adresse und Benutzername zwischen den beiden Registrierungsschritten | 24 Stunden; wird nach der Bestätigung gelöscht |
 | `NEXT_LOCALE` | Speicherung der gewählten Sprache | Bis der Browser geschlossen wird |
+| `better-auth.two_factor` beziehungsweise unter HTTPS `__Secure-better-auth.two_factor` | Signierter Verweis auf den laufenden Anmeldevorgang zwischen Passwort- und Code-Eingabe; wird nur für Konten mit aktivierter Zwei-Faktor-Anmeldung gesetzt | Höchstens 10 Minuten; wird nach erfolgreicher Code-Eingabe gelöscht |
 
 ## **21. Angemeldete Geräte und Sitzungen**
 
@@ -370,9 +378,11 @@ Für jede Anmeldung können die IP-Adresse und die Browser-Kennung (User-Agent) 
 
 Zum Schutz vor automatisierten Anfragen und Missbrauch begrenzen wir Anfragen je nach Funktion anhand von IP-Adresse, E-Mail-Adresse, Benutzername oder Konto-ID. Unsere eigenen Rate-Limits verwenden folgende Schlüssel:
 
-- **IP-Adresse als SHA-256-Hash ohne geheimen Schlüssel:** bei Registrierung, Anmeldung, „Passwort vergessen“, Passwortzurücksetzung, Bestätigungscode, erneutem Senden des Codes, Projektmeldungen, Widersprüchen und Cap-CAPTCHA.
+- **IP-Adresse als SHA-256-Hash ohne geheimen Schlüssel:** bei Registrierung, Anmeldung, „Passwort vergessen“, Passwortzurücksetzung, Bestätigungscode, erneutem Senden des Codes, Projektmeldungen, Widersprüchen, dem Code-Schritt der Zwei-Faktor-Anmeldung und Cap-CAPTCHA.
 - **E-Mail-Adresse beziehungsweise Benutzername als SHA-256-Hash ohne geheimen Schlüssel:** bei Anmeldung, „Passwort vergessen“, Bestätigungscode, erneutem Senden des Codes, Hinweis auf ein bestehendes Konto und Korrektur der E-Mail-Adresse.
-- **Konto-ID im Klartext:** bei Aktionen angemeldeter Nutzer, insbesondere Projekt speichern, Upload, Profilbearbeitung, Passwortänderung, Kontolöschung und Admin-Aktionen.
+- **Konto-ID im Klartext:** bei Aktionen angemeldeter Nutzer, insbesondere Projekt speichern, Upload, Profilbearbeitung, Passwortänderung, Kontolöschung, Einrichten, Bestätigen und Abschalten der Zwei-Faktor-Anmeldung, Erzeugen neuer Backup-Codes, Anfordern und Eingeben des Projektlöschcodes und Admin-Aktionen.
+
+Zusätzlich wird die Anzahl der Versuche je laufendem Zwei-Faktor-Anmeldevorgang begrenzt. Der hierfür verwendete Schlüssel ist ein Hash des Cookie-Werts und keine aus der IP-Adresse abgeleitete Kennung.
 
 Beim Einreichen von Widersprüchen sind höchstens zehn Anfragen pro Stunde je gehashter IP-Adresse zulässig. Die eigenen Rate-Limit-Daten werden nach 24 Stunden gelöscht. Die Hashwerte sind **pseudonymisiert, nicht anonym**; insbesondere IP-Adressen und gegebenenfalls E-Mail-Adressen oder Benutzernamen können durch systematisches Ausprobieren ermittelt werden. Das Anmeldesystem kann IP-Adressen für seine Sicherheitsfunktionen auch im Klartext verarbeiten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse liegt in der Verhinderung von Missbrauch und der Sicherung des Dienstes.
 
@@ -383,6 +393,8 @@ Besucher können Projekte auch ohne Benutzerkonto melden. Dabei werden ein Melde
 Bei gesperrten Konten können der Sperrgrund und das Ablaufdatum der Sperre gespeichert werden. Außerdem wird protokolliert, welches Konto eine Moderations- oder Verwaltungsaktion ausgeführt hat; die Protokolleinträge enthalten dazu die jeweiligen Konto-IDs. Die Löschfristen für Meldungen und Protokolleinträge sind in Abschnitt 10 beschrieben.
 
 Admins können einzelne Downloadlinks als defekt markieren oder sperren. Hierzu werden der Status und eine Begründung gespeichert, die der Creator im Projekteditor einsehen kann. Die Begründung wird bei Freigabe des Links entfernt; bei einem als defekt markierten Link entfällt sie auch, wenn der Creator eine neue Downloadadresse einträgt. Andernfalls bleibt sie so lange wie der Link gespeichert. Die Änderung wird mit Admin-Konto-ID, altem und neuem Status sowie Begründung für zwölf Monate protokolliert. Auch Änderungen der Projektkategorie werden mit der Admin-Konto-ID für zwölf Monate protokolliert.
+
+Zusätzlich protokollieren wir das Aktivieren und Deaktivieren der Zwei-Faktor-Anmeldung sowie das Erzeugen neuer Backup-Codes jeweils mit der Konto-ID. Löscht ein Creator ein Projekt, werden die Konto-ID, die Projektadresse (Slug), der Projekttitel und der letzte Projektstatus protokolliert. Wird die Zwei-Faktor-Anmeldung eines Kontos im Notfall durch einen Administrator über die Kommandozeile des Servers abgeschaltet, wird dieser Vorgang ohne Admin-Konto-ID protokolliert. Diese Sicherheits- und Projektlöschprotokolle werden zwölf Monate aufbewahrt.
 
 ## **24. Externe Downloadlinks**
 

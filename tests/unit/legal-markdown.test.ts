@@ -63,20 +63,21 @@ describe("parseLegalMarkdown", () => {
     expect(text).not.toContain("`");
     expect(text).not.toContain("| ---");
 
-    // Cookie-Tabelle in Abschnitt 20: drei Cookies, Namen als Code
+    // Cookie-Tabelle in Abschnitt 20: vier Cookies, Namen als Code
     const table = blocks.find((b) => b.type === "table");
     expect(table?.type === "table" && table.header.map((cell) => cell[0]?.text)).toEqual(["Cookie", "Zweck", "Dauer"]);
     expect(table?.type === "table" && table.rows.map((row) => row[0]?.[0])).toEqual([
       { type: "code", text: "better-auth.session_token" },
       { type: "code", text: "omh-pending-registration" },
       { type: "code", text: "NEXT_LOCALE" },
+      { type: "code", text: "better-auth.two_factor" },
     ]);
 
-    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit dreizehn Punkten.
+    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit vierzehn Punkten.
     const retention = blocks.find(
       (b) => b.type === "list" && b.items.some((item) => item.some((part) => part.text === "Zugriffslogs:")),
     );
-    expect(retention?.type === "list" && retention.items).toHaveLength(13);
+    expect(retention?.type === "list" && retention.items).toHaveLength(14);
   });
 
   it("erkennt Markdown-Listen mit „- “ in aufeinanderfolgenden Zeilen", () => {
