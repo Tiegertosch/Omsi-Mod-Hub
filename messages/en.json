@@ -660,7 +660,8 @@
     "noVersion": "No version yet",
     "moderationNote": "Note from moderation",
     "overviewCount": "{count, plural, =0 {No projects yet} one {# project} other {# projects}}",
-    "manage": "Manage projects"
+    "manage": "Manage projects",
+    "deleted": "The project has been deleted."
   },
   "Editor": {
     "projectPricing": "Pricing",
@@ -830,7 +831,8 @@
       "linksRequired": "At least one download link is required.",
       "imageType": "Only JPEG, PNG or WebP images are allowed.",
       "imageSize": "The image is larger than 5 MB.",
-      "imageDimensions": "The image is too small (at least 320 px on the shorter side)."
+      "imageDimensions": "The image is too small (at least 320 px on the shorter side).",
+      "deletionCode": "The code is wrong or has expired."
     },
     "requirementsHint": "What else is needed, e.g. vehicles, object packs or patches? Enter the name, optionally a link to where to get it, and whether it is free or paid.",
     "requirementName": "Name",
@@ -843,7 +845,18 @@
     "addRequirement": "Add requirement",
     "linkBlocked": "Blocked by the moderators: this link is not shown, even if you change the address. Remove it or add a new one.",
     "linkBroken": "Marked as broken: visitors see a notice. It disappears once you enter a new address.",
-    "linkModerationNote": "Reason: {note}"
+    "linkModerationNote": "Reason: {note}",
+    "deletion": {
+      "title": "Delete project",
+      "intro": "Permanently deletes the project with all versions, download links, images, reports and appeals. This cannot be undone. To confirm, we'll send a code to your email address.",
+      "request": "Email me a deletion code",
+      "requestAgain": "Request a new code",
+      "sending": "Sending …",
+      "codeSent": "We've sent a code to your email address. It is valid for {minutes} minutes.",
+      "codeLabel": "Deletion code from the email",
+      "confirm": "Delete project permanently",
+      "deleting": "Deleting …"
+    }
   },
   "Review": {
     "title": "Projects & reviews",
@@ -942,7 +955,9 @@
       "appeal": "Submit an appeal",
       "openEditor": "Open in editor",
       "contact": "Contact details"
-    }
+    },
+    "projectDeleteSubject": "{code} is your code to delete “{title}” – OMSI Mod Hub",
+    "projectDeleteBody": "Hi {name},\n\nyou want to delete your project “{title}” at OMSI Mod Hub. Your confirmation code is:\n\n{code}\n\nEnter it in the project editor:\n\n{url}\n\nThe code is valid for {minutes} minutes. Deleting cannot be undone.\n\nIf you didn't request this, don't enter the code; the project will stay. Please change your password anyway, because the request came from your signed-in account."
   },
   "Errors": {
     "notFoundTitle": "Page not found",

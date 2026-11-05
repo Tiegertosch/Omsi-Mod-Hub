@@ -42,6 +42,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Titelbild und Screenshots: sicherer Upload (Signaturprüfung, ≤ 5 MB, Neukodierung zu WebP ohne Metadaten); auf der Projektseite gemeinsam in einem Karussell (Wischen, Pfeile, Vorschaubilder), Vorschaukarten zeigen nur das Titelbild | ✅ |
 | Versionen mit Changelog und mehreren externen Downloadlinks | ✅ |
 | Status: Entwurf → Einreichen → Freigabe/Zurückweisung (mit Begründung), Zurückziehen, Archivieren; Vorschau | ✅ |
+| Projekt löschen (in jedem Status, Bestätigung mit Code per E-Mail) | ✅ |
 | Admin: Freigabe-Warteschlange und Ausblenden/Wiedereinblenden veröffentlichter Projekte (mit Begründung) `/admin/projects` | ✅ |
 | Admin: Meldungen bearbeiten (offen → in Bearbeitung → erledigt/verworfen, interne Notiz) `/admin/reports` | ✅ |
 | Admin: Konten suchen und befristet/unbefristet sperren (beendet Sitzungen, optional Projekte ausblenden, E-Mail mit Grund und Dauer) `/admin/users` | ✅ |

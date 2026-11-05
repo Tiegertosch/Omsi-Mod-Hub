@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import {
   adminPage,
@@ -9,6 +9,7 @@ import {
   randomIp,
   registerAndVerify,
   uniqueUser,
+  waitForMail,
 } from "./helpers";
 
 test.beforeEach(async ({ context }) => {
@@ -261,4 +262,91 @@ test("Editor validiert Pflichtfelder, zeigt Fehler in Tabs und behält Eingaben"
   await expect(germanTexts(page).getByLabel("Kurzbeschreibung")).toHaveAttribute("aria-invalid", "true");
   // Eingaben bleiben erhalten
   await expect(germanTexts(page).getByLabel("Titel", { exact: true })).toHaveValue("Nur ein Titel");
+});
+
+/** Fordert im Editor den Löschcode an und liefert ihn aus der Mail. */
+async function requestDeletionCode(page: Page, email: string, title: string) {
+  const panel = page.getByRole("region", { name: "Projekt löschen" });
+  const since = Date.now() - 1000;
+  await panel.getByRole("button", { name: "Löschcode per E-Mail anfordern" }).click();
+  await expect(panel.getByLabel("Löschcode aus der E-Mail")).toBeVisible();
+  const mail = await waitForMail(email, /Code zum Löschen/, since);
+  const code = /^(\d{6}) /.exec(mail.subject)?.[1] ?? "";
+  expect(code).toMatch(/^\d{6}$/);
+  expect(mail.text).toContain(title);
+  return { panel, code };
+}
+
+test("Projekt löschen: Code per E-Mail, falscher Code abgewiesen, danach echte 404", async ({ page, browser }) => {
+  const user = uniqueUser("e2e-creator");
+  await registerAndVerify(page, user);
+  await becomeCreator(page, "E2E Löschen");
+  const title = `E2E Löschbus ${Date.now().toString(36)}`;
+  const project = await createSubmittableProject(page, title);
+  await page.getByRole("button", { name: "Zur Prüfung einreichen" }).click();
+  await expect(page.getByText("In Prüfung", { exact: true })).toBeVisible();
+
+  const admin = await adminPage(browser);
+  await admin.goto("/de/admin/projects");
+  const item = admin.locator("li", { hasText: title });
+  await item.getByRole("button", { name: "Freigeben" }).click();
+  await expect(item).toHaveCount(0);
+  expect((await page.goto(`/de/mods/${project.slug}`))?.status()).toBe(200);
+
+  await page.goto(`/de/dashboard/projects/${project.id}/edit`);
+  const { panel, code } = await requestDeletionCode(page, user.email, title);
+
+  await panel.getByLabel("Löschcode aus der E-Mail").fill(code === "000000" ? "111111" : "000000");
+  await panel.getByRole("button", { name: "Projekt endgültig löschen" }).click();
+  await expect(panel.getByText("Der Code ist falsch oder abgelaufen.")).toBeVisible();
+
+  await panel.getByLabel("Löschcode aus der E-Mail").fill(code);
+  await panel.getByRole("button", { name: "Projekt endgültig löschen" }).click();
+  await expect(page).toHaveURL(/\/de\/dashboard\/projects\?deleted=1$/);
+  await expect(page.getByText("Das Projekt wurde gelöscht.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Noch keine Projekte" })).toBeVisible();
+
+  expect((await page.goto(`/de/mods/${project.slug}`))?.status()).toBe(404);
+  await page.goto(`/de/dashboard/projects/${project.id}/edit`);
+  await expect(page.getByRole("heading", { name: "Seite nicht gefunden" })).toBeVisible();
+});
+
+test("Projekt in Prüfung löschen; fremde Projekte lassen sich nicht löschen", async ({ page, browser }) => {
+  const owner = uniqueUser("e2e-creator");
+  await registerAndVerify(page, owner);
+  await becomeCreator(page, "E2E Löschbesitzer");
+  const title = `E2E Prüfung ${Date.now().toString(36)}`;
+  const project = await createSubmittableProject(page, title);
+  await page.getByRole("button", { name: "Zur Prüfung einreichen" }).click();
+  await expect(page.getByText("In Prüfung", { exact: true })).toBeVisible();
+
+  // Anderer Creator tauscht die Projekt-ID im Formular aus.
+  const context = await browser.newContext({ locale: "de-DE", extraHTTPHeaders: { "x-forwarded-for": randomIp() } });
+  const other = await context.newPage();
+  await registerAndVerify(other, uniqueUser("e2e-creator"));
+  await becomeCreator(other, "E2E Löschangreifer");
+  const own = await createSubmittableProject(other, `E2E Eigen ${Date.now().toString(36)}`);
+  await other.goto(`/de/dashboard/projects/${own.id}/edit`);
+  await other.evaluate((id) => {
+    window.addEventListener(
+      "submit",
+      (event) => {
+        const input = (event.target as HTMLFormElement).querySelector<HTMLInputElement>('input[name="projectId"]');
+        if (input) input.value = id;
+      },
+      { capture: true },
+    );
+  }, project.id);
+  const otherPanel = other.getByRole("region", { name: "Projekt löschen" });
+  await otherPanel.getByRole("button", { name: "Löschcode per E-Mail anfordern" }).click();
+  await expect(otherPanel.getByRole("alert").filter({ hasText: "Das Projekt wurde nicht gefunden." })).toBeVisible();
+  await context.close();
+
+  // Der Besitzer kann das Projekt auch in Prüfung (für ihn gesperrt) löschen.
+  await page.goto(`/de/dashboard/projects/${project.id}/edit`);
+  const { panel, code } = await requestDeletionCode(page, owner.email, title);
+  await panel.getByLabel("Löschcode aus der E-Mail").fill(code);
+  await panel.getByRole("button", { name: "Projekt endgültig löschen" }).click();
+  await expect(page).toHaveURL(/\/de\/dashboard\/projects\?deleted=1$/);
+  await expect(page.getByRole("heading", { name: "Noch keine Projekte" })).toBeVisible();
 });

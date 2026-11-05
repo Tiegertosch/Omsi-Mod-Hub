@@ -86,4 +86,20 @@ describe("E-Mails mit HTML-Fassung", () => {
     expect(code.html).toMatch(/letter-spacing:6px[^>]*>482913</);
     expect(code.html).toContain(">Code eingeben</a>");
   });
+
+  it("Löschcode nennt Projekt und Code, Titel escaped", async () => {
+    const { projectDeletionCodeEmail } = await import("@/server/emails");
+    const mail = projectDeletionCodeEmail(
+      { email: "c@example.com", name: "Chris", preferredLocale: "en" },
+      { id: "p1", title: "Bus <O530>" },
+      "004217",
+      15,
+    );
+    expect(mail.subject).toMatch(/^004217 /);
+    expect(mail.subject).toContain("Bus <O530>");
+    expect(mail.text).toContain("/en/dashboard/projects/p1/edit#delete-project");
+    expect(mail.html).toMatch(/letter-spacing:6px[^>]*>004217</);
+    expect(mail.html).not.toContain("<O530>");
+    expect(mail.html).toContain(">Enter code</a>");
+  });
 });

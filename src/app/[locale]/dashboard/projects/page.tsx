@@ -10,6 +10,7 @@ import { CreatorProfileForm } from "@/components/creator/creator-profile-form";
 import { STATUS_TONES } from "@/components/editor/status-tones";
 import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form";
 import { EmptyState } from "@/components/ui/state";
 import { Link } from "@/i18n/navigation";
 import { isSafeImageSrc } from "@/lib/external-url";
@@ -123,7 +124,15 @@ async function NewProjectButton() {
   );
 }
 
-export default async function ProjectsPage() {
+/** Rückmeldung nach dem Löschen eines Projekts (Weiterleitung mit ?deleted=1). */
+async function DeletedNotice({ searchParams }: Pick<PageProps<"/[locale]/dashboard/projects">, "searchParams">) {
+  const { deleted } = await searchParams;
+  if (deleted !== "1") return null;
+  const t = await getTranslations("Projects");
+  return <FormAlert tone="success" className="mb-6">{t("deleted")}</FormAlert>;
+}
+
+export default async function ProjectsPage({ searchParams }: PageProps<"/[locale]/dashboard/projects">) {
   const t = await getTranslations("Projects");
   return (
     <>
@@ -133,6 +142,9 @@ export default async function ProjectsPage() {
           <NewProjectButton />
         </Suspense>
       </div>
+      <Suspense fallback={null}>
+        <DeletedNotice searchParams={searchParams} />
+      </Suspense>
       <Suspense fallback={<FormSkeleton fields={3} />}>
         <ProjectsContent />
       </Suspense>

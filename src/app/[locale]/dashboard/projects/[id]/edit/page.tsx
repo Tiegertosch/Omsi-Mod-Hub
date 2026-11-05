@@ -7,6 +7,7 @@ import { locale as rootLocale } from "next/root-params";
 import { Suspense, type ReactNode } from "react";
 
 import { FormSkeleton } from "@/components/auth/auth-shell";
+import { DeleteProjectPanel } from "@/components/editor/delete-project-panel";
 import { EditorTabList, EditorTabPanel, EditorTabs } from "@/components/editor/editor-tabs";
 import { MediaManager } from "@/components/editor/media-manager";
 import { ProjectForm } from "@/components/editor/project-form";
@@ -23,6 +24,7 @@ import { availableCreatorActions, isEditableByCreator, publishChecklist } from "
 import { pickTranslation } from "@/lib/translation";
 import { requireCreator } from "@/server/creator";
 import { getEditorOptions, getOwnProjectForEditor } from "@/server/data/creator-projects";
+import { pendingProjectDeletion } from "@/server/project-deletion";
 
 type Props = PageProps<"/[locale]/dashboard/projects/[id]/edit">;
 
@@ -31,9 +33,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("editTitle"), robots: { index: false, follow: false } };
 }
 
-function Panel({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+function Panel({ id, title, children, danger }: { id: string; title: string; children: ReactNode; danger?: boolean }) {
   return (
-    <section aria-labelledby={id} className="rounded-[var(--radius-card)] border border-border bg-surface p-5 sm:p-6">
+    <section
+      aria-labelledby={id}
+      className={`rounded-[var(--radius-card)] border bg-surface p-5 sm:p-6 ${danger ? "border-danger/40" : "border-border"}`}
+    >
       <h2 id={id} className="mb-5 text-lg font-semibold text-fg">
         {title}
       </h2>
@@ -48,10 +53,11 @@ async function EditorContent({ params }: Pick<Props, "params">) {
   const project = await getOwnProjectForEditor(user, id);
   if (!project) notFound();
 
-  const [t, projectsT, options] = await Promise.all([
+  const [t, projectsT, options, deletionPendingUntil] = await Promise.all([
     getTranslations("Editor"),
     getTranslations("Projects"),
     getEditorOptions(locale),
+    pendingProjectDeletion(project.id),
   ]);
   const reviewRequired = isReviewRequired();
   const editable = isEditableByCreator(project.status);
@@ -160,6 +166,13 @@ async function EditorContent({ params }: Pick<Props, "params">) {
                 </EditorTabPanel>
               </>
             ) : null}
+
+            {/* Außerhalb der Bearbeitungssperre: Löschen geht in jedem Status. */}
+            <div id="delete-project" className="scroll-mt-24">
+              <Panel id="section-delete" title={t("deletion.title")} danger>
+                <DeleteProjectPanel projectId={project.id} codePending={deletionPendingUntil !== null} />
+              </Panel>
+            </div>
           </div>
 
           <aside className="order-first xl:order-none">

@@ -20,6 +20,13 @@ import {
   type EditorErrorCode,
   type EditorFieldCode,
 } from "@/lib/project-form";
+import {
+  generateDeletionCode,
+  hashDeletionCode,
+  normalizeDeletionCode,
+  PROJECT_DELETION_CODE_MINUTES,
+  projectDeletionIdentifier,
+} from "@/lib/project-deletion";
 import { isReviewRequired, PROJECT_LIMITS } from "@/lib/project-rules";
 import {
   CREATOR_LOCKED_STATUSES,
@@ -29,7 +36,10 @@ import {
 } from "@/lib/project-status";
 import { isValidSlug, slugify } from "@/lib/slug";
 import { canManageProjects } from "@/server/creator";
+import { projectDeletionCodeEmail } from "@/server/emails";
 import { processImageUpload } from "@/server/images";
+import { sendMailInBackground } from "@/server/mail";
+import { deleteProjectWithCode } from "@/server/project-deletion";
 import { rebuildSearchText } from "@/server/project-search";
 import { consumeRateLimit } from "@/server/rate-limit";
 import { getActingUser, type CurrentUser } from "@/server/session";
@@ -545,4 +555,71 @@ export async function changeProjectStatusAction(_prev: EditorState, formData: Fo
   projectsChanged([project.slug]);
   refresh();
   return { status: "success" };
+}
+
+// ---------------------------------------------------------------------------
+// Löschen (Bestätigung per Code aus der E-Mail, in jedem Status)
+// ---------------------------------------------------------------------------
+
+/** Schritt 1: Löschcode an die Adresse des Kontos senden. Ein neuer Code ersetzt den alten. */
+export async function requestProjectDeletionAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
+  const { user, error } = await currentCreator();
+  if (!user) return fail(error);
+  // Begrenzt zugleich die Zahl der Mails.
+  if (!(await consumeRateLimit(`project-delete-request:user:${user.id}`, 3, 60 * MINUTE))) return fail("rate_limit");
+
+  const projectId = str(formData, "projectId");
+  if (!projectId || projectId.length > 64) return fail("not_found");
+  const project = await db.project.findFirst({
+    where: { id: projectId, creatorId: user.id },
+    select: { id: true, slug: true, defaultLocale: true, translations: { select: { locale: true, title: true } } },
+  });
+  if (!project) return fail("not_found");
+
+  const code = generateDeletionCode();
+  const identifier = projectDeletionIdentifier(project.id);
+  await db.$transaction([
+    db.verification.deleteMany({ where: { identifier } }),
+    db.verification.create({
+      data: {
+        identifier,
+        value: hashDeletionCode(project.id, code),
+        expiresAt: new Date(Date.now() + PROJECT_DELETION_CODE_MINUTES * MINUTE),
+      },
+    }),
+  ]);
+
+  const title =
+    project.translations.find((t) => t.locale === project.defaultLocale)?.title ?? project.translations[0]?.title ?? project.slug;
+  sendMailInBackground(projectDeletionCodeEmail(user, { id: project.id, title }, code, PROJECT_DELETION_CODE_MINUTES));
+  refresh();
+  return { status: "success" };
+}
+
+/** Schritt 2: Code prüfen und das Projekt endgültig löschen. */
+export async function confirmProjectDeletionAction(_prev: EditorState, formData: FormData): Promise<EditorState> {
+  const { user, error } = await currentCreator();
+  if (!user) return fail(error);
+  // Zusammen mit der Gültigkeit von 15 Minuten die Grenze für Rateversuche.
+  if (!(await consumeRateLimit(`project-delete-confirm:user:${user.id}`, 5, 15 * MINUTE))) return fail("rate_limit");
+
+  const locale = z.enum(routing.locales).catch(routing.defaultLocale).parse(str(formData, "locale"));
+  const projectId = str(formData, "projectId");
+  if (!projectId || projectId.length > 64) return fail("not_found");
+  const code = normalizeDeletionCode(str(formData, "code"));
+  if (!code) return fail("validation", { code: "deletionCode" });
+
+  let result;
+  try {
+    result = await deleteProjectWithCode({ projectId, creatorId: user.id, code });
+  } catch (error) {
+    console.error("[projects] Löschen fehlgeschlagen:", error instanceof Error ? error.message : "unbekannt");
+    return fail("generic");
+  }
+  if (!result.ok) return result.reason === "invalid_code" ? fail("validation", { code: "deletionCode" }) : fail("not_found");
+
+  // Nach dem Commit; schlägt das fehl, bleiben nur verwaiste Dateien zurück.
+  await Promise.all(result.mediaUrls.map((url) => deleteMedia(mediaKeyFromUrl(url))));
+  projectsChanged([result.slug]);
+  redirect(`/${locale}/dashboard/projects?deleted=1`);
 }

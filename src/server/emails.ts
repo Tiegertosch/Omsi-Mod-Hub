@@ -109,6 +109,27 @@ export function changeEmailVerificationEmail(user: MailUser, url: string): MailM
   });
 }
 
+/**
+ * Code zum Löschen eines Projekts. Wer ihn angefordert hat, hatte Zugriff auf
+ * die Sitzung; die Mail rät deshalb zum Passwortwechsel, falls es jemand
+ * anderes war.
+ */
+export function projectDeletionCodeEmail(
+  user: MailUser,
+  project: { id: string; title: string },
+  code: string,
+  minutes: number,
+): MailMessage {
+  const locale = mailLocale(user);
+  const t = translator(locale);
+  const url = absoluteUrl(`/${locale}/dashboard/projects/${project.id}/edit#delete-project`);
+  const text = t("projectDeleteBody", { name: user.name, title: project.title, code, minutes, url });
+  return compose(locale, user.email, t("projectDeleteSubject", { code, title: project.title }), text, {
+    code,
+    cta: { url, label: t("cta.enterCode") },
+  });
+}
+
 export function accountDeletedEmail(user: MailUser): MailMessage {
   const locale = mailLocale(user);
   const t = translator(locale);

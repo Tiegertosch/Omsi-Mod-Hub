@@ -77,6 +77,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
    - Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
    - Basic Auth und noindex entfernen
    - Backup außerhalb des Servers: erledigt (Hetzner Storage Box, tägliche Kopie per rsync, Snapshots, Wiederherstellung am 05.11.2026 getestet), in der Datenschutzerklärung beschrieben (Abschnitte 10 und 16)
+   - Datenschutzerklärung: Projekte löschen (Code per E-Mail) ist umgesetzt. Offen: Abschnitt 19 um die Mail mit dem Löschcode ergänzen und in Abschnitt 10 den Löschcode zu den Codes nehmen, die mit Ablauf gelöscht werden (15 Minuten)
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
 2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte. Linkstatus „gesperrt“ mit Begründung ist umgesetzt. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären), Datenschutzerklärung um Widersprüche und deren Löschfristen ergänzen.
 3. **Moderation:** Kategorie ändern, Protokollfilter und Linkstatus aus Meldungen sind umgesetzt. Offen: Link-Moderation auch außerhalb von Meldungen.

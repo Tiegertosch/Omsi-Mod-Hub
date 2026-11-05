@@ -660,7 +660,8 @@
     "noVersion": "Noch keine Version",
     "moderationNote": "Hinweis der Moderation",
     "overviewCount": "{count, plural, =0 {Noch keine Projekte} one {# Projekt} other {# Projekte}}",
-    "manage": "Projekte verwalten"
+    "manage": "Projekte verwalten",
+    "deleted": "Das Projekt wurde gelöscht."
   },
   "Editor": {
     "projectPricing": "Preismodell",
@@ -830,7 +831,8 @@
       "linksRequired": "Mindestens ein Downloadlink ist erforderlich.",
       "imageType": "Nur JPEG-, PNG- oder WebP-Bilder sind erlaubt.",
       "imageSize": "Das Bild ist größer als 5 MB.",
-      "imageDimensions": "Das Bild ist zu klein (mindestens 320 px an der kürzeren Seite)."
+      "imageDimensions": "Das Bild ist zu klein (mindestens 320 px an der kürzeren Seite).",
+      "deletionCode": "Der Code ist falsch oder abgelaufen."
     },
     "requirementsHint": "Was wird zusätzlich gebraucht, z. B. Fahrzeuge, Objektpakete oder Patches? Gib den Namen an, optional einen Link zur Bezugsquelle, und ob es kostenlos oder kostenpflichtig ist.",
     "requirementName": "Name",
@@ -843,7 +845,18 @@
     "addRequirement": "Voraussetzung hinzufügen",
     "linkBlocked": "Von der Moderation gesperrt: Dieser Link wird nicht angezeigt, auch wenn du die Adresse änderst. Entferne ihn oder lege einen neuen an.",
     "linkBroken": "Als defekt markiert: Besucher sehen einen Hinweis. Mit einer neuen Adresse entfällt er.",
-    "linkModerationNote": "Begründung: {note}"
+    "linkModerationNote": "Begründung: {note}",
+    "deletion": {
+      "title": "Projekt löschen",
+      "intro": "Löscht das Projekt endgültig mit allen Versionen, Downloadlinks, Bildern, Meldungen und Widersprüchen. Das lässt sich nicht rückgängig machen. Zur Bestätigung schicken wir dir einen Code an deine E-Mail-Adresse.",
+      "request": "Löschcode per E-Mail anfordern",
+      "requestAgain": "Neuen Code anfordern",
+      "sending": "Wird gesendet …",
+      "codeSent": "Wir haben dir einen Code an deine E-Mail-Adresse geschickt. Er ist {minutes} Minuten gültig.",
+      "codeLabel": "Löschcode aus der E-Mail",
+      "confirm": "Projekt endgültig löschen",
+      "deleting": "Wird gelöscht …"
+    }
   },
   "Review": {
     "title": "Projekte & Freigaben",
@@ -942,7 +955,9 @@
       "appeal": "Widerspruch einlegen",
       "openEditor": "Im Editor öffnen",
       "contact": "Kontakt im Impressum"
-    }
+    },
+    "projectDeleteSubject": "{code} ist dein Code zum Löschen von „{title}“ – OMSI Mod Hub",
+    "projectDeleteBody": "Hallo {name},\n\ndu möchtest dein Projekt „{title}“ bei OMSI Mod Hub löschen. Dein Code zur Bestätigung lautet:\n\n{code}\n\nGib ihn im Editor des Projekts ein:\n\n{url}\n\nDer Code ist {minutes} Minuten gültig. Das Löschen lässt sich nicht rückgängig machen.\n\nWenn du das nicht angefordert hast, gib den Code nicht ein; das Projekt bleibt dann bestehen. Ändere bitte trotzdem dein Passwort, denn die Anfrage kam aus deinem angemeldeten Konto."
   },
   "Errors": {
     "notFoundTitle": "Seite nicht gefunden",

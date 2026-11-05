@@ -44,6 +44,7 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Cover image and screenshots: secure upload (signature check, ≤ 5 MB, re-encoded to WebP without metadata); shown together in a carousel on the project page (swipe, arrows, thumbnails), preview cards show only the cover | ✅ |
 | Versions with changelog and several external download links | ✅ |
 | Status: draft → submit → approval/rejection (with reason), withdraw, archive; preview | ✅ |
+| Delete a project (in any status, confirmed with a code sent by email) | ✅ |
 | Admin: approval queue and hiding/unhiding published projects (with reason) `/admin/projects` | ✅ |
 | Admin: handle reports (open → in progress → resolved/dismissed, internal note) `/admin/reports` | ✅ |
 | Admin: search accounts and ban them temporarily/permanently (ends sessions, optionally hides projects, email with reason and duration) `/admin/users` | ✅ |

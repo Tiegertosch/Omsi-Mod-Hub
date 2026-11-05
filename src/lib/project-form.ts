@@ -36,7 +36,8 @@ export type EditorFieldCode =
   | "linksRequired"
   | "imageType"
   | "imageSize"
-  | "imageDimensions";
+  | "imageDimensions"
+  | "deletionCode";
 
 const str = (formData: FormData, key: string) => {
   const value = formData.get(key);
