@@ -173,7 +173,7 @@ The following retention periods apply to OMSI Mod Hub:
 - **Download-link moderation:** The status and reason are generally retained for as long as the link exists. The reason is removed when an admin re-enables the link, or, for a broken link, when the creator enters a new URL.
 - **Moderation and administration logs, including appeals, link-status changes and category changes:** retained for 12 months.
 - **User accounts and associated content:** retained until the user deletes the account, subject to any further retention required by law or necessary for the establishment, exercise or defence of legal claims.
-- **Backups:** deleted data may remain in daily backups for up to 14 days. If additional server backups operated by Hetzner are enabled, data may remain there for up to a further 7 days.
+- **Backups:** A full backup of the database and uploaded images is created locally every day at 03:30 and then mirrored to a Storage Box operated by Hetzner Online GmbH. Local backups and their copies on the Storage Box are each retained for no more than 14 days. The Storage Box also creates daily read-only snapshots, retaining ten snapshots; these may contain backups for up to ten additional days. Deleted data may therefore remain in backups for up to 24 days in total. Enabled Hetzner server backups cover the entire server, including local backups, and are retained for up to seven days. Backups are used exclusively to restore the service after disruptions.
 
 These are the intended standard retention periods. If data must be retained longer in a specific case to comply with legal obligations or investigate a specific security incident, it will be retained only to the extent and for the period necessary.
 
@@ -215,6 +215,8 @@ Industriestr. 25
 Germany
 
 The processing may be based on Article 6(1)(b) GDPR where necessary to perform the relevant service contract and Article 6(1)(f) GDPR where necessary to provide secure, reliable and efficient hosting.
+
+We additionally use a **Hetzner Storage Box** for backups (location: **Falkenstein, Germany**). It stores copies of daily full database backups and uploaded images. Database backups may include account data, email addresses, password hashes, session data including IP addresses, reports, appeals, moderation and administration logs, and rate-limit hashes. Transfers to the Storage Box are encrypted via SSH. Access is restricted to our own server using an SSH key; snapshots cannot be deleted from the server. **The stored backup files are not additionally encrypted.** The legal basis is Article 6(1)(f) GDPR; our legitimate interest is data security and the ability to restore the service. Retention periods are described in Section 10.
 
 The retention criteria depend on the service relationship and any applicable statutory, contractual or technical retention requirements. Further information is available at [https://www.hetzner.com](https://www.hetzner.com).
 

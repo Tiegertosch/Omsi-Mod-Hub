@@ -44,7 +44,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
   - Kategorien und Tags verwalten, Protokoll
   - Admin-Rechte nur per CLI: `pnpm user:set-role <mail> admin`
 - **E-Mails an Creator** bei Freigabe, Zurückweisung, Ausblenden und Wiedereinblenden (`src/server/emails.ts`).
-- **Löschfristen:** täglicher Timer `omsi-mod-hub-cleanup` (`pnpm data:cleanup`): Rate-Limit-Einträge mit IP-Adressen nach 24 Stunden, abgelaufene Sitzungen und Codes, unbestätigte Konten nach 7 Tagen, abgeschlossene Meldungen nach 6 Monaten, Protokolleinträge nach 12 Monaten; Caddy-Logs höchstens 14 Tage. Alle Fristen samt Backups (14 Tage) stehen in Abschnitt 10 der Datenschutzerklärung. Auf der Beta einmalig einrichten (DEPLOYMENT.md, Betrieb).
+- **Löschfristen:** täglicher Timer `omsi-mod-hub-cleanup` (`pnpm data:cleanup`): Rate-Limit-Einträge mit IP-Adressen nach 24 Stunden, abgelaufene Sitzungen und Codes, unbestätigte Konten nach 7 Tagen, abgeschlossene Meldungen nach 6 Monaten, Protokolleinträge nach 12 Monaten; Caddy-Logs höchstens 14 Tage. Alle Fristen samt Backups (14 Tage lokal und auf der Storage Box, mit Snapshots bis zu 24 Tage) stehen in Abschnitt 10 der Datenschutzerklärung, die Storage Box in Abschnitt 16. Auf der Beta einmalig einrichten (DEPLOYMENT.md, Betrieb).
 - **`/api/health`** prüft die Datenbank und wird für Monitoring und Deployment genutzt.
 
 ## Wichtige Entscheidungen und Fallstricke
@@ -76,7 +76,7 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
 1. **Vor einem öffentlichen Start:**
    - Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
    - Basic Auth und noindex entfernen
-   - Backup außerhalb des Servers: erledigt (Hetzner Storage Box, tägliche Kopie per rsync, Snapshots, Wiederherstellung am 05.11.2026 getestet). Offen: Abschnitt 10 der Datenschutzerklärung um die Snapshot-Aufbewahrung ergänzen (bis zu 24 Tage)
+   - Backup außerhalb des Servers: erledigt (Hetzner Storage Box, tägliche Kopie per rsync, Snapshots, Wiederherstellung am 05.11.2026 getestet), in der Datenschutzerklärung beschrieben (Abschnitte 10 und 16)
    - Monitoring auf `/api/health`, z. B. mit UptimeRobot
 2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte. Linkstatus „gesperrt“ mit Begründung ist umgesetzt. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären), Datenschutzerklärung um Widersprüche und deren Löschfristen ergänzen.
 3. **Moderation:** Kategorie ändern, Protokollfilter und Linkstatus aus Meldungen sind umgesetzt. Offen: Link-Moderation auch außerhalb von Meldungen.
