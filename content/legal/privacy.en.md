@@ -168,6 +168,7 @@ The following retention periods apply to OMSI Mod Hub:
 - **Session data and logged-in device entries:** deleted upon logout or no later than 30 days.
 - **Unconfirmed accounts:** deleted 7 days after registration if the email address has not been confirmed.
 - **Verification, password-reset and email-change codes or links:** deleted or invalidated as soon as they expire.
+- **Project deletion codes:** stored only as hashes and valid for 15 minutes. They are deleted immediately after use; expired codes are removed during the next daily cleanup.
 - **Closed reports:** retained for 6 months after closure. Open reports remain stored until they have been processed.
 - **Appeals against project moderation:** If no appeal is submitted, the data is deleted during the next daily cleanup after the six-month appeal period expires. Resolved appeals are deleted six months after the appeal decision; pending appeals are retained until a decision is made. Related appeal data is deleted immediately from the active system when the project or account is deleted. Backup retention is described below.
 - **Download-link moderation:** The status and reason are generally retained for as long as the link exists. The reason is removed when an admin re-enables the link, or, for a broken link, when the creator enters a new URL.
@@ -252,6 +253,7 @@ We do not send newsletters or marketing emails. Emails are triggered only by spe
 - Password-reset messages.
 - Email-address change notifications sent to both the old and the new address.
 - Account-deletion confirmation.
+- Project deletion code sent to the relevant creator, including the project title.
 - Moderation decisions sent to creators; for hidden or rejected projects, these include a secret appeal link and the six-month deadline.
 - Suspension notifications sent to every suspended account, stating the reason, duration and number of projects hidden as part of the suspension.
 - Notifications to creators when download links are blocked or marked as broken, including the reason.

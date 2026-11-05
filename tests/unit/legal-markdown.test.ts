@@ -72,11 +72,11 @@ describe("parseLegalMarkdown", () => {
       { type: "code", text: "NEXT_LOCALE" },
     ]);
 
-    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit zwölf Punkten.
+    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit dreizehn Punkten.
     const retention = blocks.find(
       (b) => b.type === "list" && b.items.some((item) => item.some((part) => part.text === "Zugriffslogs:")),
     );
-    expect(retention?.type === "list" && retention.items).toHaveLength(12);
+    expect(retention?.type === "list" && retention.items).toHaveLength(13);
   });
 
   it("erkennt Markdown-Listen mit „- “ in aufeinanderfolgenden Zeilen", () => {

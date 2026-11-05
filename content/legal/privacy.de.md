@@ -246,6 +246,7 @@ Für OMSI Mod Hub gelten folgende vorgesehene Löschfristen:
 - **Sitzungsdaten und Einträge zu angemeldeten Geräten:** bei Abmeldung beziehungsweise spätestens nach 30 Tagen.
 - **Nicht bestätigte Konten:** 7 Tage nach der Registrierung, wenn die E-Mail-Adresse bis dahin nicht bestätigt wurde.
 - **Bestätigungs-, Passwortzurücksetzungs- und E-Mail-Änderungscodes beziehungsweise -Links:** sobald sie abgelaufen sind.
+- **Löschcodes für Projekte:** werden ausschließlich als Hash gespeichert und sind 15 Minuten gültig. Nach Verwendung werden sie sofort gelöscht; abgelaufene Codes werden beim nächsten täglichen Aufräumlauf entfernt.
 - **Abgeschlossene Meldungen:** 6 Monate nach Abschluss. Offene Meldungen werden bis zur Bearbeitung gespeichert.
 - **Widersprüche gegen Projektmoderation:** Ohne Widerspruch werden die Daten nach Ablauf der sechsmonatigen Widerspruchsfrist beim nächsten täglichen Aufräumlauf gelöscht. Abgeschlossene Widersprüche werden sechs Monate nach der Widerspruchsentscheidung gelöscht; offene bleiben bis zur Entscheidung gespeichert. Bei Löschung des betroffenen Projekts oder Kontos werden die zugehörigen Widerspruchsdaten sofort aus dem aktiven System gelöscht. Für Backups gelten die unten genannten Fristen.
 - **Downloadlink-Moderation:** Status und Begründung bleiben grundsätzlich so lange gespeichert wie der Link. Bei Freigabe entfällt die Begründung; bei als defekt markierten Links auch dann, wenn der Creator eine neue Adresse einträgt.
@@ -345,6 +346,7 @@ Es werden keine Newsletter und keine Werbe-E-Mails versendet. E-Mails werden nur
 - Zurücksetzen des Passworts,
 - Mitteilung über eine Änderung der E-Mail-Adresse an die alte und die neue Adresse,
 - Bestätigung der Kontolöschung,
+- Code zum Löschen eines Projekts an den jeweiligen Creator, einschließlich des Projekttitels,
 - Mitteilungen über Moderationsentscheidungen an Creator; bei ausgeblendeten oder zurückgewiesenen Projekten einschließlich geheimem Widerspruchslink und sechsmonatiger Frist.
 - Benachrichtigungen an jedes gesperrte Konto mit Sperrgrund, Dauer und Anzahl der dabei ausgeblendeten Projekte.
 - Benachrichtigungen an Creator über gesperrte oder als defekt markierte Downloadlinks einschließlich Begründung.
