@@ -73,14 +73,24 @@ Stand: **18.10.2026**. Diese Datei fasst zusammen, was gebaut wurde, warum Entsc
 
 ## Offene Punkte
 
-1. **Vor einem öffentlichen Start:**
-   - Datenschutzerklärung ergänzen (E-Mail-Versand, Cookies, Sitzungsdaten) und prüfen lassen
-   - Basic Auth und noindex entfernt, Umzug auf die Hauptdomain (05.11.2026)
-   - Backup außerhalb des Servers: erledigt (Hetzner Storage Box, tägliche Kopie per rsync, Snapshots, Wiederherstellung am 05.11.2026 getestet), in der Datenschutzerklärung beschrieben (Abschnitte 10 und 16)
-   - Datenschutzerklärung: Projekte löschen (Code per E-Mail) ist umgesetzt und in Abschnitt 10 und 19 beschrieben
-   - Zwei-Faktor-Anmeldung (App + Backup-Codes, Pflicht für Admins) ist umgesetzt und in der Datenschutzerklärung beschrieben (Abschnitte 10, 17, 19, 20, 22, 23)
-   - Monitoring: erledigt (Better Stack, Website über `/api/health` alle 3 Minuten, nächtliches Backup per Heartbeat aus `backup.sh`; eingerichtet am 05.11.2026)
-2. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte. Linkstatus „gesperrt“ mit Begründung ist umgesetzt. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären), Datenschutzerklärung um Widersprüche und deren Löschfristen ergänzen.
-3. **Moderation:** Kategorie ändern, Protokollfilter und Linkstatus aus Meldungen sind umgesetzt. Offen: Link-Moderation auch außerhalb von Meldungen.
-4. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption.
-5. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
+Stand 05.11.2026: Die öffentliche Beta läuft unter `https://omsi-modhub.de`. Die Punkte „Vor dem öffentlichen Start“ sind erledigt (Datenschutzerklärung auf dem Stand des Codes, Basic Auth und noindex entfernt, Umzug auf die Hauptdomain, Backup auf der Storage Box mit getesteter Wiederherstellung, Zwei-Faktor-Anmeldung, Monitoring mit Better Stack, Zustellung der Mails bei Gmail, Outlook und GMX geprüft); Details in [DEPLOYMENT.md](DEPLOYMENT.md#vor-dem-öffentlichen-start).
+
+### Nächste Entwicklungsschritte (in dieser Reihenfolge)
+
+1. **Mail-Warteschlange mit Wiederholung.** Heute verschickt `sendMailInBackground()` ohne erneuten Versuch: Ist der SMTP-Server kurz nicht erreichbar, geht z. B. ein Bestätigungscode verloren und die Registrierung hängt.
+   - Additive Migration, Tabelle z. B. `MailOutbox` (Empfänger, Betreff, Text, HTML, Status, Versuche, nächster Versuch, Fehler ohne personenbezogene Daten).
+   - Actions legen die Mail an und kehren sofort zurück (Antwortzeit bleibt gleich, kein Ausspähen registrierter Adressen); Versand sofort versuchen, Wiederholung mit Backoff über einen Timer (systemd, z. B. jede Minute) oder im Aufräumlauf.
+   - Inhalt enthält Codes und Links im Klartext: nach erfolgreichem Versand sofort löschen bzw. leeren, spätestens mit Ablauf des Codes; endgültig gescheiterte Einträge kurz aufbewahren.
+   - Nach mehreren Fehlversuchen Warnung an den Betreiber (Mail an eine eigene Adresse aus der Env, Better Stack oder Protokoll).
+   - Datenschutzerklärung ergänzen (Abschnitt 10 Löschfrist, ggf. 19).
+2. **Abhängigkeiten zwischen Projekten** (`ProjectDependency`, siehe ARCHITECTURE.md „Geplante Tabellen“). Benötigte Add-ons zusätzlich zum Freitext als Verweis auf Projekte im Hub; im Editor per Suche auswählbar; auf der Projektseite „Benötigt“ und umgekehrt „Wird benötigt von“; öffentlich nur veröffentlichte Projekte; Caches beider Projekte invalidieren. Für OMSI besonders wertvoll (Karten brauchen Busse und Objekte).
+3. **Merkliste und Mails bei neuen Versionen** (`Favorite`). Baut auf der Mail-Warteschlange auf; Abmeldelink mit Token in jeder Mail und Einstellung im Konto; Datenschutzerklärung ergänzen (Abschnitte 10, 17, 19).
+4. **Fehlerbenachrichtigung.** Better Stack prüft nur die Erreichbarkeit. Fehler in Actions und Datenbank zählen und bei Häufung den Betreiber benachrichtigen, ohne personenbezogene Daten in Logs.
+
+Später: Bewertungen bzw. Kommentare (Moderation, Meldeweg, DSA klären), Skalierung (unten).
+
+### Weitere offene Punkte
+
+1. **Rechtliche Restpunkte:** klären, welche DSA-Pflichten gelten (Meldeverfahren, Begründung, Beschwerdeweg); Haftungsregelung für eigene Inhalte und technische Fehler; Änderungsverfahren der Bedingungen. Umgesetzt: E-Mail an gesperrte Nutzer mit Begründung und Dauer, Widerspruch gegen ausgeblendete und zurückgewiesene Projekte (auch in der Datenschutzerklärung, Abschnitt 27), Linkstatus „gesperrt“ mit Begründung. Offen: Widerspruch gegen Sperren und verworfene Meldungen (bewusst ausgelassen, rechtlich klären).
+2. **Moderation:** Kategorie ändern, Protokollfilter und Linkstatus aus Meldungen sind umgesetzt. Offen: Downloadlinks auch außerhalb von Meldungen sperren bzw. als defekt markieren (heute nur unter `/admin/reports`).
+3. **Skalierung:** Objektspeicher für Bilder, PostgreSQL-Volltextsuche bzw. `pg_trgm`, gemeinsamer Cache-Handler bei mehreren Instanzen.
