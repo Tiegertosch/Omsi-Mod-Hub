@@ -10,6 +10,8 @@ import "dotenv/config";
 
 import nodemailer from "nodemailer";
 
+import { siteConfig, smtpHeloName } from "../src/lib/site";
+
 const [to] = process.argv.slice(2);
 
 /** SMTP-URL ohne Zugangsdaten, für Ausgaben. */
@@ -54,7 +56,8 @@ async function main() {
   }
 
   console.log(`Verbinde mit ${describe(url)} …`);
-  const transporter = nodemailer.createTransport(url);
+  // Wie in src/server/mail.ts: mit dem Host der Website beim SMTP-Server melden.
+  const transporter = nodemailer.createTransport({ url, name: smtpHeloName(siteConfig.url) });
   try {
     await transporter.verify();
     console.log("Verbindung und Anmeldung erfolgreich.");

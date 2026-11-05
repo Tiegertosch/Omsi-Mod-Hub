@@ -5,6 +5,8 @@ import path from "node:path";
 
 import nodemailer, { type Transporter } from "nodemailer";
 
+import { siteConfig, smtpHeloName } from "@/lib/site";
+
 /**
  * E-Mail-Versand.
  *
@@ -41,7 +43,7 @@ export async function sendMail(message: MailMessage): Promise<void> {
     const url = process.env.SMTP_URL;
     const from = process.env.MAIL_FROM;
     if (!url || !from) throw new Error("MAIL_TRANSPORT=smtp erfordert SMTP_URL und MAIL_FROM.");
-    smtp ??= nodemailer.createTransport(url);
+    smtp ??= nodemailer.createTransport({ url, name: smtpHeloName(siteConfig.url) });
     await smtp.sendMail({ from, to: message.to, subject: message.subject, text: message.text, html: message.html });
     return;
   }
