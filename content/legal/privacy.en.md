@@ -142,7 +142,7 @@ To exercise these rights, please contact us using the contact details in Section
 
 ## **7. General purposes, categories of data and recipients**
 
-Depending on how you use OMSI Mod Hub, we may process account data, profile data, content published by creators, session and security data, report and moderation data, and communication data.
+Depending on how you use OMSI Mod Hub, we may process account data, profile data, content published by creators, session and security data, report and moderation data, watchlist and notification data, and communication data.
 
 Recipients may include technical service providers used to operate and secure the website, as well as public authorities where disclosure is legally required.
 
@@ -154,7 +154,7 @@ Article 6(1)(a) GDPR applies where processing is based on consent. Article 6(1)(
 
 Where we process personal data on the basis of Article 6(1)(f) GDPR, our legitimate interests include operating OMSI Mod Hub securely and reliably, preventing misuse, handling reports and ensuring compliance with the platform rules.
 
-OMSI Mod Hub does not send newsletters or direct marketing emails. Emails are sent only in response to specific actions, for example account verification, password resets, account changes, account-deletion confirmations or moderation decisions.
+OMSI Mod Hub does not send newsletters or direct marketing emails. Emails are sent in response to relevant events, including account verification, password resets, account changes, account-deletion confirmations and moderation decisions. When a creator publishes a new version of a published project, users who have bookmarked it and enabled notifications may also receive a version-update email.
 
 ## **10. Retention periods**
 
@@ -170,6 +170,8 @@ The following retention periods apply to OMSI Mod Hub:
 - **Verification, password-reset and email-change codes or links:** deleted or invalidated as soon as they expire.
 - **Project deletion codes:** stored only as hashes and valid for 15 minutes. They are deleted immediately after use; expired codes are removed during the next daily cleanup.
 - **Two-factor authentication data:** The encrypted authenticator secret and encrypted backup codes are deleted when two-factor authentication is disabled or the account is deleted. Generating new backup codes immediately invalidates the previous ones. A setup that was started but never confirmed remains stored in encrypted form until setup is restarted or the account is deleted. The pending login process between password entry and code verification (account reference and attempt counter) is valid for 10 minutes and is deleted immediately after successful code verification; expired entries are removed during the next daily cleanup. Data remaining in backups is subject to the backup retention period of up to 24 days described below.
+- **Email queue:** Before sending, each email is stored temporarily in the database, including the recipient address, subject, plain-text and HTML content. This may include personal greetings, codes and links. Entries are deleted immediately after successful delivery, normally within seconds. Failed delivery is retried after 1, 2, 5, 10, 30 and 60 minutes, then every 3 hours, for no more than 12 attempts. Sending stops when the message expires: verification and project-deletion codes after 15 minutes, password-reset links after 1 hour, email-change links after 24 hours, and all other emails after 48 hours. When a message expires or permanently fails, its recipient, subject and content are immediately cleared; only the timestamp, attempt count and an error code without addresses remain for 7 days. Emails still queued at the daily 03:30 backup may be included in backups for up to 24 days.
+- **Watchlist and notification preference:** For bookmarked projects, we store the account ID, project ID and the time the project was bookmarked. Entries remain until the user removes them or the account or project is deleted. The email notification preference is retained until the account is deleted.
 - **Closed reports:** retained for 6 months after closure. Open reports remain stored until they have been processed.
 - **Appeals against project moderation:** If no appeal is submitted, the data is deleted during the next daily cleanup after the six-month appeal period expires. Resolved appeals are deleted six months after the appeal decision; pending appeals are retained until a decision is made. Related appeal data is deleted immediately from the active system when the project or account is deleted. Backup retention is described below.
 - **Download-link moderation:** The status and reason are generally retained for as long as the link exists. The reason is removed when an admin re-enables the link, or, for a broken link, when the creator enters a new URL.
@@ -218,7 +220,7 @@ Germany
 
 The processing may be based on Article 6(1)(b) GDPR where necessary to perform the relevant service contract and Article 6(1)(f) GDPR where necessary to provide secure, reliable and efficient hosting.
 
-We additionally use a **Hetzner Storage Box** for backups (location: **Falkenstein, Germany**). It stores copies of daily full database backups and uploaded images. Database backups may include account data, email addresses, password hashes, session data including IP addresses, reports, appeals, moderation and administration logs, and rate-limit hashes. Transfers to the Storage Box are encrypted via SSH. Access is restricted to our own server using an SSH key; snapshots cannot be deleted from the server. **The stored backup files are not additionally encrypted.** The legal basis is Article 6(1)(f) GDPR; our legitimate interest is data security and the ability to restore the service. Retention periods are described in Section 10.
+We additionally use a **Hetzner Storage Box** for backups (location: **Falkenstein, Germany**). It stores copies of daily full database backups and uploaded images. Database backups may include account data, email addresses, password hashes, session data including IP addresses, reports, appeals, moderation and administration logs, rate-limit hashes, watchlists and emails awaiting delivery, including recipient addresses, codes and links. Transfers to the Storage Box are encrypted via SSH. Access is restricted to our own server using an SSH key; snapshots cannot be deleted from the server. **The stored backup files are not additionally encrypted.** The legal basis is Article 6(1)(f) GDPR; our legitimate interest is data security and the ability to restore the service. Retention periods are described in Section 10.
 
 The retention criteria depend on the service relationship and any applicable statutory, contractual or technical retention requirements. Further information is available at [https://www.hetzner.com](https://www.hetzner.com).
 
@@ -237,11 +239,15 @@ During registration, the email address is verified using a six-digit confirmatio
 
 **Two-factor authentication (2FA):** Two-factor authentication is optional for regular accounts and mandatory for administrator accounts. When enabled, signing in requires a six-digit code generated by an authenticator app in addition to the password. Alternatively, one of ten single-use backup codes may be used. We store the authenticator app secret and backup codes in encrypted form, a flag indicating whether setup has been confirmed, a counter of incorrect codes, and an account flag indicating that two-factor authentication is enabled. After ten consecutive incorrect attempts, second-factor sign-in is blocked for 15 minutes. The authenticator app generates codes on the user’s device; no data is transmitted to the app provider for this purpose. The setup QR code is generated by our own server without an external service. Enabling two-factor authentication signs out all other logged-in devices. The legal basis is Article 6(1)(f) GDPR; our legitimate interest is protecting user accounts against unauthorised access and, for administrator accounts, protecting the platform.
 
+**Watchlist and version notifications:** Signed-in users can bookmark projects in a private watchlist. Only the user can see their watchlist; creators and other visitors cannot see who bookmarked a project or how many users did so. The “Email me about new versions” preference is enabled by default, and a notice is displayed next to the bookmark button. Users can disable it at any time under *Settings → Account → Email notifications* or via the unsubscribe link in each version-update email. Unsubscribing does not remove bookmarks. The legal basis for providing these user-requested features is Article 6(1)(b) GDPR.
+
 Users can delete their own accounts. Account deletion also removes the creator profile, projects, images and sessions, subject to the backup periods described in Section 10 and any applicable legal retention obligations.
 
 ## **18. Public creator content**
 
 Creators can publish a publicly visible profile containing a display name, description and website, as well as projects containing text, images, contributor information, versions and download links. This content is publicly accessible to website visitors and may be viewed, copied or redistributed by third parties.
+
+Creators can link other published projects as requirements. The referenced project page may then show a “Required by” section linking to those public projects.
 
 Uploaded images are re-encoded before they are made available. Image metadata, especially GPS or location data, is removed.
 
@@ -263,8 +269,11 @@ We do not send newsletters or marketing emails. Emails are triggered only by spe
 - Suspension notifications sent to every suspended account, stating the reason, duration and number of projects hidden as part of the suspension.
 - Notifications to creators when download links are blocked or marked as broken, including the reason.
 - Appeal outcome notifications to creators, including the reason.
+- **Notification about a new version of a bookmarked project.**
 
 Both two-factor authentication change notifications contain a link to account settings and recommend changing the password if the account holder did not make the change.
+
+**Version-update notifications:** When a creator publishes a new version of a published project, verified account holders who bookmarked that project and have notifications enabled may receive an email. The creator does not receive notifications about their own project. The email includes the recipient’s name, project title, version number, an excerpt of up to 600 characters from the creator-written changelog, and a link to the project. At most one notification per project is sent within six hours. Each email includes an unsubscribe link containing the account ID and a signature. Visiting the unsubscribe page does not unsubscribe the user; they must click “Unsubscribe”. We also support one-click unsubscribe via `List-Unsubscribe`, which causes the recipient’s email provider to send a request to our server. Unsubscribing does not delete the watchlist. Emails do not include tracking pixels or click tracking. Messages are temporarily stored in an email queue; see Section 10 for retention periods.
 
 ## **20. Technically necessary cookies**
 
@@ -285,13 +294,15 @@ For each login, the IP address and browser identifier (User-Agent) may be stored
 
 To prevent automated requests and misuse, we apply rate limits using IP addresses, email addresses, usernames or account IDs, depending on the function. Our own rate limits use these keys:
 
-- **IP address hashed using SHA-256 without a secret key:** registration, login, forgot password, password reset, verification code, resend code, project reports, appeals, the two-factor sign-in code step and Cap CAPTCHA.
+- **IP address hashed using SHA-256 without a secret key:** registration, login, forgot password, password reset, verification code, resend code, project reports, appeals, the two-factor sign-in code step, Cap CAPTCHA, and invalid version-notification unsubscribe links (only invalid links are counted).
 - **Email address or username hashed using SHA-256 without a secret key:** login, forgot password, verification code, resend code, existing-account notification and email-address correction.
-- **Account ID in plain text:** actions by logged-in users, including saving projects, uploads, profile changes, password changes, account deletion, setting up, confirming and disabling two-factor authentication, generating new backup codes, requesting and entering project deletion codes, and administrative actions.
+- **Account ID in plain text:** actions by logged-in users, including saving projects, uploads, profile changes, password changes, account deletion, setting up, confirming and disabling two-factor authentication, generating new backup codes, requesting and entering project deletion codes, bookmarking and removing projects, saving notification preferences, searching for required projects in the editor, and administrative actions.
 
 Attempts are also limited per pending two-factor sign-in process. The key for this limit is a hash of the cookie value, rather than an IP-derived identifier.
 
 Appeal submissions are limited to ten attempts per hour per hashed IP address. Our rate-limit data is deleted after 24 hours. Hashes are **pseudonymised, not anonymous**: IP addresses and potentially email addresses or usernames may be recoverable by systematic guessing. The authentication system may additionally process IP addresses in plain text for security purposes. The legal basis is Article 6(1)(f) GDPR; our legitimate interest is preventing abuse and protecting the service.
+
+The six-hour limit of one version-update email per project uses only the project ID as its key, not an identifier derived from an individual user.
 
 ## **23. Reports, moderation and administrative logs**
 

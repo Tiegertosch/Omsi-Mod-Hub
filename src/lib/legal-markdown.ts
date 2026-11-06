@@ -9,6 +9,7 @@
 export type LegalInline =
   | { type: "text"; text: string }
   | { type: "strong"; text: string }
+  | { type: "em"; text: string }
   | { type: "code"; text: string }
   | { type: "break"; text: "\n" }
   | { type: "link"; text: string; href: string };
@@ -19,7 +20,8 @@ export type LegalBlock =
   | { type: "list"; items: LegalInline[][] }
   | { type: "table"; header: LegalInline[][]; rows: LegalInline[][][] };
 
-const INLINE = /\[([^\]]+)\]\((https:\/\/[^)\s]+)\)|\*\*(.+?)\*\*|`([^`]+)`/g;
+// Reihenfolge: Link, **fett**, `Code`, *kursiv* (nach fett, damit „**“ nicht als zwei Kursiv-Zeichen gilt).
+const INLINE = /\[([^\]]+)\]\((https:\/\/[^)\s]+)\)|\*\*(.+?)\*\*|`([^`]+)`|\*([^*\s](?:[^*]*[^*\s])?)\*/g;
 /** Trennzeile einer Markdown-Tabelle, z. B. „| --- | :---: |“. */
 const TABLE_SEPARATOR = /^\|(\s*:?-{3,}:?\s*\|)+$/;
 
@@ -48,6 +50,8 @@ export function parseInline(text: string): LegalInline[] {
       result.push({ type: "link", text: typography(match[1]), href: match[2] });
     } else if (match[4] !== undefined) {
       result.push({ type: "code", text: match[4] });
+    } else if (match[5] !== undefined) {
+      result.push({ type: "em", text: typography(match[5]) });
     } else {
       result.push({ type: "strong", text: typography(match[3] ?? "") });
     }

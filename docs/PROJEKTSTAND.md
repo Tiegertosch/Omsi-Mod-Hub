@@ -77,10 +77,9 @@ Stand 05.11.2026: Die öffentliche Beta läuft unter `https://omsi-modhub.de`. D
 
 ### Nächste Entwicklungsschritte (in dieser Reihenfolge)
 
-1. ~~**Mail-Warteschlange mit Wiederholung.**~~ Umgesetzt am 06.11.2026 (`MailOutbox`, siehe ARCHITECTURE.md „E-Mail“). Offen: Datenschutzerklärung ergänzen (Abschnitt 10 Löschfrist, ggf. 19); auf dem Server den zweiten Better-Stack-Monitor `/api/health/mail` anlegen.
+1. ~~**Mail-Warteschlange mit Wiederholung.**~~ Umgesetzt am 06.11.2026 (`MailOutbox`, siehe ARCHITECTURE.md „E-Mail“). Datenschutzerklärung ergänzt (Abschnitte 10 und 19). Offen: auf dem Server den zweiten Better-Stack-Monitor `/api/health/mail` anlegen.
 2. ~~**Abhängigkeiten zwischen Projekten**~~ Umgesetzt am 06.11.2026 (`ProjectDependency`, siehe ARCHITECTURE.md „Benötigte Projekte im Hub“).
-3. ~~**Merkliste und Mails bei neuen Versionen**~~ Umgesetzt am 06.11.2026 (`Favorite`, siehe ARCHITECTURE.md „Merkliste und Mails bei neuen Versionen“). Offen:
-   - Datenschutzerklärung ergänzen (Merkliste, Benachrichtigungen, Abmeldung; Abschnitte 10, 17, 19).
+3. ~~**Merkliste und Mails bei neuen Versionen**~~ Umgesetzt am 06.11.2026 (`Favorite`, siehe ARCHITECTURE.md „Merkliste und Mails bei neuen Versionen“), Datenschutzerklärung ergänzt (Abschnitte 10, 17, 19, 22). Offen:
    - Nach der ersten echten Update-Mail im Quelltext prüfen, ob die DKIM-Signatur von checkdomain `List-Unsubscribe` abdeckt (`h=` im `DKIM-Signature`-Kopf); Gmail und Yahoo werten die Ein-Klick-Abmeldung sonst nicht.
 4. **Fehlerbenachrichtigung.** Better Stack prüft nur die Erreichbarkeit. Fehler in Actions und Datenbank zählen und bei Häufung den Betreiber benachrichtigen, ohne personenbezogene Daten in Logs.
 

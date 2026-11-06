@@ -43,6 +43,14 @@ describe("parseLegalMarkdown", () => {
       { type: "text", text: "[x](javascript:alert(1)) und – y" },
     ]);
     expect(parseInline("omsi-modhub -- Tobias")).toEqual([{ type: "text", text: "omsi-modhub – Tobias" }]);
+    // Kursiv (z. B. Menüpfade); fett hat Vorrang, einzelne Sternchen mit Leerzeichen bleiben Text.
+    expect(parseInline("unter *Einstellungen → Konto* und **fett**")).toEqual([
+      { type: "text", text: "unter " },
+      { type: "em", text: "Einstellungen → Konto" },
+      { type: "text", text: " und " },
+      { type: "strong", text: "fett" },
+    ]);
+    expect(parseInline("2 * 3 * 4")).toEqual([{ type: "text", text: "2 * 3 * 4" }]);
   });
 
   it("verarbeitet die abgelegte Datenschutzerklärung vollständig", () => {
@@ -73,11 +81,11 @@ describe("parseLegalMarkdown", () => {
       { type: "code", text: "better-auth.two_factor" },
     ]);
 
-    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit vierzehn Punkten.
+    // Die konkreten Löschfristen in Abschnitt 10 sind eine Liste mit sechzehn Punkten.
     const retention = blocks.find(
       (b) => b.type === "list" && b.items.some((item) => item.some((part) => part.text === "Zugriffslogs:")),
     );
-    expect(retention?.type === "list" && retention.items).toHaveLength(14);
+    expect(retention?.type === "list" && retention.items).toHaveLength(16);
   });
 
   it("erkennt Markdown-Listen mit „- “ in aufeinanderfolgenden Zeilen", () => {
