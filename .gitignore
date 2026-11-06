@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
 
 # debug
@@ -49,6 +50,7 @@ yarn-error.log*
 # playwright
 /test-results/
 /playwright-report/
+/blob-report/
 
 # vercel
 .vercel
@@ -59,6 +61,10 @@ next-env.d.ts
 
 # Editor-Einstellungen
 /.vscode/
+/.idea/
+
+# Arbeitsdaten von Claude Code bzw. oh-my-claudecode (Sitzungen, Zwischenstände)
+/.omc/
 
 # interne Notizen (Serverdetails, lokale Einrichtung) – bleiben lokal
 /docs/intern/

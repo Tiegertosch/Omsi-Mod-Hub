@@ -12,7 +12,7 @@ Internationales Katalog- und Downloadportal für Mods des Omnibus-Simulators **O
 
 Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und gelangen zur Originalquelle des Erstellers. Das Portal **hostet selbst keine Mod-Archive** – Downloads verweisen immer auf externe Seiten, die klar als solche gekennzeichnet sind.
 
-> **Status:** Öffentliche Beta. Öffentlicher Bereich, Benutzerkonten, Creator-Dashboard und Adminbereich (Freigaben, Ausblenden, Meldungen, Sperren, Kategorien/Tags, Protokoll) sind umgesetzt. Was noch fehlt, steht in [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md#offene-punkte).
+> **Status:** Öffentliche Beta. Öffentlicher Bereich, Benutzerkonten, Creator-Dashboard und Adminbereich (Freigaben, Ausblenden, Meldungen, Sperren, Kategorien/Tags, Protokoll) sind umgesetzt. Was noch fehlt, steht unter [Bekannte Einschränkungen](#bekannte-einschränkungen) und [Nächste Schritte](#nächste-schritte).
 >
 > OMSI ist eine Marke der jeweiligen Rechteinhaber. OMSI Mod Hub ist ein Community-Projekt und kein offizielles Angebot der Entwickler oder Publisher.
 
@@ -243,7 +243,7 @@ tests/
 ## Nächste Schritte
 
 1. **Moderation ausbauen:** Widerspruch gegen Sperren und verworfene Meldungen (rechtlich klären), Link-Moderation auch außerhalb von Meldungen.
-2. **Benachrichtigungen:** Versand-Warteschlange mit Wiederholung, Abmeldeoption für Benachrichtigungen.
+2. **Fehlerbenachrichtigung:** Fehler in Actions und Datenbank zählen und bei Häufung den Betreiber benachrichtigen (heute prüft das Monitoring nur Erreichbarkeit und Mailversand).
 3. **Objektspeicher** für Uploads (S3-kompatibel) statt lokalem Dateisystem.
 4. **Linkprüfung** im Hintergrund mit DNS-basiertem SSRF-Schutz.
 5. **Suche und Skalierung:** PostgreSQL-Volltextsuche bzw. `pg_trgm`, verwaltete Datenbank mit Point-in-Time-Recovery, gemeinsamer Cache-Handler bei mehreren Instanzen.

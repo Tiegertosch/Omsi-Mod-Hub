@@ -9,10 +9,9 @@ Ausführliche Begründungen stehen in den Docs, nicht hier:
 | Datei | Inhalt |
 | --- | --- |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Entscheidungen und Begründungen (Caching, Auth, 404, Suche, Uploads, Sicherheit) |
-| [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md) | Fallstricke und offene Punkte |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Server-Einrichtung und Betrieb (Ubuntu, systemd, Caddy) |
 | [README.md](README.md) | Funktionsumfang, Umgebungsvariablen, Befehle, bekannte Einschränkungen |
-| `docs/intern/` | Serverdetails, lokal und per `.gitignore` ausgeschlossen. Inhalte daraus nie in versionierte Dateien übernehmen. |
+| `docs/intern/PROJEKTSTAND.md` | Projektstand, Fallstricke, offene Punkte, Serverdetails und lokale Einrichtung. Nur lokal (per `.gitignore` ausgeschlossen); beim Fortsetzen zuerst lesen. Inhalte daraus nie in versionierte Dateien übernehmen. |
 
 ## Stack
 
@@ -69,7 +68,7 @@ Nach Codeänderungen erst `pnpm build`, dann `pnpm test:e2e`. Sonst testen die E
 - **Sprache:** Code-Kommentare, Docs und Commit-Messages auf Deutsch. Commit-Betreff kurz, ohne Präfix, beschreibt das Ergebnis (z. B. „Projekte als Freeware oder Payware kennzeichnen“).
 - **UI-Texte** stehen in `messages/de.json` **und** `messages/en.json`, immer beide pflegen. An den Client gehen nur die Namespaces aus `BASE_NAMESPACES` (`src/i18n/client-messages.ts`); Dashboard und Admin ergänzen eigene.
 - **Routen** haben immer ein Sprachpräfix (`/de/…`, `/en/…`). Fallback-Sprache für Gäste ist Englisch. Die Sprache wird über `next/root-params` gelesen.
-- **Docs mitpflegen:** Neue Funktionen oder Einschränkungen in `README.md` **und** `README.en.md` eintragen, Entscheidungen in `docs/ARCHITECTURE.md`, offene Punkte in `docs/PROJEKTSTAND.md`.
+- **Docs mitpflegen:** Neue Funktionen oder Einschränkungen in `README.md` **und** `README.en.md` eintragen, Entscheidungen in `docs/ARCHITECTURE.md`, offene Punkte in `docs/intern/PROJEKTSTAND.md` (lokal).
 - **UI:** eigene kleine Komponenten in `src/components/ui` (kein shadcn), Design-Tokens in `src/app/globals.css`, nur Dark Mode. Filter und Sortierung als Links oder GET-Formulare, Formulare funktionieren ohne JavaScript. Ausnahme: Formulare mit CAPTCHA (Registrierung, Anmeldung, Passwort vergessen, Meldungen), siehe unten.
 - **Rechtstexte** liegen in `content/legal/`. Eine neue Fassung der Nutzungsbedingungen wird in `TERMS_VERSIONS` (`src/lib/legal.ts`) eingetragen; den Ablauf beschreibt der Kommentar dort. Rechtstexte inhaltlich nur auf ausdrücklichen Wunsch ändern.
 

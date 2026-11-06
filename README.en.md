@@ -12,7 +12,7 @@ International catalogue and download portal for mods for the bus simulator **OMS
 
 Players find mods, see requirements, versions and compatibility, and get to the creator's original source. The portal **does not host any mod archives itself** – downloads always point to external sites that are clearly marked as such.
 
-> **Status:** Public beta. The public area, user accounts, creator dashboard and admin area (approvals, hiding, reports, bans, categories/tags, audit log) are implemented. What is still missing is listed in [docs/PROJEKTSTAND.md](docs/PROJEKTSTAND.md#offene-punkte) (German).
+> **Status:** Public beta. The public area, user accounts, creator dashboard and admin area (approvals, hiding, reports, bans, categories/tags, audit log) are implemented. What is still missing is listed under [Known limitations](#known-limitations) and [Next steps](#next-steps).
 >
 > OMSI is a trademark of its respective owners. OMSI Mod Hub is a community project and not an official offering of the developers or publishers.
 
@@ -245,7 +245,7 @@ tests/
 ## Next steps
 
 1. **Extend moderation:** appeals against bans and dismissed reports (legal clarification needed), link moderation outside of reports.
-2. **Notifications:** sending queue with retries, opt-out for notifications.
+2. **Error alerts:** count errors in actions and the database and notify the operator when they pile up (monitoring currently only checks availability and mail delivery).
 3. **Object storage** for uploads (S3-compatible) instead of the local file system.
 4. **Link checking** in the background with DNS-based SSRF protection.
 5. **Search and scaling:** PostgreSQL full-text search or `pg_trgm`, managed database with point-in-time recovery, shared cache handler for multiple instances.
