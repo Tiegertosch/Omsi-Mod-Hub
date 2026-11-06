@@ -280,6 +280,33 @@ export async function getProjectRelations(projectId: string, locale: string): Pr
   };
 }
 
+// ---------------------------------------------------------------------------
+// Merkliste
+// ---------------------------------------------------------------------------
+
+export type FavoriteList = {
+  /** veröffentlichte Projekte, zuletzt aktualisierte zuerst */
+  available: ProjectCard[];
+  /** gemerkte Projekte, die zurzeit nicht öffentlich sind (nur Titel) */
+  unavailable: { id: string; title: string }[];
+};
+
+/** Merkliste eines Kontos. Persönliche Daten, daher nicht zwischengespeichert. */
+export async function getFavoriteProjects(userId: string, locale: string): Promise<FavoriteList> {
+  const rows = await db.favorite.findMany({
+    where: { userId },
+    orderBy: [{ project: { lastReleaseAt: { sort: "desc", nulls: "last" } } }, { createdAt: "desc" }],
+    select: { project: { include: cardInclude } },
+  });
+  const available: ProjectCard[] = [];
+  const unavailable: FavoriteList["unavailable"] = [];
+  for (const { project } of rows) {
+    if (project.status === PUBLISHED) available.push(toCard(project, locale));
+    else unavailable.push({ id: project.id, title: toCard(project, locale).title });
+  }
+  return { available, unavailable };
+}
+
 export async function getPublishedProjectSitemapEntries() {
   "use cache";
   cacheLife("minutes");

@@ -470,7 +470,8 @@
       "profile": "Profil",
       "security": "Sicherheit",
       "account": "Konto"
-    }
+    },
+    "favorites": "Merkliste"
   },
   "Admin": {
     "title": "Administration",
@@ -1029,7 +1030,8 @@
       "appeal": "Widerspruch einlegen",
       "openEditor": "Im Editor öffnen",
       "contact": "Kontakt im Impressum",
-      "openSettings": "Einstellungen öffnen"
+      "openSettings": "Einstellungen öffnen",
+      "unsubscribe": "Abbestellen"
     },
     "projectDeleteSubject": "{code} ist dein Code zum Löschen von „{title}“ – OMSI Mod Hub",
     "projectDeleteBody": "Hallo {name},\n\ndu möchtest dein Projekt „{title}“ bei OMSI Mod Hub löschen. Dein Code zur Bestätigung lautet:\n\n{code}\n\nGib ihn im Editor des Projekts ein:\n\n{url}\n\nDer Code ist {minutes} Minuten gültig. Das Löschen lässt sich nicht rückgängig machen.\n\nWenn du das nicht angefordert hast, gib den Code nicht ein; das Projekt bleibt dann bestehen. Ändere bitte trotzdem dein Passwort, denn die Anfrage kam aus deinem angemeldeten Konto.",
@@ -1042,6 +1044,10 @@
         "subject": "Zwei-Faktor-Anmeldung abgeschaltet – OMSI Mod Hub",
         "body": "Hallo {name},\n\nfür dein Konto bei OMSI Mod Hub wurde die Zwei-Faktor-Anmeldung abgeschaltet. Zum Anmelden genügt jetzt wieder das Passwort.\n\n{url}\n\nWenn du das nicht selbst warst, ändere bitte sofort dein Passwort, richte die Zwei-Faktor-Anmeldung neu ein und wende dich über die Kontaktangaben auf der Website an uns."
       }
+    },
+    "projectUpdate": {
+      "subject": "Neue Version: {title} {version}",
+      "body": "Hallo {name},\n\nfür „{title}“ auf deiner Merkliste ist Version {version} erschienen.{hasChangelog, select, yes {\n\nÄnderungen:\n\n{changelog}} other {}}\n\n{url}\n\nDu bekommst diese E-Mail, weil du das Projekt bei OMSI Mod Hub gemerkt hast. Benachrichtigungen zu neuen Versionen abbestellen:\n\n{unsubscribeUrl}\n\nMerkliste verwalten: {favoritesUrl}"
     }
   },
   "Errors": {
@@ -1110,5 +1116,48 @@
       "closed": "Zu dieser Entscheidung ist kein Widerspruch (mehr) möglich.",
       "generic": "Das hat nicht geklappt. Bitte versuche es erneut."
     }
+  },
+  "Favorites": {
+    "add": "Merken",
+    "saved": "Gemerkt",
+    "addLabel": "Projekt merken",
+    "removeLabel": "Gemerkt – von der Merkliste entfernen",
+    "loginToSave": "Anmelden und merken",
+    "hintGuest": "Gemerkte Projekte findest du in deinem Dashboard. Bei neuen Versionen bekommst du auf Wunsch eine E-Mail.",
+    "hintAdd": "Speichert das Projekt in deiner Merkliste. Bei neuen Versionen bekommst du eine E-Mail (abschaltbar).",
+    "hintAddNotifyOff": "Speichert das Projekt in deiner Merkliste.",
+    "hintNotify": "Du bekommst eine E-Mail, wenn eine neue Version erscheint.",
+    "hintNotifyOff": "E-Mails bei neuen Versionen sind in deinen Einstellungen ausgeschaltet.",
+    "settingsLink": "Einstellungen",
+    "errors": {
+      "unauthorized": "Bitte melde dich an.",
+      "rate_limit": "Zu viele Anfragen. Bitte warte einen Moment.",
+      "not_found": "Dieses Projekt ist nicht mehr verfügbar.",
+      "limit": "Du kannst höchstens {max} Projekte merken.",
+      "invalid_link": "Dieser Abmeldelink ist ungültig.",
+      "generic": "Das hat nicht geklappt. Bitte versuche es erneut."
+    },
+    "title": "Merkliste",
+    "intro": "Projekte, die du dir gemerkt hast, sortiert nach der letzten Aktualisierung.",
+    "empty": "Du hast noch keine Projekte gemerkt.",
+    "emptyHint": "Auf jeder Projektseite findest du den Knopf „Merken“.",
+    "browse": "Mods entdecken",
+    "notifyOn": "Bei neuen Versionen bekommst du eine E-Mail.",
+    "notifyOff": "E-Mails bei neuen Versionen sind ausgeschaltet.",
+    "manage": "Ändern",
+    "unavailableTitle": "Nicht mehr verfügbar",
+    "unavailableHint": "Diese Projekte sind zurzeit nicht öffentlich. Du kannst sie entfernen oder abwarten, ob sie wieder erscheinen.",
+    "settingsTitle": "E-Mail-Benachrichtigungen",
+    "settingsDescription": "Mails zu Projekten auf deiner Merkliste. Mails zu deinem Konto und deinen eigenen Projekten (Codes, Sicherheitshinweise, Moderationsentscheidungen) bekommst du unabhängig davon.",
+    "settingsLabel": "E-Mail, wenn ein gemerktes Projekt eine neue Version bekommt",
+    "settingsSave": "Speichern",
+    "settingsSaved": "Gespeichert.",
+    "unsubscribeTitle": "Benachrichtigungen abbestellen",
+    "unsubscribeText": "Du bekommst dann keine E-Mails mehr, wenn Projekte auf deiner Merkliste eine neue Version bekommen. Deine Merkliste bleibt erhalten.",
+    "unsubscribeButton": "Abbestellen",
+    "unsubscribeDone": "Erledigt. Du bekommst keine E-Mails mehr zu neuen Versionen.",
+    "unsubscribeUndo": "In den Einstellungen kannst du sie jederzeit wieder einschalten.",
+    "unsubscribeInvalid": "Dieser Abmeldelink ist ungültig oder unvollständig. Benachrichtigungen kannst du auch in den Einstellungen abschalten.",
+    "settingsSaving": "Wird gespeichert …"
   }
 }

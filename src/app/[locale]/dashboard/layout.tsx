@@ -22,6 +22,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/[local
   const links = [
     { href: "/dashboard", label: t("overview") },
     { href: "/dashboard/projects", label: projects("title") },
+    { href: "/dashboard/favorites", label: t("favorites") },
     { href: "/dashboard/settings", label: t("settings") },
   ];
 

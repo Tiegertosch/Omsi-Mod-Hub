@@ -6,6 +6,7 @@ import { routing, type AppLocale } from "@/i18n/routing";
 import { renderEmailHtml, type EmailLayout } from "@/lib/email-html";
 import type { AdminProjectAction } from "@/lib/moderation";
 import { siteConfig } from "@/lib/site";
+import { pickTranslation } from "@/lib/translation";
 import de from "../../messages/de.json";
 import en from "../../messages/en.json";
 
@@ -259,4 +260,48 @@ export function appealResultEmail(
     cta: { url, label: t(result.restored ? "cta.viewProject" : "cta.openDashboard") },
     highlight: [result.note],
   });
+}
+
+/**
+ * Neue Version eines gemerkten Projekts. Mit Abmeldelink im Text und als
+ * List-Unsubscribe-Kopfzeile (RFC 8058: Abmelden mit einem Klick im
+ * Mailprogramm). Der Changelog ist Text des Creators und erscheint escaped
+ * als Kasten.
+ */
+export function projectUpdateEmail(
+  user: MailUser,
+  project: { slug: string; defaultLocale: string; translations: { locale: string; title: string }[] },
+  release: { version: string; changelog: string },
+  /** Abmeldelinks in der Sprache der Mail */
+  unsubscribeFor: (locale: AppLocale) => { pagePath: string; oneClickPath: string },
+): MailMessage {
+  const locale = mailLocale(user);
+  const unsubscribe = unsubscribeFor(locale);
+  const t = translator(locale);
+  const title = pickTranslation(project.translations, locale, project.defaultLocale)?.translation.title ?? project.slug;
+  const url = absoluteUrl(`/${locale}/mods/${project.slug}`);
+  const unsubscribeUrl = absoluteUrl(unsubscribe.pagePath);
+  const favoritesUrl = absoluteUrl(`/${locale}/dashboard/favorites`);
+  const text = t("projectUpdate.body", {
+    name: user.name,
+    title,
+    version: release.version,
+    changelog: release.changelog,
+    hasChangelog: release.changelog ? "yes" : "no",
+    url,
+    unsubscribeUrl,
+    favoritesUrl,
+  });
+  const message = compose(locale, user.email, t("projectUpdate.subject", { title, version: release.version }), text, {
+    cta: { url, label: t("cta.viewProject") },
+    secondary: { url: unsubscribeUrl, label: t("cta.unsubscribe") },
+    highlight: [release.changelog],
+  });
+  return {
+    ...message,
+    headers: {
+      "List-Unsubscribe": `<${absoluteUrl(unsubscribe.oneClickPath)}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  };
 }

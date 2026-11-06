@@ -69,6 +69,7 @@ export async function ProjectDetailView({
   locale,
   moreFromCreator,
   relations = { requires: [], requiredBy: [], requiredByTotal: 0 },
+  favorite,
   preview = false,
 }: {
   project: ProjectDetail;
@@ -76,6 +77,8 @@ export async function ProjectDetailView({
   moreFromCreator: ProjectCard[];
   /** Benötigte Projekte im Hub und „Wird benötigt von“ (getProjectRelations) */
   relations?: ProjectRelations;
+  /** Merken-Knopf (liest die Session, daher von der Seite in Suspense übergeben) */
+  favorite?: ReactNode;
   /** Vorschau nicht veröffentlichter Projekte: ohne Meldeformular und ohne klickbare Downloads */
   preview?: boolean;
 }) {
@@ -295,6 +298,7 @@ export async function ProjectDetailView({
                   <span className="sr-only"> – {t("outboundClicksHint")}</span>
                 </span>
               </p>
+              {favorite ? <div className="mt-5 border-t border-border pt-5">{favorite}</div> : null}
             </section>
 
             <section aria-labelledby="details" className="rounded-[var(--radius-card)] border border-border bg-surface px-5 py-2">

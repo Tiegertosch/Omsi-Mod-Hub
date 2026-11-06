@@ -77,30 +77,32 @@ enum ReportStatus {
 // ---------------------------------------------------------------------------
 
 model User {
-  id               String    @id @default(cuid())
+  id                   String    @id @default(cuid())
   /// Anzeigename
-  name             String
-  email            String    @unique
-  emailVerified    Boolean   @default(false)
-  image            String?
+  name                 String
+  email                String    @unique
+  emailVerified        Boolean   @default(false)
+  image                String?
   /// immer kleingeschrieben, [a-z0-9_-], 3–32 Zeichen; unveränderlich (URLs)
-  username         String    @unique
-  displayUsername  String?
+  username             String    @unique
+  displayUsername      String?
   /// "user" | "creator" | "admin" – wird nur serverseitig gesetzt
-  role             String    @default("user")
-  banned           Boolean   @default(false)
-  banReason        String?
-  banExpires       DateTime?
-  preferredLocale  String?
+  role                 String    @default("user")
+  banned               Boolean   @default(false)
+  banReason            String?
+  banExpires           DateTime?
+  preferredLocale      String?
   /// Entwicklungs-Beispieldaten, per `pnpm db:clear-samples` entfernbar
-  isSample         Boolean   @default(false)
+  isSample             Boolean   @default(false)
   /// Fassung der Nutzungsbedingungen, der bei der Registrierung zugestimmt wurde (src/lib/legal.ts)
-  termsVersion     String?
-  termsAcceptedAt  DateTime?
+  termsVersion         String?
+  termsAcceptedAt      DateTime?
   /// Zwei-Faktor-Anmeldung aktiv (Better-Auth-Plugin twoFactor, Pflicht für Admins)
-  twoFactorEnabled Boolean?  @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  twoFactorEnabled     Boolean?  @default(false)
+  /// E-Mail, wenn ein gemerktes Projekt eine neue Version bekommt (Einstellungen, Abmeldelink)
+  notifyProjectUpdates Boolean   @default(true)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   sessions        Session[]
   twoFactors      TwoFactor[]
@@ -112,6 +114,7 @@ model User {
   resolvedReports Report[]             @relation("ReportResolver")
   resolvedAppeals ModerationDecision[] @relation("AppealResolver")
   auditLogs       AuditLog[]
+  favorites       Favorite[]
 
   @@index([role])
   @@index([banned])
@@ -360,11 +363,12 @@ model Project {
   contributors ProjectContributor[]
   requirements ProjectRequirement[]
   /// Projekte im Hub, die dieses Projekt benötigt
-  dependencies ProjectDependency[] @relation("ProjectDependencies")
+  dependencies ProjectDependency[]  @relation("ProjectDependencies")
   /// Projekte im Hub, die dieses Projekt benötigen
-  dependents   ProjectDependency[] @relation("ProjectDependents")
+  dependents   ProjectDependency[]  @relation("ProjectDependents")
   reports      Report[]
   decisions    ModerationDecision[]
+  favorites    Favorite[]
 
   @@index([status, publishedAt])
   @@index([status, lastReleaseAt])
@@ -419,6 +423,20 @@ model ProjectRequirement {
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  @@index([projectId])
+}
+
+/// Merkliste: gemerkte Projekte eines Kontos. Bei neuen Versionen gibt es eine
+/// Mail, sofern User.notifyProjectUpdates gesetzt ist (src/server/project-updates.ts).
+model Favorite {
+  userId    String
+  projectId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
   @@index([projectId])
 }
 
@@ -574,4 +592,4 @@ model AuditLog {
 }
 
 // Geplant für spätere Schritte (noch nicht angelegt):
-//   Favorite (userId, projectId), Comment, Rating.
+//   Comment, Rating.

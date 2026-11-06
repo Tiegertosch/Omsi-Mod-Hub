@@ -44,6 +44,7 @@ import { projectDeletionCodeEmail } from "@/server/emails";
 import { processImageUpload } from "@/server/images";
 import { sendMailInBackground } from "@/server/mail";
 import { deleteProjectWithCode } from "@/server/project-deletion";
+import { queueProjectUpdateMails } from "@/server/project-updates";
 import { rebuildSearchText } from "@/server/project-search";
 import { consumeRateLimit } from "@/server/rate-limit";
 import { getActingUser, type CurrentUser } from "@/server/session";
@@ -485,7 +486,7 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
   const now = new Date();
   const saved = await editProject(project.id, user.id, async (tx) => {
     if (!existing) {
-      await tx.projectVersion.create({
+      const created = await tx.projectVersion.create({
         data: {
           projectId: project.id,
           version: data.version,
@@ -495,9 +496,15 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
             create: links.map(({ url, provider, label, sourceType, sortOrder }) => ({ url, provider, label, sourceType, sortOrder })),
           },
         },
+        select: { id: true },
       });
-      await tx.project.update({ where: { id: project.id }, data: { lastReleaseAt: now } });
-      return;
+      // Status unter der Sperre lesen: Nur neue Versionen veröffentlichter Projekte lösen Mails aus.
+      const { status } = await tx.project.update({
+        where: { id: project.id },
+        data: { lastReleaseAt: now },
+        select: { status: true },
+      });
+      return status === "PUBLISHED" ? created.id : null;
     }
 
     await tx.projectVersion.update({
@@ -529,8 +536,11 @@ export async function saveVersionAction(_prev: EditorState, formData: FormData):
     }
     // Im Formular entfernte Links löschen.
     await tx.externalLink.deleteMany({ where: { versionId: existing.id, id: { notIn: [...keep] } } });
+    return null;
   });
   if (!saved) return fail("not_editable");
+  // Nach dem Commit: Mails an alle, die das Projekt gemerkt haben.
+  if (saved.value) queueProjectUpdateMails(project.id, saved.value);
 
   projectsChanged([project.slug]);
   refresh();

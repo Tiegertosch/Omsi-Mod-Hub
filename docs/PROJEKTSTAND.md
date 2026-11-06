@@ -79,7 +79,9 @@ Stand 05.11.2026: Die öffentliche Beta läuft unter `https://omsi-modhub.de`. D
 
 1. ~~**Mail-Warteschlange mit Wiederholung.**~~ Umgesetzt am 06.11.2026 (`MailOutbox`, siehe ARCHITECTURE.md „E-Mail“). Offen: Datenschutzerklärung ergänzen (Abschnitt 10 Löschfrist, ggf. 19); auf dem Server den zweiten Better-Stack-Monitor `/api/health/mail` anlegen.
 2. ~~**Abhängigkeiten zwischen Projekten**~~ Umgesetzt am 06.11.2026 (`ProjectDependency`, siehe ARCHITECTURE.md „Benötigte Projekte im Hub“).
-3. **Merkliste und Mails bei neuen Versionen** (`Favorite`). Baut auf der Mail-Warteschlange auf; Abmeldelink mit Token in jeder Mail und Einstellung im Konto; Datenschutzerklärung ergänzen (Abschnitte 10, 17, 19).
+3. ~~**Merkliste und Mails bei neuen Versionen**~~ Umgesetzt am 06.11.2026 (`Favorite`, siehe ARCHITECTURE.md „Merkliste und Mails bei neuen Versionen“). Offen:
+   - Datenschutzerklärung ergänzen (Merkliste, Benachrichtigungen, Abmeldung; Abschnitte 10, 17, 19).
+   - Nach der ersten echten Update-Mail im Quelltext prüfen, ob die DKIM-Signatur von checkdomain `List-Unsubscribe` abdeckt (`h=` im `DKIM-Signature`-Kopf); Gmail und Yahoo werten die Ein-Klick-Abmeldung sonst nicht.
 4. **Fehlerbenachrichtigung.** Better Stack prüft nur die Erreichbarkeit. Fehler in Actions und Datenbank zählen und bei Häufung den Betreiber benachrichtigen, ohne personenbezogene Daten in Logs.
 
 Später: Bewertungen bzw. Kommentare (Moderation, Meldeweg, DSA klären), Skalierung (unten).

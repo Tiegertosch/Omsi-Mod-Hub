@@ -27,6 +27,8 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Server-side search, tag filters (AND), price filter (freeware/payware), sorting, pagination, shareable URLs | ✅ |
 | Project detail page with versions, changelog, installation, requirements, licence, contributors | ✅ |
 | Requirements & add-ons as a list: name, optional link, freeware ("Download") or payware ("Visit shop") | ✅ |
+| Saved projects: save projects (button on the project page, guests are sent to sign in), overview at `/dashboard/favorites` | ✅ |
+| Email when a saved project gets a new version: on by default, can be turned off in the settings (account) and via the unsubscribe link in every email (including one-click `List-Unsubscribe`), at most one round per project in 6 hours | ✅ |
 | Required projects on the hub: selectable by search in the editor (published only, up to 20), linked under "Requirements" on the project page, and "Required by" in the other direction | ✅ |
 | Projects as freeware or payware: payware gets a badge on cards and the project page, download buttons read "Visit shop" | ✅ |
 | External download links with labelling, click counting via `/go/[id]` | ✅ |

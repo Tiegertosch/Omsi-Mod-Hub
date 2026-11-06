@@ -23,14 +23,14 @@ export function randomIp() {
   return `10.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250) + 1}`;
 }
 
-type SentMail = { to: string; subject: string; text: string };
+type SentMail = { to: string; subject: string; text: string; html?: string; headers?: Record<string, string> };
 
 /** Wartet auf die neueste Mail an `to` (MAIL_TRANSPORT=file), deren Betreff passt. */
 export async function waitForMail(to: string, subjectPattern: RegExp, since: number, timeoutMs = 15_000): Promise<SentMail> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      // Dateinamen beginnen mit dem Zeitstempel (src/server/mail.ts): neueste zuerst,
+      // Dateinamen beginnen mit dem Zeitstempel (src/server/mail-transport.ts): neueste zuerst,
       // ältere als `since` werden gar nicht erst gelesen.
       const files = (await readdir(MAIL_DIR)).filter((f) => f.endsWith(".json")).sort().reverse();
       for (const file of files) {

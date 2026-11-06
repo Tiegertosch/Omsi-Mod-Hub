@@ -25,6 +25,8 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Serverseitige Suche, Tag-Filter (UND), Preisfilter (Freeware/Payware), Sortierung, Pagination, teilbare URLs | ✅ |
 | Projekt-Detailseite mit Versionen, Changelog, Installation, Voraussetzungen, Lizenz, Mitwirkenden | ✅ |
 | Voraussetzungen & benötigte Add-ons als Liste: Name, optionaler Link, Freeware („Download“) oder Payware („Zum Shop“) | ✅ |
+| Merkliste: Projekte merken (Knopf auf der Projektseite, Gäste werden zur Anmeldung geführt), Übersicht unter `/dashboard/favorites` | ✅ |
+| E-Mail bei neuen Versionen gemerkter Projekte: standardmäßig an, abschaltbar in den Einstellungen (Konto) und per Abmeldelink in jeder Mail (auch Ein-Klick-Abmeldung `List-Unsubscribe`), höchstens eine Runde pro Projekt in 6 Stunden | ✅ |
 | Benötigte Projekte im Hub: im Editor per Suche auswählbar (nur veröffentlichte, höchstens 20), auf der Projektseite unter „Voraussetzungen“ verlinkt, umgekehrt „Wird benötigt von“ | ✅ |
 | Projekte als Freeware oder Payware: Payware mit Badge auf Karten und Projektseite, Downloadbuttons „Zum Shop“ | ✅ |
 | Externe Downloadlinks mit Kennzeichnung, Zählung der Aufrufe über `/go/[id]` | ✅ |

@@ -55,4 +55,24 @@ describe.each([
     expect(restored.length).toBeGreaterThan(notRestored.length);
     expect(t("appealResult.denied.body", { ...values, restored: "no" })).toContain("Passt.");
   });
+
+  it("Neue Version eines gemerkten Projekts: Changelog nur, wenn vorhanden; Abmeldelink als eigener Absatz", () => {
+    const values = {
+      name: "Anna",
+      title: "Bus X",
+      version: "2.0",
+      url: "https://example.com/de/mods/bus-x",
+      unsubscribeUrl: "https://example.com/de/unsubscribe?u=1&s=x",
+      favoritesUrl: "https://example.com/de/dashboard/favorites",
+    };
+    const withLog = t("projectUpdate.body", { ...values, changelog: "Neue Haltestellen", hasChangelog: "yes" });
+    const without = t("projectUpdate.body", { ...values, changelog: "", hasChangelog: "no" });
+    expect(withLog).toContain("Neue Haltestellen");
+    expect(without.length).toBeLessThan(withLog.length);
+    // Der Abmeldelink steht allein in einem Absatz und wird so im HTML zum Button.
+    const paragraphs = withLog.split(/\n{2,}/);
+    expect(paragraphs).toContain(values.unsubscribeUrl);
+    expect(paragraphs).toContain(values.url);
+    expect(t("projectUpdate.subject", { title: "Bus X", version: "2.0" })).toContain("2.0");
+  });
 });

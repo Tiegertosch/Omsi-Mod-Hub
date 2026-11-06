@@ -6,6 +6,7 @@ import { Suspense } from "react";
 
 import { CatalogBody, CatalogHeader } from "@/components/mods/catalog-page";
 import { CatalogSkeleton } from "@/components/mods/catalog-view";
+import { FavoriteButton, FavoriteButtonSkeleton } from "@/components/mods/favorite-button";
 import { ProjectDetailView } from "@/components/mods/project-detail";
 import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/state";
@@ -105,7 +106,19 @@ async function SlugContent({ params, searchParams }: Pick<Props, "params" | "sea
     getCreatorProjects(project.creator.id, locale, { excludeId: project.id, take: 3 }),
     getProjectRelations(project.id, locale),
   ]);
-  return <ProjectDetailView project={project} locale={locale} moreFromCreator={moreFromCreator} relations={relations} />;
+  return (
+    <ProjectDetailView
+      project={project}
+      locale={locale}
+      moreFromCreator={moreFromCreator}
+      relations={relations}
+      favorite={
+        <Suspense fallback={<FavoriteButtonSkeleton />}>
+          <FavoriteButton projectId={project.id} slug={project.slug} locale={locale} />
+        </Suspense>
+      }
+    />
+  );
 }
 
 function SlugSkeleton() {

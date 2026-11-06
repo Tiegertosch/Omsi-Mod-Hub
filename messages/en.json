@@ -470,7 +470,8 @@
       "profile": "Profile",
       "security": "Security",
       "account": "Account"
-    }
+    },
+    "favorites": "Saved projects"
   },
   "Admin": {
     "title": "Administration",
@@ -1029,7 +1030,8 @@
       "appeal": "Submit an appeal",
       "openEditor": "Open in editor",
       "contact": "Contact details",
-      "openSettings": "Open settings"
+      "openSettings": "Open settings",
+      "unsubscribe": "Unsubscribe"
     },
     "projectDeleteSubject": "{code} is your code to delete “{title}” – OMSI Mod Hub",
     "projectDeleteBody": "Hi {name},\n\nyou want to delete your project “{title}” at OMSI Mod Hub. Your confirmation code is:\n\n{code}\n\nEnter it in the project editor:\n\n{url}\n\nThe code is valid for {minutes} minutes. Deleting cannot be undone.\n\nIf you didn't request this, don't enter the code; the project will stay. Please change your password anyway, because the request came from your signed-in account.",
@@ -1042,6 +1044,10 @@
         "subject": "Two-factor authentication turned off – OMSI Mod Hub",
         "body": "Hi {name},\n\ntwo-factor authentication has been turned off for your OMSI Mod Hub account. Your password alone is now enough to sign in.\n\n{url}\n\nIf you didn't do this yourself, please change your password right away, set up two-factor authentication again and contact us using the details on the website."
       }
+    },
+    "projectUpdate": {
+      "subject": "New version: {title} {version}",
+      "body": "Hi {name},\n\nversion {version} of “{title}”, which you have saved, is out.{hasChangelog, select, yes {\n\nChanges:\n\n{changelog}} other {}}\n\n{url}\n\nYou are getting this email because you saved the project on OMSI Mod Hub. Unsubscribe from emails about new versions:\n\n{unsubscribeUrl}\n\nManage saved projects: {favoritesUrl}"
     }
   },
   "Errors": {
@@ -1110,5 +1116,48 @@
       "closed": "An appeal against this decision is not (or no longer) possible.",
       "generic": "That didn’t work. Please try again."
     }
+  },
+  "Favorites": {
+    "add": "Save",
+    "saved": "Saved",
+    "addLabel": "Save project",
+    "removeLabel": "Saved – remove from saved projects",
+    "loginToSave": "Sign in to save",
+    "hintGuest": "Saved projects are listed in your dashboard. If you like, you get an email when a new version comes out.",
+    "hintAdd": "Adds the project to your saved projects. You get an email when a new version comes out (can be turned off).",
+    "hintAddNotifyOff": "Adds the project to your saved projects.",
+    "hintNotify": "You get an email when a new version comes out.",
+    "hintNotifyOff": "Emails about new versions are turned off in your settings.",
+    "settingsLink": "Settings",
+    "errors": {
+      "unauthorized": "Please sign in.",
+      "rate_limit": "Too many requests. Please wait a moment.",
+      "not_found": "This project is no longer available.",
+      "limit": "You can save up to {max} projects.",
+      "invalid_link": "This unsubscribe link is invalid.",
+      "generic": "That didn’t work. Please try again."
+    },
+    "title": "Saved projects",
+    "intro": "Projects you have saved, sorted by their latest update.",
+    "empty": "You haven’t saved any projects yet.",
+    "emptyHint": "Every project page has a “Save” button.",
+    "browse": "Discover mods",
+    "notifyOn": "You get an email when a new version comes out.",
+    "notifyOff": "Emails about new versions are turned off.",
+    "manage": "Change",
+    "unavailableTitle": "No longer available",
+    "unavailableHint": "These projects are currently not public. You can remove them or wait and see whether they come back.",
+    "settingsTitle": "Email notifications",
+    "settingsDescription": "Emails about projects you have saved. You always get emails about your account and your own projects (codes, security notices, moderation decisions).",
+    "settingsLabel": "Email me when a saved project gets a new version",
+    "settingsSave": "Save",
+    "settingsSaved": "Saved.",
+    "unsubscribeTitle": "Unsubscribe from notifications",
+    "unsubscribeText": "You will no longer get emails when projects you have saved get a new version. Your saved projects stay as they are.",
+    "unsubscribeButton": "Unsubscribe",
+    "unsubscribeDone": "Done. You will no longer get emails about new versions.",
+    "unsubscribeUndo": "You can turn them back on in your settings at any time.",
+    "unsubscribeInvalid": "This unsubscribe link is invalid or incomplete. You can also turn notifications off in your settings.",
+    "settingsSaving": "Saving …"
   }
 }
