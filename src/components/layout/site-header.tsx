@@ -11,7 +11,6 @@ import { LocaleSwitcher } from "./locale-switcher";
 import { Logo } from "./logo";
 import { MobileMenu } from "./mobile-menu";
 import { NavLinkList, type NavItem } from "./nav-links";
-import { SearchForm } from "./search-form";
 
 /** Fallback ohne Pfad-Erhalt, solange der aktuelle Pfad noch nicht bekannt ist. */
 function StaticLocaleLinks({ label, current }: { label: string; current: string }) {
@@ -63,17 +62,13 @@ export function SiteHeader() {
           </Suspense>
         </nav>
 
-        <div className="ml-auto hidden w-full max-w-xs md:block lg:max-w-sm">
-          <SearchForm id="header-search" />
-        </div>
-
-        <div className="ml-auto flex items-center gap-2 md:ml-0">
+        {/* Keine Suche im Header: Startseite, Katalog (/mods) und /search haben eigene Suchfelder. */}
+        <div className="ml-auto flex items-center gap-2">
           <LanguageSwitch />
           <Suspense fallback={<AccountAreaFallback />}>
             <AccountArea />
           </Suspense>
           <MobileMenu openLabel={t("openMenu")} closeLabel={t("closeMenu")}>
-            <SearchForm id="mobile-search" className="mb-4" />
             <nav aria-label={t("mainNavigation")}>
               <Suspense fallback={<NavLinkList items={items} activeHref={null} orientation="vertical" />}>
                 <ActiveNavLinks items={items} orientation="vertical" />

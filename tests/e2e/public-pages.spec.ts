@@ -32,9 +32,11 @@ test("Sprachumschaltung behält Pfad und Suchparameter", async ({ page }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
 
-test("Suche im Header führt über die Ergebnisliste zur Detailseite", async ({ page }) => {
+test("Suche auf der Startseite führt über die Ergebnisliste zur Detailseite", async ({ page }) => {
   await page.goto("/de");
-  const search = page.getByRole("banner").getByRole("searchbox", { name: "Mods durchsuchen" });
+  // Der Header hat bewusst keine eigene Suche mehr.
+  await expect(page.getByRole("banner").getByRole("searchbox")).toHaveCount(0);
+  const search = page.getByRole("main").getByRole("searchbox", { name: "Mods durchsuchen" });
   await search.fill("gelenkbus");
   await search.press("Enter");
   await expect(page).toHaveURL(/\/de\/search\?q=gelenkbus/);
