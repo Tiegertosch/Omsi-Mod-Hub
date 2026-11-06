@@ -114,6 +114,7 @@ pnpm 12 only runs build scripts of dependencies after approval. The required app
 | `MAIL_TRANSPORT` | yes in production | `file` (development: emails as JSON in `./.dev-mail`), `console` (development) or `smtp`. Without a value, `file` applies locally; in production, sending then fails. |
 | `SMTP_URL`, `MAIL_FROM` | with `smtp` | e.g. `smtps://user:pass@smtp.example.com:465` and `OMSI Mod Hub <no-reply@example.com>` |
 | `MAIL_SEND_INTERVAL_MS` | no | Pause between two SMTP sends in milliseconds (default 2000), spares the mail provider's limits. |
+| `MAIL_HOURLY_LIMIT` | recommended with `smtp` | Maximum SMTP send attempts per hour (the mail provider's limit, e.g. `90` for 100/hour). Notifications use at most 80 %, the rest is reserved for codes and account emails; beyond that, emails wait for the next hour. No limit if unset. |
 | `PROJECT_REVIEW_REQUIRED` | no | `true` (default): submissions need admin approval. `false`: submitting publishes directly. |
 | `UPLOAD_DIR` | no | Storage for uploaded images, default `./storage/uploads` (not in `public/`, served via `/media/…`). |
 

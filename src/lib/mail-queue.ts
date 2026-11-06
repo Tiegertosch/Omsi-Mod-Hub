@@ -20,6 +20,21 @@ export const DEFAULT_SMTP_INTERVAL_MS = 2000;
 /** Prioritäten: Codes und Kontomails vor Benachrichtigungen. */
 export const MAIL_PRIORITY = { account: 0, bulk: 1 } as const;
 
+/** Anteil des Stundenlimits, den Benachrichtigungen nutzen dürfen; der Rest bleibt für Codes und Kontomails. */
+export const BULK_SHARE_OF_HOURLY_LIMIT = 0.8;
+
+/**
+ * Welche Mails im Moment verschickt werden dürfen, gemessen an den
+ * Sendeversuchen der letzten Stunde: alle (höchste erlaubte Priorität 1), nur
+ * Codes und Kontomails (0) oder keine (`null`). Ohne Limit immer alle.
+ */
+export function allowedMailPriority(sentLastHour: number, hourlyLimit: number | null): number | null {
+  if (hourlyLimit === null) return MAIL_PRIORITY.bulk;
+  if (sentLastHour >= hourlyLimit) return null;
+  if (sentLastHour >= Math.floor(hourlyLimit * BULK_SHARE_OF_HOURLY_LIMIT)) return MAIL_PRIORITY.account;
+  return MAIL_PRIORITY.bulk;
+}
+
 /** Wartezeit vor dem nächsten Versuch nach `attempts` Fehlversuchen: 1, 2, 5, 10, 30, 60 Minuten, danach alle 3 Stunden. */
 export function mailRetryDelayMs(attempts: number): number {
   const steps = [1, 2, 5, 10, 30, 60];

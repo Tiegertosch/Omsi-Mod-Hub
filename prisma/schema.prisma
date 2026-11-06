@@ -240,6 +240,15 @@ model MailOutbox {
   @@index([expiresAt])
 }
 
+/// Zeitpunkte der SMTP-Sendeversuche der letzten Stunde (Stundenlimit des
+/// Mailanbieters, MAIL_HOURLY_LIMIT). Keine personenbezogenen Daten.
+model MailSendLog {
+  id     String   @id @default(cuid())
+  sentAt DateTime @default(now())
+
+  @@index([sentAt])
+}
+
 model CreatorProfile {
   userId       String             @id
   displayName  String

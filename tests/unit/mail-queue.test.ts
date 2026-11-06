@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  allowedMailPriority,
   decideRetry,
   DEFAULT_MAIL_VALID_HOURS,
   MAX_MAIL_ATTEMPTS,
@@ -52,5 +53,23 @@ describe("Mail-Warteschlange: Fehlercode", () => {
     expect(mailErrorCode(new Error("Verbindung zu name@example.com"))).toBe("error");
     expect(mailErrorCode({ code: "name@example.com" })).toBe("error");
     expect(mailErrorCode("text")).toBe("unknown");
+  });
+});
+
+describe("Mail-Warteschlange: Stundenlimit des Mailanbieters", () => {
+  it("ohne Limit gehen alle Mails raus", () => {
+    expect(allowedMailPriority(10_000, null)).toBe(1);
+  });
+
+  it("Benachrichtigungen nutzen höchstens 80 %, der Rest bleibt für Codes und Kontomails", () => {
+    expect(allowedMailPriority(0, 100)).toBe(1);
+    expect(allowedMailPriority(79, 100)).toBe(1);
+    expect(allowedMailPriority(80, 100)).toBe(0);
+    expect(allowedMailPriority(99, 100)).toBe(0);
+  });
+
+  it("ist das Limit erreicht, wartet alles", () => {
+    expect(allowedMailPriority(100, 100)).toBeNull();
+    expect(allowedMailPriority(150, 100)).toBeNull();
   });
 });

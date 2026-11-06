@@ -173,6 +173,7 @@ sudo -u omsi nano /etc/omsi-mod-hub/env
 - `CAP_SECRET`: genauso, ein eigenes zweites Secret für das CAPTCHA. Fehlt es, schlagen Registrierung, Anmeldung, „Passwort vergessen“ und Meldungen fehl.
 - `SMTP_URL`: Port 465 → `smtps://BENUTZER:PASSWORT@SMTP-SERVER:465`, Port 587 → `smtp://…:587`. Sonderzeichen in Benutzer und Passwort URL-kodieren (`@` → `%40`, `:` → `%3A`, `#` → `%23`, `%` → `%25`). Ist der Benutzer die E-Mail-Adresse, wird daraus z. B. `no-reply%40DEINE-DOMAIN.de`.
 - `MAIL_FROM`: Absender mit derselben Adresse wie das Postfach.
+- `MAIL_HOURLY_LIMIT`: Stundenlimit des Mailanbieters mit etwas Puffer, z. B. `90` bei checkdomain Mail M (100 Mails pro Stunde). Benachrichtigungen nutzen höchstens 80 % davon, der Rest bleibt für Codes und Kontomails. Testmails mit `pnpm mail:test` zählen beim Anbieter mit, aber nicht in diesem Zähler – daher der Puffer.
 
 **SMTP testen** (mit dem Testcode aus Schritt 4):
 

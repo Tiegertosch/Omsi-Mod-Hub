@@ -62,6 +62,16 @@ export function mailSendIntervalMs(): number {
   return Number.isFinite(configured) && configured >= 0 ? configured : DEFAULT_SMTP_INTERVAL_MS;
 }
 
+/**
+ * Stundenlimit des Mailanbieters (MAIL_HOURLY_LIMIT, nur bei SMTP), z. B. 100
+ * bei checkdomain Mail M. `null`: kein Limit.
+ */
+export function mailHourlyLimit(): number | null {
+  if (resolveTransport() !== "smtp") return null;
+  const configured = Number(process.env.MAIL_HOURLY_LIMIT);
+  return Number.isInteger(configured) && configured > 0 ? configured : null;
+}
+
 let smtp: Transporter | null = null;
 
 export async function deliverMail(message: MailMessage): Promise<void> {

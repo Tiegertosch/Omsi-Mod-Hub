@@ -2,6 +2,7 @@ import "server-only";
 
 import { db } from "@/lib/db";
 import {
+  allowedMailPriority,
   decideRetry,
   MAIL_LOCK_MINUTES,
   MAIL_PRIORITY,
@@ -9,7 +10,7 @@ import {
   mailExpiresAt,
 } from "@/lib/mail-queue";
 
-import { deliverMail, mailChannel, mailSendIntervalMs, type MailMessage } from "./mail-transport";
+import { deliverMail, mailChannel, mailHourlyLimit, mailSendIntervalMs, type MailMessage } from "./mail-transport";
 
 /**
  * Mail-Warteschlange in der Datenbank (Tabelle MailOutbox).
@@ -91,13 +92,14 @@ export function startMailOutbox(intervalMs = 60_000): void {
 const EMPTY_CONTENT = { recipient: null, subject: null, text: null, html: null, headers: null };
 
 /** Reserviert den nächsten fälligen Eintrag dieses Versandwegs; `null`, wenn keiner fällig ist. */
-async function claimNext(channel: string) {
+async function claimNext(channel: string, maxPriority: number) {
   for (let tries = 0; tries < 5; tries++) {
     const now = new Date();
     const candidate = await db.mailOutbox.findFirst({
       where: {
         channel,
         failedAt: null,
+        priority: { lte: maxPriority },
         nextAttemptAt: { lte: now },
         OR: [{ lockedUntil: null }, { lockedUntil: { lt: now } }],
       },
@@ -115,12 +117,32 @@ async function claimNext(channel: string) {
   return null;
 }
 
+const HOUR = 60 * 60 * 1000;
+
+/**
+ * Stundenlimit des Mailanbieters: Gezählt werden Sendeversuche (auch
+ * fehlgeschlagene) der letzten Stunde in MailSendLog, gemeinsam für alle
+ * Prozesse und über Neustarts hinweg. Ist das Budget für Benachrichtigungen
+ * aufgebraucht, gehen nur noch Codes und Kontomails raus; ist alles
+ * aufgebraucht, wartet die Warteschlange auf den nächsten Lauf (jede Minute).
+ */
+async function sendBudget(limit: number | null): Promise<number | null> {
+  if (limit === null) return allowedMailPriority(0, null);
+  const since = new Date(Date.now() - HOUR);
+  const sent = await db.mailSendLog.count({ where: { sentAt: { gt: since } } });
+  return allowedMailPriority(sent, limit);
+}
+
 async function processOutbox(): Promise<void> {
   const channel = mailChannel();
   const interval = mailSendIntervalMs();
+  const limit = mailHourlyLimit();
+  if (limit !== null) await db.mailSendLog.deleteMany({ where: { sentAt: { lte: new Date(Date.now() - HOUR) } } });
 
   for (;;) {
-    const entry = await claimNext(channel);
+    const maxPriority = await sendBudget(limit);
+    if (maxPriority === null) return;
+    const entry = await claimNext(channel, maxPriority);
     if (!entry) return;
     const now = new Date();
 
@@ -132,6 +154,7 @@ async function processOutbox(): Promise<void> {
       continue;
     }
 
+    if (limit !== null) await db.mailSendLog.create({ data: {} });
     try {
       await deliverMail({
         to: entry.recipient,

@@ -112,6 +112,7 @@ pnpm 12 führt Build-Skripte von Abhängigkeiten nur nach Freigabe aus. Die ben�
 | `MAIL_TRANSPORT` | ja in Produktion | `file` (Entwicklung: Mails als JSON in `./.dev-mail`), `console` (Entwicklung) oder `smtp`. Ohne Angabe gilt lokal `file`; in Produktion schlägt der Versand dann fehl. |
 | `SMTP_URL`, `MAIL_FROM` | bei `smtp` | z. B. `smtps://user:pass@smtp.example.com:465` und `OMSI Mod Hub <no-reply@example.com>` |
 | `MAIL_SEND_INTERVAL_MS` | nein | Pause zwischen zwei SMTP-Sendungen in Millisekunden (Standard 2000), schont die Limits des Mailanbieters. |
+| `MAIL_HOURLY_LIMIT` | empfohlen bei `smtp` | Höchstzahl der SMTP-Sendeversuche pro Stunde (Limit des Mailanbieters, z. B. `90` bei 100/Stunde). Benachrichtigungen nutzen höchstens 80 %, der Rest bleibt für Codes und Kontomails; darüber warten Mails auf die nächste Stunde. Ohne Angabe kein Limit. |
 | `PROJECT_REVIEW_REQUIRED` | nein | `true` (Standard): Einreichungen brauchen eine Admin-Freigabe. `false`: Einreichen veröffentlicht direkt. |
 | `UPLOAD_DIR` | nein | Ablage hochgeladener Bilder, Standard `./storage/uploads` (nicht in `public/`, Auslieferung über `/media/…`). |
 
