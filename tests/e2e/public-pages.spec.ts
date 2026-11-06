@@ -237,6 +237,21 @@ test("Unbekannte Adressen liefern einen echten HTTP-404", async ({ page }) => {
   }
 });
 
+test("Echter 404 auch hinter einem Reverse Proxy mit HTTPS (X-Forwarded-Proto)", async ({ browser }) => {
+  // Caddy schickt X-Forwarded-Proto: https. Die Umschreibung auf die 404-Seite
+  // zeigte dann auf https://localhost und endete in einem 500.
+  const context = await browser.newContext({
+    extraHTTPHeaders: { "x-forwarded-proto": "https", "x-forwarded-host": "omsi-modhub.example" },
+  });
+  const page = await context.newPage();
+  for (const path of ["/de/mods/gibt-es-nicht", "/en/creators/niemand-hier"]) {
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(404);
+    await expect(page.getByRole("heading", { name: /^(Seite nicht gefunden|Page not found)$/ })).toBeVisible();
+  }
+  await context.close();
+});
+
 test("Health-Check meldet eine erreichbare Datenbank", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.status()).toBe(200);

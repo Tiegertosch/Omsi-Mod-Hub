@@ -22,6 +22,22 @@ function detailRoute(pathname: string): { locale: string; route: PublicDetailRou
   return { locale: match[1], route: { kind: match[2] as PublicDetailRoute["kind"], key } };
 }
 
+/**
+ * Ziel der 404-Umschreibung, bewusst mit `http://`.
+ *
+ * Mit `next start -H 127.0.0.1` (systemd-Dienst) kann Next eine Umschreibung
+ * aus dem Proxy nie als intern erkennen: NextURL macht aus jeder
+ * Loopback-Adresse `localhost`, der Router vergleicht aber mit `127.0.0.1`.
+ * Next leitet die Anfrage dann an sich selbst weiter (ein zweiter Durchlauf
+ * durch diesen Proxy). Hinter Caddy steht das Protokoll wegen
+ * X-Forwarded-Proto auf https, und die Weiterleitung an den HTTP-Server
+ * scheiterte mit einem 500. Mit `http://` gelingt sie; nur 404-Antworten
+ * nehmen diesen Umweg. Geprüft vom E2E-Test „hinter einem Reverse Proxy“.
+ */
+function notFoundUrl(request: NextRequest, locale: string): URL {
+  return new URL(`/${locale}/not-found`, `http://${request.nextUrl.host}`);
+}
+
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -39,7 +55,7 @@ export default async function proxy(request: NextRequest) {
   // Catch-all-Route und zeigt dort die lokalisierte 404-Seite.
   const detail = detailRoute(pathname);
   if (detail && !(await publicRouteExists(detail.route))) {
-    return NextResponse.rewrite(new URL(`/${detail.locale}/not-found`, request.url), { status: 404 });
+    return NextResponse.rewrite(notFoundUrl(request, detail.locale), { status: 404 });
   }
 
   return intlMiddleware(request);

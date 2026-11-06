@@ -60,6 +60,8 @@ Sobald eine Seite streamt, ist der Status 200 festgelegt; ein späteres `notFoun
 
 Stattdessen prüft der Proxy (`src/proxy.ts` → `src/server/route-existence.ts`) für `/[locale]/mods/[slug]`, `/[locale]/creators/[username]` und `/[locale]/legal/[page]` vor dem Rendern, ob der Eintrag öffentlich existiert (eindeutige Indizes, ungecacht). Fehlt er, schreibt der Proxy auf die Catch-all-Route um und setzt Status 404. Das gilt auch für Client-Navigationen: Die RSC-Anfrage erhält 404, Next lädt die Seite vollständig nach. Unbekannte Pfade ohne eigene Route trifft die Catch-all-Route ohnehin mit echtem 404. Die Seiten prüfen weiterhin selbst (`notFound()`), falls sich der Zustand zwischen Proxy und Rendern ändert.
 
+**Fallstrick hinter Caddy:** Mit `next start -H 127.0.0.1` erkennt Next die Umschreibung nie als intern (NextURL normalisiert Loopback-Adressen zu `localhost`, der Router vergleicht mit `127.0.0.1`) und leitet sie an sich selbst weiter. Wegen `X-Forwarded-Proto: https` lief das per HTTPS gegen den HTTP-Server und endete bis zum 06.11.2026 in einem 500. Das Ziel steht deshalb fest auf `http://` (`notFoundUrl()` in `src/proxy.ts`); 404-Antworten nehmen damit einen zweiten Durchlauf. Die E2E-Tests starten den Server wie systemd mit `-H 127.0.0.1`, der Test „Echter 404 auch hinter einem Reverse Proxy“ schickt `X-Forwarded-Proto: https`.
+
 ### Internationalisierung: next-intl mit `next/root-params`
 
 - Routen immer mit Präfix (`/de/…`, `/en/…`), damit jede Sprachversion eine eigene, indexierbare URL mit hreflang-Alternativen hat.
