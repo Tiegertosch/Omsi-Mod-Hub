@@ -359,6 +359,10 @@ model Project {
   tags         ProjectTag[]
   contributors ProjectContributor[]
   requirements ProjectRequirement[]
+  /// Projekte im Hub, die dieses Projekt benötigt
+  dependencies ProjectDependency[] @relation("ProjectDependencies")
+  /// Projekte im Hub, die dieses Projekt benötigen
+  dependents   ProjectDependency[] @relation("ProjectDependents")
   reports      Report[]
   decisions    ModerationDecision[]
 
@@ -416,6 +420,21 @@ model ProjectRequirement {
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
+}
+
+/// Benötigtes Projekt im Hub (zusätzlich zu den freien Voraussetzungen).
+/// Öffentlich nur angezeigt, wenn beide Projekte veröffentlicht sind.
+model ProjectDependency {
+  projectId   String
+  dependsOnId String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  project   Project @relation("ProjectDependencies", fields: [projectId], references: [id], onDelete: Cascade)
+  dependsOn Project @relation("ProjectDependents", fields: [dependsOnId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, dependsOnId])
+  @@index([dependsOnId])
 }
 
 model ProjectVersion {
@@ -555,4 +574,4 @@ model AuditLog {
 }
 
 // Geplant für spätere Schritte (noch nicht angelegt):
-//   Favorite (userId, projectId), Comment, Rating, ProjectDependency.
+//   Favorite (userId, projectId), Comment, Rating.

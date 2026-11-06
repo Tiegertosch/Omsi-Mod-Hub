@@ -126,6 +126,12 @@ async function EditorContent({ params }: Pick<Props, "params">) {
                     tags: project.tags.map(({ tag }) => tag.slug),
                     contributors: project.contributors.map((c) => ({ name: c.name, role: c.role ?? "" })),
                     requirements: project.requirements.map((r) => ({ name: r.name, url: r.url ?? "", pricing: r.pricing })),
+                    dependencies: project.dependencies.map(({ dependsOn: d }) => ({
+                      id: d.id,
+                      title: pickTranslation(d.translations, locale, d.defaultLocale)?.translation.title ?? d.slug,
+                      creatorName: d.creator.creatorProfile?.displayName ?? d.creator.username,
+                      unpublished: d.status !== "PUBLISHED",
+                    })),
                   }}
                 />
                 <EditorTabPanel tab="media">

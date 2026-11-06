@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@/i18n/navigation";
 import { canManageProjects } from "@/server/creator";
 import { getProjectForPreview } from "@/server/data/creator-projects";
+import { getProjectRelations } from "@/server/data/projects";
 import { requireUser } from "@/server/session";
 
 type Props = PageProps<"/[locale]/dashboard/projects/[id]/preview">;
@@ -30,7 +31,11 @@ async function PreviewContent({ params }: Pick<Props, "params">) {
   const project = await getProjectForPreview(user, id);
   if (!project) notFound();
 
-  const [t, statusT] = await Promise.all([getTranslations("Projects"), getTranslations("ProjectStatus")]);
+  const [t, statusT, relations] = await Promise.all([
+    getTranslations("Projects"),
+    getTranslations("ProjectStatus"),
+    getProjectRelations(project.id, locale),
+  ]);
   const isOwner = project.creator.id === user.id;
 
   return (
@@ -45,7 +50,7 @@ async function PreviewContent({ params }: Pick<Props, "params">) {
           </Link>
         ) : null}
       </div>
-      <ProjectDetailView project={project} locale={locale} moreFromCreator={[]} preview />
+      <ProjectDetailView project={project} locale={locale} moreFromCreator={[]} relations={relations} preview />
     </div>
   );
 }

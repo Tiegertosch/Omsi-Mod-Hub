@@ -49,6 +49,21 @@ const editorInclude = {
   tags: { select: { tag: { select: { slug: true } } } },
   contributors: { orderBy: { sortOrder: "asc" }, select: { name: true, role: true } },
   requirements: { orderBy: { sortOrder: "asc" }, select: { name: true, url: true, pricing: true } },
+  dependencies: {
+    orderBy: { sortOrder: "asc" },
+    select: {
+      dependsOn: {
+        select: {
+          id: true,
+          slug: true,
+          status: true,
+          defaultLocale: true,
+          translations: { select: { locale: true, title: true } },
+          creator: { select: { username: true, creatorProfile: { select: { displayName: true } } } },
+        },
+      },
+    },
+  },
   screenshots: { orderBy: { sortOrder: "asc" } },
   versions: {
     orderBy: { releasedAt: "desc" },

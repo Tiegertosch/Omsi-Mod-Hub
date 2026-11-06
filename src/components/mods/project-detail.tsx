@@ -9,13 +9,14 @@ import { Notice } from "@/components/ui/state";
 import { Link } from "@/i18n/navigation";
 import { externalHost, isSafeImageSrc } from "@/lib/external-url";
 import { pickTranslation } from "@/lib/translation";
-import type { ProjectCard, ProjectDetail } from "@/server/data/projects";
+import type { ProjectCard, ProjectDetail, ProjectRelations } from "@/server/data/projects";
 import { toTagView } from "@/server/data/tags";
 
 import { ExternalLinkList } from "./external-links";
 import { MediaCarousel, type CarouselSlide } from "./media-carousel";
 import { ProjectCover } from "./project-cover";
 import { ProjectGrid } from "./project-grid";
+import { RelatedProjectList } from "./related-project-list";
 import { ReportForm } from "./report-form";
 import { RequirementList } from "./requirement-list";
 
@@ -67,11 +68,14 @@ export async function ProjectDetailView({
   project,
   locale,
   moreFromCreator,
+  relations = { requires: [], requiredBy: [], requiredByTotal: 0 },
   preview = false,
 }: {
   project: ProjectDetail;
   locale: string;
   moreFromCreator: ProjectCard[];
+  /** Benötigte Projekte im Hub und „Wird benötigt von“ (getProjectRelations) */
+  relations?: ProjectRelations;
   /** Vorschau nicht veröffentlichter Projekte: ohne Meldeformular und ohne klickbare Downloads */
   preview?: boolean;
 }) {
@@ -197,15 +201,42 @@ export async function ProjectDetailView({
               </Section>
             ) : null}
 
-            {project.requirements.length > 0 ? (
+            {project.requirements.length > 0 || relations.requires.length > 0 ? (
               <Section id="requirements" title={t("requirements")}>
-                <RequirementList requirements={project.requirements} />
+                <div className="space-y-4">
+                  {relations.requires.length > 0 ? (
+                    <div>
+                      <h3 className="mb-2 text-sm font-semibold text-muted">{t("requiresInHub")}</h3>
+                      <RelatedProjectList projects={relations.requires} label={t("requiresInHub")} />
+                    </div>
+                  ) : null}
+                  {project.requirements.length > 0 ? (
+                    <div>
+                      {relations.requires.length > 0 ? (
+                        <h3 className="mb-2 text-sm font-semibold text-muted">{t("requiresElsewhere")}</h3>
+                      ) : null}
+                      <RequirementList requirements={project.requirements} />
+                    </div>
+                  ) : null}
+                </div>
               </Section>
             ) : null}
 
             {text?.installation ? (
               <Section id="installation" title={t("installation")}>
                 <RichText text={text.installation} lang={contentLang} />
+              </Section>
+            ) : null}
+
+            {relations.requiredBy.length > 0 ? (
+              <Section id="required-by" title={t("requiredBy")}>
+                <p className="mb-3 text-sm text-muted">{t("requiredByIntro", { count: relations.requiredByTotal })}</p>
+                <RelatedProjectList projects={relations.requiredBy} label={t("requiredBy")} />
+                {relations.requiredByTotal > relations.requiredBy.length ? (
+                  <p className="mt-3 text-sm text-subtle">
+                    {t("requiredByMore", { count: relations.requiredByTotal - relations.requiredBy.length })}
+                  </p>
+                ) : null}
               </Section>
             ) : null}
 

@@ -144,7 +144,12 @@
       "PAYWARE": "Payware"
     },
     "requirementDownload": "Download",
-    "requirementBuy": "Visit shop"
+    "requirementBuy": "Visit shop",
+    "requiresInHub": "Projects on the hub",
+    "requiresElsewhere": "Other requirements",
+    "requiredBy": "Required by",
+    "requiredByIntro": "{count, plural, one {# project on the hub needs this project.} other {# projects on the hub need this project.}}",
+    "requiredByMore": "{count, plural, one {and # more project} other {and # more projects}}"
   },
   "ExternalLink": {
     "shop": "Visit shop",
@@ -745,7 +750,8 @@
       "media": "Cover image & screenshots",
       "versions": "Versions & downloads",
       "status": "Status & publication",
-      "requirements": "Requirements & required add-ons"
+      "requirements": "Requirements & required add-ons",
+      "dependencies": "Required projects on the hub"
     },
     "category": "Category",
     "chooseCategory": "Choose a category …",
@@ -910,7 +916,21 @@
       "codeLabel": "Deletion code from the email",
       "confirm": "Delete project permanently",
       "deleting": "Deleting …"
-    }
+    },
+    "dependenciesHint": "Does your project need other projects that are available here on the hub, e.g. buses for a map or an object pack? Select them (up to {max}). They appear on your project page under “Requirements”, and those pages link back to your project. Add anything not available on the hub as a requirement below.",
+    "dependenciesSelected": "Selected projects",
+    "dependencyBy": "by {name}",
+    "dependencyUnpublished": "Not published – not shown",
+    "dependencyRemove": "Remove {title}",
+    "dependenciesFull": "You have reached the maximum of {max} projects.",
+    "dependencySearch": "Search for a project on the hub",
+    "dependencySearchPlaceholder": "Title or creator",
+    "dependencySearchHint": "Enter at least {min} characters. Only published projects are found.",
+    "dependencySearching": "Searching …",
+    "dependencyNoResults": "No published projects found.",
+    "dependencyResults": "{count, plural, one {# project found} other {# projects found}}",
+    "dependencyAdd": "Add",
+    "dependencyAdded": "Selected"
   },
   "Review": {
     "title": "Projects & reviews",

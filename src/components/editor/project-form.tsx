@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import type { RequirementPricing } from "@/generated/prisma/enums";
 import { saveProjectAction } from "@/server/actions/projects";
 
+import { DependencyPicker, type DependencyItem } from "./dependency-picker";
 import { EditorTabPanel, useEditorTabs } from "./editor-tabs";
 import { RichTextField } from "./rich-text-field";
 import { useEditorForm, type EditorState } from "./use-editor-form";
@@ -37,6 +38,8 @@ export type ProjectFormValues = {
   tags: string[];
   contributors: { name: string; role: string }[];
   requirements: { name: string; url: string; pricing: RequirementPricing }[];
+  /** benötigte Projekte im Hub */
+  dependencies: DependencyItem[];
 };
 
 export type ProjectFormOptions = {
@@ -301,6 +304,10 @@ export function ProjectForm({ values, options }: { values: ProjectFormValues; op
       </EditorTabPanel>
 
       <EditorTabPanel tab="extras" className="space-y-6">
+        <Section id="section-dependencies" title={t("sections.dependencies")}>
+          <DependencyPicker projectId={values.projectId} initial={values.dependencies} />
+        </Section>
+
         <Section id="section-requirements" title={t("sections.requirements")}>
           <p className="text-sm text-subtle">{t("requirementsHint")}</p>
           {requirements.length > 0 ? (

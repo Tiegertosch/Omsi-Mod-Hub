@@ -120,6 +120,8 @@ export const projectFormSchema = z
         }),
       )
       .max(PROJECT_LIMITS.requirements, { message: "tooMany" }),
+    // Benötigte Projekte im Hub (IDs); Existenz und Status prüft die Action.
+    dependencies: z.array(z.string().min(1).max(64)).max(PROJECT_LIMITS.dependencies, { message: "tooMany" }),
   })
   .superRefine((data, ctx) => {
     for (const locale of routing.locales) {
@@ -158,6 +160,25 @@ export function filledRequirements(rows: ProjectFormData["requirements"]) {
 
 export type ProjectFormData = z.infer<typeof projectFormSchema>;
 
+/**
+ * Welche benötigten Projekte gespeichert werden: in der gewählten Reihenfolge,
+ * ohne das Projekt selbst und ohne unbekannte IDs. Neu hinzugefügte müssen
+ * veröffentlicht sein; bereits gespeicherte bleiben auch dann erhalten, wenn
+ * das Ziel inzwischen nicht mehr veröffentlicht ist (öffentlich erscheinen
+ * sie dann nicht).
+ */
+export function allowedDependencies(
+  requested: readonly string[],
+  context: { projectId: string | null; existing: ReadonlySet<string>; targets: ReadonlyMap<string, { published: boolean }> },
+): string[] {
+  return requested.filter((id) => {
+    if (id === context.projectId) return false;
+    const target = context.targets.get(id);
+    if (!target) return false;
+    return target.published || context.existing.has(id);
+  });
+}
+
 export function readProjectForm(formData: FormData) {
   return {
     categoryId: str(formData, "categoryId"),
@@ -181,6 +202,7 @@ export function readProjectForm(formData: FormData) {
     tags: [...new Set(formData.getAll("tags").filter((v): v is string => typeof v === "string"))],
     contributors: readRows(formData, "contributors", ["name", "role"] as const),
     requirements: readRows(formData, "requirements", ["name", "url", "pricing"] as const),
+    dependencies: [...new Set(formData.getAll("dependencies").filter((v): v is string => typeof v === "string" && v !== ""))],
   };
 }
 

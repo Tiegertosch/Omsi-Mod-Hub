@@ -144,7 +144,12 @@
       "PAYWARE": "Payware"
     },
     "requirementDownload": "Download",
-    "requirementBuy": "Zum Shop"
+    "requirementBuy": "Zum Shop",
+    "requiresInHub": "Projekte im Hub",
+    "requiresElsewhere": "Weitere Voraussetzungen",
+    "requiredBy": "Wird benötigt von",
+    "requiredByIntro": "{count, plural, one {# Projekt im Hub braucht dieses Projekt.} other {# Projekte im Hub brauchen dieses Projekt.}}",
+    "requiredByMore": "{count, plural, one {und # weiteres Projekt} other {und # weitere Projekte}}"
   },
   "ExternalLink": {
     "shop": "Zum Shop",
@@ -745,7 +750,8 @@
       "media": "Titelbild & Screenshots",
       "versions": "Versionen & Downloads",
       "status": "Status & Veröffentlichung",
-      "requirements": "Voraussetzungen & benötigte Add-ons"
+      "requirements": "Voraussetzungen & benötigte Add-ons",
+      "dependencies": "Benötigte Projekte im Hub"
     },
     "category": "Kategorie",
     "chooseCategory": "Kategorie wählen …",
@@ -910,7 +916,21 @@
       "codeLabel": "Löschcode aus der E-Mail",
       "confirm": "Projekt endgültig löschen",
       "deleting": "Wird gelöscht …"
-    }
+    },
+    "dependenciesHint": "Braucht dein Projekt andere Projekte, die es hier im Hub gibt, z. B. Busse für eine Karte oder ein Objektpaket? Wähle sie aus (höchstens {max}). Sie erscheinen auf deiner Projektseite unter „Voraussetzungen“, und dort wird umgekehrt auf dein Projekt verwiesen. Alles, was es nicht im Hub gibt, trägst du unten als Voraussetzung ein.",
+    "dependenciesSelected": "Ausgewählte Projekte",
+    "dependencyBy": "von {name}",
+    "dependencyUnpublished": "Nicht veröffentlicht – wird nicht angezeigt",
+    "dependencyRemove": "{title} entfernen",
+    "dependenciesFull": "Du hast die Höchstzahl von {max} Projekten erreicht.",
+    "dependencySearch": "Projekt im Hub suchen",
+    "dependencySearchPlaceholder": "Titel oder Creator",
+    "dependencySearchHint": "Mindestens {min} Zeichen eingeben. Gefunden werden nur veröffentlichte Projekte.",
+    "dependencySearching": "Suche …",
+    "dependencyNoResults": "Keine veröffentlichten Projekte gefunden.",
+    "dependencyResults": "{count, plural, one {# Projekt gefunden} other {# Projekte gefunden}}",
+    "dependencyAdd": "Hinzufügen",
+    "dependencyAdded": "Ausgewählt"
   },
   "Review": {
     "title": "Projekte & Freigaben",

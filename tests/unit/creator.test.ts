@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { detectImageKind, mediaKeyFromUrl } from "@/lib/image-signature";
 import {
+  allowedDependencies,
   filledRequirements,
   projectFormSchema,
   readProjectForm,
@@ -215,6 +216,44 @@ describe("Projektformular", () => {
     expect(parsed.success).toBe(false);
     const paths = parsed.error?.issues.map((i) => i.path.join(".")) ?? [];
     expect(paths).toEqual(["requirements.0.name", "requirements.1.url"]);
+  });
+
+  it("liest benötigte Projekte ohne Doppelungen und begrenzt ihre Zahl", () => {
+    const parsed = projectFormSchema.safeParse(
+      readProjectForm(formData([...base, ["dependencies", "p1"], ["dependencies", "p2"], ["dependencies", "p1"], ["dependencies", ""]])),
+    );
+    expect(parsed.success && parsed.data.dependencies).toEqual(["p1", "p2"]);
+
+    const many = Array.from({ length: 21 }, (_, i) => ["dependencies", `p${i}`] as [string, string]);
+    const tooMany = projectFormSchema.safeParse(readProjectForm(formData([...base, ...many])));
+    expect(tooMany.error?.issues.map((i) => i.path.join("."))).toEqual(["dependencies"]);
+  });
+});
+
+describe("Benötigte Projekte", () => {
+  const targets = new Map([
+    ["pub", { published: true }],
+    ["hidden", { published: false }],
+    ["old", { published: false }],
+    ["self", { published: true }],
+  ]);
+
+  it("übernimmt veröffentlichte Projekte in der gewählten Reihenfolge", () => {
+    expect(allowedDependencies(["pub"], { projectId: "self", existing: new Set(), targets })).toEqual(["pub"]);
+  });
+
+  it("verwirft das Projekt selbst, unbekannte und neu gewählte unveröffentlichte Projekte", () => {
+    expect(
+      allowedDependencies(["self", "unknown", "hidden", "pub"], { projectId: "self", existing: new Set(), targets }),
+    ).toEqual(["pub"]);
+  });
+
+  it("behält gespeicherte Ziele, die inzwischen nicht mehr veröffentlicht sind", () => {
+    expect(allowedDependencies(["old", "pub"], { projectId: "self", existing: new Set(["old"]), targets })).toEqual(["old", "pub"]);
+  });
+
+  it("erlaubt beim Anlegen (ohne ID) jedes veröffentlichte Projekt", () => {
+    expect(allowedDependencies(["self"], { projectId: null, existing: new Set(), targets })).toEqual(["self"]);
   });
 });
 

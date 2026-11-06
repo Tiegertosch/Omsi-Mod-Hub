@@ -12,6 +12,7 @@ import { parseExternalUrl } from "@/lib/external-url";
 import { codeFromForm, fieldErrorsFrom, type FormState } from "@/lib/form-state";
 import { mediaKeyFromUrl, mediaUrlFromKey } from "@/lib/image-signature";
 import {
+  allowedDependencies,
   filledRequirements,
   projectFormSchema,
   readProjectForm,
@@ -34,8 +35,11 @@ import {
   nextStatusForCreator,
   publishChecklist,
 } from "@/lib/project-status";
+import { tokenizeQuery } from "@/lib/search-text";
 import { isValidSlug, slugify } from "@/lib/slug";
+import { pickTranslation } from "@/lib/translation";
 import { canManageProjects } from "@/server/creator";
+import { buildCatalogWhere } from "@/server/data/projects";
 import { projectDeletionCodeEmail } from "@/server/emails";
 import { processImageUpload } from "@/server/images";
 import { sendMailInBackground } from "@/server/mail";
@@ -159,10 +163,16 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
   if (!parsed.success) return fail("validation", fieldErrorsFrom<EditorFieldCode>(parsed.error));
   const data = parsed.data;
 
-  const [category, categories, tags] = await Promise.all([
+  const [category, categories, tags, dependencyTargets, existingDependencies] = await Promise.all([
     db.category.findUnique({ where: { id: data.categoryId }, select: { id: true } }),
     db.category.findMany({ select: { slug: true } }),
     db.tag.findMany({ where: { slug: { in: data.tags } }, select: { id: true } }),
+    data.dependencies.length > 0
+      ? db.project.findMany({ where: { id: { in: data.dependencies } }, select: { id: true, status: true } })
+      : Promise.resolve([]),
+    existing
+      ? db.projectDependency.findMany({ where: { projectId: existing.id }, select: { dependsOnId: true } })
+      : Promise.resolve([]),
   ]);
   if (!category) return fail("validation", { categoryId: "category" });
 
@@ -188,6 +198,14 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
     .filter((t) => t.locale === data.defaultLocale || t.title);
   const contributors = data.contributors.filter((c) => c.name);
   const requirements = filledRequirements(data.requirements);
+  // Unbekannte und (neu gewählte) nicht veröffentlichte Projekte fallen still weg:
+  // Die Suche bietet nur veröffentlichte an, Abweichungen entstehen nur, wenn
+  // ein Ziel zwischen Auswahl und Speichern ausgeblendet wird.
+  const dependencies = allowedDependencies(data.dependencies, {
+    projectId: existing?.id ?? null,
+    existing: new Set(existingDependencies.map((d) => d.dependsOnId)),
+    targets: new Map(dependencyTargets.map((p) => [p.id, { published: p.status === "PUBLISHED" }])),
+  });
 
   const core = {
     slug,
@@ -245,6 +263,13 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
       });
     }
 
+    await tx.projectDependency.deleteMany({ where: { projectId: project.id } });
+    if (dependencies.length > 0) {
+      await tx.projectDependency.createMany({
+        data: dependencies.map((dependsOnId, index) => ({ projectId: project.id, dependsOnId, sortOrder: index })),
+      });
+    }
+
     await rebuildSearchText(tx, project.id);
     return project.id;
   });
@@ -258,6 +283,46 @@ export async function saveProjectAction(_prev: EditorState, formData: FormData):
   projectsChanged([slug]);
   refresh();
   return { status: "success" };
+}
+
+export type DependencyCandidate = { id: string; slug: string; title: string; creatorName: string };
+
+/**
+ * Suche im Editor nach Projekten, die das Projekt benötigt: nur veröffentlichte
+ * (auch anderer Creator), ohne das Projekt selbst. Lesend, aber als Action,
+ * weil der Editor eine Client-Komponente ist; eigenes Rate-Limit.
+ */
+export async function searchDependencyCandidatesAction(input: {
+  projectId?: string;
+  query: string;
+  locale: string;
+}): Promise<DependencyCandidate[]> {
+  const { user } = await currentCreator();
+  if (!user) return [];
+  const query = typeof input.query === "string" ? input.query.slice(0, 100) : "";
+  if (tokenizeQuery(query).length === 0) return [];
+  if (!(await consumeRateLimit(`dependency-search:user:${user.id}`, 120, 10 * MINUTE))) return [];
+
+  const locale = z.enum(routing.locales).catch(routing.defaultLocale).parse(input.locale);
+  const projectId = typeof input.projectId === "string" && input.projectId.length <= 64 ? input.projectId : undefined;
+  const rows = await db.project.findMany({
+    where: { AND: [buildCatalogWhere({ q: query }), ...(projectId ? [{ id: { not: projectId } }] : [])] },
+    orderBy: [{ outboundClickCount: "desc" }, { publishedAt: "desc" }],
+    take: 8,
+    select: {
+      id: true,
+      slug: true,
+      defaultLocale: true,
+      translations: { select: { locale: true, title: true } },
+      creator: { select: { username: true, creatorProfile: { select: { displayName: true } } } },
+    },
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: pickTranslation(row.translations, locale, row.defaultLocale)?.translation.title ?? row.slug,
+    creatorName: row.creator.creatorProfile?.displayName ?? row.creator.username,
+  }));
 }
 
 // ---------------------------------------------------------------------------

@@ -11,6 +11,7 @@ describe("Editor-Tabs", () => {
     expect(tabForField("requirements")).toBe("extras");
     expect(tabForField("requirements.2.url")).toBe("extras");
     expect(tabForField("contributors.0.name")).toBe("extras");
+    expect(tabForField("dependencies")).toBe("extras");
     // Nur ganze Feldnamen zählen, kein bloßer Präfix
     expect(tabForField("translationsX")).toBe("general");
   });

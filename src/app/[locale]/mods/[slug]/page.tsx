@@ -15,7 +15,7 @@ import { localizedAlternates, truncateDescription } from "@/lib/metadata";
 import { richTextToPlain } from "@/lib/rich-text";
 import { pickTranslation } from "@/lib/translation";
 import { getCategories, type CategorySummary } from "@/server/data/categories";
-import { getCreatorProjects, getPublishedProject } from "@/server/data/projects";
+import { getCreatorProjects, getProjectRelations, getPublishedProject } from "@/server/data/projects";
 
 type Props = PageProps<"/[locale]/mods/[slug]">;
 
@@ -101,8 +101,11 @@ async function SlugContent({ params, searchParams }: Pick<Props, "params" | "sea
   const project = await getPublishedProject(slug);
   if (!project) notFound();
 
-  const moreFromCreator = await getCreatorProjects(project.creator.id, locale, { excludeId: project.id, take: 3 });
-  return <ProjectDetailView project={project} locale={locale} moreFromCreator={moreFromCreator} />;
+  const [moreFromCreator, relations] = await Promise.all([
+    getCreatorProjects(project.creator.id, locale, { excludeId: project.id, take: 3 }),
+    getProjectRelations(project.id, locale),
+  ]);
+  return <ProjectDetailView project={project} locale={locale} moreFromCreator={moreFromCreator} relations={relations} />;
 }
 
 function SlugSkeleton() {

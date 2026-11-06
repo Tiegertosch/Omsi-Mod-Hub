@@ -17,7 +17,7 @@ function belongsTo(field: string, root: string) {
 /** In welchem Tab ein Feld des Projektformulars liegt (Schlüssel wie in `fieldErrors`). */
 export function tabForField(field: string): EditorTabId {
   if (belongsTo(field, "translations")) return "texts";
-  if (belongsTo(field, "requirements") || belongsTo(field, "contributors")) return "extras";
+  if (belongsTo(field, "requirements") || belongsTo(field, "dependencies") || belongsTo(field, "contributors")) return "extras";
   return "general";
 }
 

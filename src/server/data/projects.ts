@@ -208,6 +208,78 @@ export async function getPublishedProject(slug: string): Promise<ProjectDetail |
   return project;
 }
 
+// ---------------------------------------------------------------------------
+// Abhängigkeiten zwischen Projekten
+// ---------------------------------------------------------------------------
+
+/** Höchstzahl der Projekte unter „Wird benötigt von“; darüber nur die Anzahl. */
+export const REQUIRED_BY_LIMIT = 12;
+
+const relatedSelect = {
+  id: true,
+  slug: true,
+  defaultLocale: true,
+  pricing: true,
+  translations: { select: { locale: true, title: true } },
+  creator: { select: { username: true, creatorProfile: { select: { displayName: true } } } },
+} satisfies Prisma.ProjectSelect;
+
+export type RelatedProject = {
+  id: string;
+  slug: string;
+  title: string;
+  contentLocale: string;
+  creatorName: string;
+  pricing: RequirementPricing;
+};
+
+function toRelated(row: Prisma.ProjectGetPayload<{ select: typeof relatedSelect }>, locale: string): RelatedProject {
+  const text = pickTranslation(row.translations, locale, row.defaultLocale);
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: text?.translation.title ?? row.slug,
+    contentLocale: text?.translation.locale ?? row.defaultLocale,
+    creatorName: row.creator.creatorProfile?.displayName ?? row.creator.username,
+    pricing: row.pricing,
+  };
+}
+
+export type ProjectRelations = { requires: RelatedProject[]; requiredBy: RelatedProject[]; requiredByTotal: number };
+
+/**
+ * Benötigte Projekte und „Wird benötigt von“, jeweils nur veröffentlichte.
+ * Bewusst nicht Teil von getPublishedProject (Tag `project:<slug>`): Titel und
+ * Status der anderen Projekte ändern sich ohne Änderung an diesem. Der Tag
+ * `lists` wird nach jeder Projektänderung im Hintergrund erneuert, das hält
+ * beide Richtungen aktuell, ohne die Slugs aller Beteiligten zu kennen.
+ */
+export async function getProjectRelations(projectId: string, locale: string): Promise<ProjectRelations> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(CACHE_TAGS.lists);
+  const requiredByWhere = { dependsOnId: projectId, project: { status: PUBLISHED } } satisfies Prisma.ProjectDependencyWhereInput;
+  const [requires, requiredBy, requiredByTotal] = await Promise.all([
+    db.projectDependency.findMany({
+      where: { projectId, dependsOn: { status: PUBLISHED } },
+      orderBy: { sortOrder: "asc" },
+      select: { dependsOn: { select: relatedSelect } },
+    }),
+    db.projectDependency.findMany({
+      where: requiredByWhere,
+      orderBy: [{ project: { lastReleaseAt: "desc" } }, { projectId: "asc" }],
+      take: REQUIRED_BY_LIMIT,
+      select: { project: { select: relatedSelect } },
+    }),
+    db.projectDependency.count({ where: requiredByWhere }),
+  ]);
+  return {
+    requires: requires.map((row) => toRelated(row.dependsOn, locale)),
+    requiredBy: requiredBy.map((row) => toRelated(row.project, locale)),
+    requiredByTotal,
+  };
+}
+
 export async function getPublishedProjectSitemapEntries() {
   "use cache";
   cacheLife("minutes");

@@ -13,6 +13,8 @@ export const PROJECT_LIMITS = {
   contributorRole: 60,
   requirements: 15,
   requirementName: 80,
+  /** benötigte Projekte im Hub */
+  dependencies: 20,
   screenshots: 12,
   version: 32,
   changelog: 5_000,

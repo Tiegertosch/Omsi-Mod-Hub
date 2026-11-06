@@ -50,6 +50,7 @@ async function NewProjectContent() {
             tags: [],
             contributors: [],
             requirements: [],
+            dependencies: [],
           }}
         />
       </div>
