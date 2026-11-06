@@ -64,10 +64,13 @@ export async function setProjectUpdateMailsAction(_prev: FavoriteState, formData
  * Ein gelöschtes Konto gilt als erfolgreich abgemeldet.
  */
 export async function unsubscribeAction(_prev: FavoriteState, formData: FormData): Promise<FavoriteState> {
-  if (!(await consumeRateLimit(await clientKey("unsubscribe"), 30, 10 * MINUTE))) return fail("rate_limit");
   const secret = process.env.BETTER_AUTH_SECRET;
   const userId = str(formData, "u");
-  if (!secret || !isValidUnsubscribe(secret, userId, str(formData, "s"))) return fail("invalid_link");
+  if (!secret || !isValidUnsubscribe(secret, userId, str(formData, "s"))) {
+    // Nur ungültige Versuche zählen (Raten von Signaturen).
+    if (!(await consumeRateLimit(await clientKey("unsubscribe-invalid"), 30, 10 * MINUTE))) return fail("rate_limit");
+    return fail("invalid_link");
+  }
   await db.user.updateMany({ where: { id: userId }, data: { notifyProjectUpdates: false } });
   return { status: "success" };
 }
