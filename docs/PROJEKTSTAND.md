@@ -77,12 +77,7 @@ Stand 05.11.2026: Die öffentliche Beta läuft unter `https://omsi-modhub.de`. D
 
 ### Nächste Entwicklungsschritte (in dieser Reihenfolge)
 
-1. **Mail-Warteschlange mit Wiederholung.** Heute verschickt `sendMailInBackground()` ohne erneuten Versuch: Ist der SMTP-Server kurz nicht erreichbar, geht z. B. ein Bestätigungscode verloren und die Registrierung hängt.
-   - Additive Migration, Tabelle z. B. `MailOutbox` (Empfänger, Betreff, Text, HTML, Status, Versuche, nächster Versuch, Fehler ohne personenbezogene Daten).
-   - Actions legen die Mail an und kehren sofort zurück (Antwortzeit bleibt gleich, kein Ausspähen registrierter Adressen); Versand sofort versuchen, Wiederholung mit Backoff über einen Timer (systemd, z. B. jede Minute) oder im Aufräumlauf.
-   - Inhalt enthält Codes und Links im Klartext: nach erfolgreichem Versand sofort löschen bzw. leeren, spätestens mit Ablauf des Codes; endgültig gescheiterte Einträge kurz aufbewahren.
-   - Nach mehreren Fehlversuchen Warnung an den Betreiber (Mail an eine eigene Adresse aus der Env, Better Stack oder Protokoll).
-   - Datenschutzerklärung ergänzen (Abschnitt 10 Löschfrist, ggf. 19).
+1. ~~**Mail-Warteschlange mit Wiederholung.**~~ Umgesetzt am 06.11.2026 (`MailOutbox`, siehe ARCHITECTURE.md „E-Mail“). Offen: Datenschutzerklärung ergänzen (Abschnitt 10 Löschfrist, ggf. 19); auf dem Server den zweiten Better-Stack-Monitor `/api/health/mail` anlegen.
 2. **Abhängigkeiten zwischen Projekten** (`ProjectDependency`, siehe ARCHITECTURE.md „Geplante Tabellen“). Benötigte Add-ons zusätzlich zum Freitext als Verweis auf Projekte im Hub; im Editor per Suche auswählbar; auf der Projektseite „Benötigt“ und umgekehrt „Wird benötigt von“; öffentlich nur veröffentlichte Projekte; Caches beider Projekte invalidieren. Für OMSI besonders wertvoll (Karten brauchen Busse und Objekte).
 3. **Merkliste und Mails bei neuen Versionen** (`Favorite`). Baut auf der Mail-Warteschlange auf; Abmeldelink mit Token in jeder Mail und Einstellung im Konto; Datenschutzerklärung ergänzen (Abschnitte 10, 17, 19).
 4. **Fehlerbenachrichtigung.** Better Stack prüft nur die Erreichbarkeit. Fehler in Actions und Datenbank zählen und bei Häufung den Betreiber benachrichtigen, ohne personenbezogene Daten in Logs.

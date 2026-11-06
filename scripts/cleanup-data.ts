@@ -27,7 +27,7 @@ async function main() {
   const cutoff = retentionCutoffs(now);
   const db = createPrismaClient();
   try {
-    const [rateLimits, sessions, verifications, captchas, accounts, reports, auditLogs, decisions] = await db.$transaction([
+    const [rateLimits, sessions, verifications, captchas, accounts, reports, auditLogs, decisions, mails] = await db.$transaction([
       db.rateLimit.deleteMany({ where: { lastRequest: { lt: cutoff.rateLimitBefore } } }),
       db.session.deleteMany({ where: { expiresAt: { lt: now } } }),
       db.verification.deleteMany({ where: { expiresAt: { lt: now } } }),
@@ -65,13 +65,18 @@ async function main() {
           ],
         },
       }),
+      // Mail-Warteschlange: abgelaufene Einträge (der Versandlauf leert sie sonst
+      // selbst; hier auch die eines anderen Versandwegs) und alte Fehlschläge.
+      db.mailOutbox.deleteMany({
+        where: { OR: [{ failedAt: null, expiresAt: { lt: now } }, { failedAt: { lt: cutoff.failedMailBefore } }] },
+      }),
     ]);
     console.log(
       `Aufgeräumt: ${rateLimits.count} Rate-Limit-Einträge, ${sessions.count} abgelaufene Sitzungen, ` +
         `${verifications.count} abgelaufene Codes/Links, ${captchas.count} abgelaufene Captcha-Einträge, ` +
         `${accounts.count} unbestätigte Konten, ` +
         `${reports.count} abgeschlossene Meldungen, ${auditLogs.count} Protokolleinträge, ` +
-        `${decisions.count} Moderationsentscheidungen.`,
+        `${decisions.count} Moderationsentscheidungen, ${mails.count} Einträge der Mail-Warteschlange.`,
     );
   } finally {
     await db.$disconnect();

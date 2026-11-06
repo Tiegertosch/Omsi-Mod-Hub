@@ -98,7 +98,7 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     resetPasswordTokenExpiresIn: 60 * 60,
     sendResetPassword: async ({ user, url }) => {
-      sendMailInBackground(resetPasswordEmail(user, url));
+      sendMailInBackground(resetPasswordEmail(user, url), { validMinutes: 60 });
     },
     // Antwort bei bereits registrierter E-Mail muss wie eine echte Registrierung aussehen.
     customSyntheticUser: ({ coreFields, additionalFields, id }) => ({
@@ -123,7 +123,7 @@ export const auth = betterAuth({
       // Nur bei einer E-Mail-Änderung: Das Konto ist bestätigt und `user.email`
       // enthält schon die neue Adresse.
       if (!user.emailVerified) return;
-      sendMailInBackground(changeEmailVerificationEmail(user, url));
+      sendMailInBackground(changeEmailVerificationEmail(user, url), { validMinutes: 24 * 60 });
     },
   },
   user: {
@@ -132,7 +132,7 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
-        sendMailInBackground(changeEmailConfirmationEmail(user, newEmail, url));
+        sendMailInBackground(changeEmailConfirmationEmail(user, newEmail, url), { validMinutes: 24 * 60 });
       },
     },
     // deleteUser bleibt deaktiviert: Das Löschen übernimmt eine eigene Server
@@ -256,7 +256,9 @@ export const auth = betterAuth({
           select: { email: true, name: true, preferredLocale: true, emailVerified: true },
         });
         if (!user || user.emailVerified) return;
-        sendMailInBackground(verificationCodeEmail(user, otp, VERIFICATION_CODE_MINUTES));
+        sendMailInBackground(verificationCodeEmail(user, otp, VERIFICATION_CODE_MINUTES), {
+          validMinutes: VERIFICATION_CODE_MINUTES,
+        });
       },
     }),
     twoFactor({

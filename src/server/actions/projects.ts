@@ -591,7 +591,9 @@ export async function requestProjectDeletionAction(_prev: EditorState, formData:
 
   const title =
     project.translations.find((t) => t.locale === project.defaultLocale)?.title ?? project.translations[0]?.title ?? project.slug;
-  sendMailInBackground(projectDeletionCodeEmail(user, { id: project.id, title }, code, PROJECT_DELETION_CODE_MINUTES));
+  sendMailInBackground(projectDeletionCodeEmail(user, { id: project.id, title }, code, PROJECT_DELETION_CODE_MINUTES), {
+    validMinutes: PROJECT_DELETION_CODE_MINUTES,
+  });
   refresh();
   return { status: "success" };
 }

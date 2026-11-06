@@ -52,6 +52,7 @@ Spieler finden Mods, sehen Voraussetzungen, Versionen und Kompatibilität und ge
 | Admin: Downloadlinks aus einer Meldung heraus als defekt markieren, sperren (mit Begründung, E-Mail an den Creator) oder freigeben; gesperrte Links verschwinden öffentlich, `/go` liefert 404, die Sperre bleibt auch bei einer URL-Änderung durch den Creator | ✅ |
 | E-Mail an Creator bei Freigabe, Zurückweisung, Ausblenden, Wiedereinblenden und nach der Entscheidung über einen Widerspruch | ✅ |
 | E-Mails als gestaltetes HTML im Stil der Website (dunkle Kopfzeile, Button für den Hauptlink) mit Klartext-Fassung | ✅ |
+| Mail-Warteschlange: Versand im Hintergrund mit Wiederholung bei SMTP-Fehlern, Codes vor Benachrichtigungen, Inhalt nach dem Versand gelöscht, eigener Health-Check `/api/health/mail` | ✅ |
 | Rechtliche Seiten: Impressum, Datenschutzerklärung, versionierte Nutzungsbedingungen mit Zustimmung bei neuen Fassungen | ✅ |
 
 ## Technologie
@@ -107,6 +108,7 @@ pnpm 12 führt Build-Skripte von Abhängigkeiten nur nach Freigabe aus. Die ben�
 | `BETTER_AUTH_URL` | ja | Öffentliche URL der App. Links in E-Mails zeigen dorthin; muss zur aufgerufenen Adresse passen. |
 | `MAIL_TRANSPORT` | ja in Produktion | `file` (Entwicklung: Mails als JSON in `./.dev-mail`), `console` (Entwicklung) oder `smtp`. Ohne Angabe gilt lokal `file`; in Produktion schlägt der Versand dann fehl. |
 | `SMTP_URL`, `MAIL_FROM` | bei `smtp` | z. B. `smtps://user:pass@smtp.example.com:465` und `OMSI Mod Hub <no-reply@example.com>` |
+| `MAIL_SEND_INTERVAL_MS` | nein | Pause zwischen zwei SMTP-Sendungen in Millisekunden (Standard 2000), schont die Limits des Mailanbieters. |
 | `PROJECT_REVIEW_REQUIRED` | nein | `true` (Standard): Einreichungen brauchen eine Admin-Freigabe. `false`: Einreichen veröffentlicht direkt. |
 | `UPLOAD_DIR` | nein | Ablage hochgeladener Bilder, Standard `./storage/uploads` (nicht in `public/`, Auslieferung über `/media/…`). |
 
@@ -201,7 +203,9 @@ src/
     actions/           Server Actions (Anmeldung, Konto, Projekte, Moderation, Meldungen, Konten, Kategorien/Tags)
     admin-action.ts    gemeinsame Prüfung für Admin-Actions (Rolle, Rate-Limit)
     emails.ts          lokalisierte E-Mail-Texte (Bestätigungscode, Passwort, E-Mail-Änderung, Moderationsentscheidungen)
-    mail.ts            E-Mail-Versand (file/console/smtp)
+    mail.ts            sendMailInBackground(): Mail in die Warteschlange legen
+    mail-outbox.ts     Warteschlange (Versandlauf, Wiederholung), gestartet aus src/instrumentation.ts
+    mail-transport.ts  eigentlicher Versand (file/console/smtp)
     images.ts, storage.ts  Bildprüfung/-neukodierung (sharp) und Ablage
   app/media/[key]/     Auslieferung hochgeladener Bilder
   proxy.ts             Spracherkennung, Vorab-Weiterleitung geschützter Bereiche
@@ -218,6 +222,7 @@ tests/
 - **Benachrichtigungen** werden ohne Warteschlange im Hintergrund versendet; schlägt der Versand fehl, wird das nur protokolliert (kein erneuter Versuch). An Beispielkonten wird nichts gesendet.
 - **Bildspeicher lokal:** Uploads liegen im Dateisystem (`UPLOAD_DIR`). Für mehrere Server-Instanzen oder Serverless-Hosting ist ein Objektspeicher (z. B. S3) nötig; die Schnittstelle ist in `src/server/storage.ts` gekapselt. Backups müssen dieses Verzeichnis einschließen.
 - **Reihenfolge von Screenshots** lässt sich noch nicht ändern (Upload-Reihenfolge); Bildbeschreibungen nur beim Hochladen.
+- **Mail-Warteschlange:** Der Versandlauf läuft im Serverprozess (eine Instanz; bei mehreren Instanzen verhindert die Reservierung doppelten Versand). Ein Fehlschlag ist erst nach dem nächsten Versuch sichtbar; Codes, deren Gültigkeit abläuft, werden nicht mehr verschickt.
 - **SMTP-Versand:** Die E2E-Tests nutzen `MAIL_TRANSPORT=file`. Den SMTP-Zugang prüft `pnpm mail:test <adresse>` (auf der Beta mit einem echten SMTP-Anbieter im Einsatz).
 - **IP-basierte Rate-Limits** lesen `X-Forwarded-For`. Das ist nur hinter einem Reverse Proxy belastbar, der diesen Header setzt bzw. überschreibt; direkt im Internet ließe sich das IP-Limit umgehen. Limits pro Konto/E-Mail bleiben wirksam.
 - **Benutzernamen** sind nach der Registrierung unveränderlich (Teil der Profil-URL). Admins können ihr Konto nicht selbst löschen; die Rolle wird zuvor per CLI entzogen. Beim Löschen eines Kontos entstehen Protokolleinträge `user.self_delete` ohne Akteur; das E2E-Aufräumskript (`scripts/cleanup-e2e.ts`) entfernt sie bewusst nicht, weil sie sich nicht von echten unterscheiden lassen.

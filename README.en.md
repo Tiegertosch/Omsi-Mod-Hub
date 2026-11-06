@@ -54,6 +54,7 @@ The detailed documentation under `docs/` (architecture, deployment, project stat
 | Admin: mark download links as broken, block them (with reason, email to the creator) or release them directly from a report; blocked links disappear publicly, `/go` returns 404, and the block stays even if the creator changes the URL | ✅ |
 | Emails to creators on approval, rejection, hiding, unhiding and after an appeal has been decided | ✅ |
 | Emails as styled HTML matching the website (dark header, button for the main link) with a plain-text version | ✅ |
+| Mail queue: background sending with retries on SMTP errors, codes before notifications, content deleted after sending, separate health check `/api/health/mail` | ✅ |
 | Legal pages: imprint, privacy policy, versioned terms of use with consent to new versions | ✅ |
 
 ## Technology
@@ -109,6 +110,7 @@ pnpm 12 only runs build scripts of dependencies after approval. The required app
 | `BETTER_AUTH_URL` | yes | Public URL of the app. Links in emails point there; it must match the address being used. |
 | `MAIL_TRANSPORT` | yes in production | `file` (development: emails as JSON in `./.dev-mail`), `console` (development) or `smtp`. Without a value, `file` applies locally; in production, sending then fails. |
 | `SMTP_URL`, `MAIL_FROM` | with `smtp` | e.g. `smtps://user:pass@smtp.example.com:465` and `OMSI Mod Hub <no-reply@example.com>` |
+| `MAIL_SEND_INTERVAL_MS` | no | Pause between two SMTP sends in milliseconds (default 2000), spares the mail provider's limits. |
 | `PROJECT_REVIEW_REQUIRED` | no | `true` (default): submissions need admin approval. `false`: submitting publishes directly. |
 | `UPLOAD_DIR` | no | Storage for uploaded images, default `./storage/uploads` (not in `public/`, served via `/media/…`). |
 
@@ -203,7 +205,9 @@ src/
     actions/           Server Actions (sign-in, account, projects, moderation, reports, accounts, categories/tags)
     admin-action.ts    shared checks for admin actions (role, rate limit)
     emails.ts          localised email texts (verification code, password, email change, moderation decisions)
-    mail.ts            email delivery (file/console/smtp)
+    mail.ts            sendMailInBackground(): put a mail into the queue
+    mail-outbox.ts     queue (sending loop, retries), started from src/instrumentation.ts
+    mail-transport.ts  actual delivery (file/console/smtp)
     images.ts, storage.ts  image validation/re-encoding (sharp) and storage
   app/media/[key]/     serving uploaded images
   proxy.ts             language detection, early redirect for protected areas
@@ -220,6 +224,7 @@ tests/
 - **Notifications** are sent in the background without a queue; if sending fails, this is only logged (no retry). Nothing is sent to sample accounts.
 - **Local image storage:** Uploads are stored on the file system (`UPLOAD_DIR`). Multiple server instances or serverless hosting require object storage (e.g. S3); the interface is encapsulated in `src/server/storage.ts`. Backups must include this directory.
 - **Screenshot order** cannot be changed yet (upload order); image descriptions can only be set when uploading.
+- **Mail queue:** The sending loop runs inside the server process (one instance; with several instances the reservation prevents duplicate sends). A failure only shows after the next attempt; codes whose validity runs out are no longer sent.
 - **SMTP delivery:** The E2E tests use `MAIL_TRANSPORT=file`. `pnpm mail:test <address>` checks the SMTP access (in use with a real SMTP provider on the beta).
 - **IP-based rate limits** read `X-Forwarded-For`. This is only reliable behind a reverse proxy that sets or overwrites this header; exposed directly to the internet, the IP limit could be bypassed. Limits per account/email remain effective.
 - **Usernames** cannot be changed after registration (part of the profile URL). Admins cannot delete their own account; the role is revoked via CLI first. Deleting an account creates `user.self_delete` audit entries without an actor; the E2E cleanup script (`scripts/cleanup-e2e.ts`) intentionally does not remove them because they cannot be distinguished from real ones.

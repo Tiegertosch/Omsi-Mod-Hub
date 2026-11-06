@@ -204,6 +204,39 @@ model CaptchaUse {
   @@index([expiresAt])
 }
 
+/// Warteschlange für ausgehende E-Mails (src/server/mail-outbox.ts). Nach dem
+/// Versand wird der Eintrag gelöscht; endgültig gescheiterte Einträge verlieren
+/// ihren Inhalt und werden nach FAILED_MAIL_RETENTION_DAYS gelöscht.
+model MailOutbox {
+  id            String    @id @default(cuid())
+  /// Versandweg des Servers, der die Mail angelegt hat ("smtp", "file:<Ordner>",
+  /// "console"). Nur ein Server mit demselben Versandweg verschickt sie.
+  channel       String
+  /// 0: Codes und Kontomails, 1: Benachrichtigungen (nachrangig)
+  priority      Int       @default(0)
+  recipient     String?
+  subject       String?
+  text          String?
+  html          String?
+  /// JSON-Objekt mit zusätzlichen Kopfzeilen (z. B. List-Unsubscribe)
+  headers       String?
+  attempts      Int       @default(0)
+  nextAttemptAt DateTime  @default(now())
+  /// Reserviert von einem Versandlauf bis zu diesem Zeitpunkt
+  lockedUntil   DateTime?
+  /// Danach wird nicht mehr versendet (z. B. Code abgelaufen)
+  expiresAt     DateTime
+  /// Fehlercode ohne personenbezogene Daten
+  lastError     String?
+  /// Endgültig gescheitert; Inhalt ist dann geleert
+  failedAt      DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([channel, failedAt, nextAttemptAt])
+  @@index([failedAt])
+  @@index([expiresAt])
+}
+
 model CreatorProfile {
   userId       String             @id
   displayName  String

@@ -359,21 +359,22 @@ rm -rf /tmp/restore-test
 
 Die vollständige Wiederherstellung (Dienst stoppen, `pg_restore`, Bilder entpacken) steht im Kopf von `deploy/backup.sh`.
 
-**Monitoring (Better Stack, kostenloser Tarif):** Der Dienst läuft außerhalb des Servers und warnt per Mail oder App, wenn die Website oder das nächtliche Backup ausfällt. Er bekommt keine Daten von Nutzern, nur die Antwort von `/api/health` bzw. den Heartbeat.
+**Monitoring (Better Stack, kostenloser Tarif):** Der Dienst läuft außerhalb des Servers und warnt per Mail oder App, wenn die Website oder das nächtliche Backup ausfällt. Er bekommt keine Daten von Nutzern, nur die Antworten von `/api/health` und `/api/health/mail` bzw. den Heartbeat.
 
 1. Konto auf [betterstack.com](https://betterstack.com) anlegen (Bereich *Uptime*), in den Einstellungen die Benachrichtigung per E-Mail und optional die App einrichten.
 2. **Website:** *Monitors → Create monitor*
    - URL: `https://DEINE-DOMAIN.de/api/health`
    - Alarm, wenn die URL nicht erreichbar ist bzw. nicht mit 200 antwortet; prüfen alle 3 Minuten
    - Optional: Schlüsselwort `"status":"ok"` verlangen und die Warnung vor ablaufendem TLS-Zertifikat einschalten
-3. **Backup:** *Heartbeats → Create heartbeat*, Intervall **1 Tag**, Kulanzzeit **2 Stunden** (das Backup läuft um 03:30 Uhr). Die angezeigte URL kopieren.
-4. Auf dem Server in `/etc/omsi-mod-hub/env` eintragen (ohne Schrägstrich am Ende):
+3. **Mailversand:** zweiter Monitor auf `https://DEINE-DOMAIN.de/api/health/mail`, prüfen alle 10 Minuten. Antwortet mit 503, wenn eine Mail dreimal nicht zugestellt werden konnte oder in den letzten 24 Stunden endgültig gescheitert ist (SMTP-Zugang, Limit des Anbieters). Bewusst getrennt von `/api/health`, damit ein Ausfall des Mailservers beim Deployment keinen Rollback auslöst. Ursache im Log: `journalctl -u omsi-mod-hub | grep '\[mail\]'` (nur Fehlercodes, keine Adressen).
+4. **Backup:** *Heartbeats → Create heartbeat*, Intervall **1 Tag**, Kulanzzeit **2 Stunden** (das Backup läuft um 03:30 Uhr). Die angezeigte URL kopieren.
+5. Auf dem Server in `/etc/omsi-mod-hub/env` eintragen (ohne Schrägstrich am Ende):
 
    ```bash
    BACKUP_HEARTBEAT_URL="https://uptime.betterstack.com/api/v1/heartbeat/…"
    ```
 
-5. Aktuelles Skript kopieren und einmal von Hand laufen lassen – danach steht der Heartbeat in Better Stack auf „Up“:
+6. Aktuelles Skript kopieren und einmal von Hand laufen lassen – danach steht der Heartbeat in Better Stack auf „Up“:
 
    ```bash
    sudo -iu omsi

@@ -13,7 +13,12 @@
  * - Moderationsentscheidungen mit Widerspruchsmöglichkeit: ohne Widerspruch
  *   nach Ablauf der Frist (6 Monate), abgeschlossene Widersprüche 6 Monate
  *   nach der Entscheidung über den Widerspruch. Offene bleiben.
+ * - Mail-Warteschlange: Nach dem Versand sofort gelöscht (src/server/mail-outbox.ts).
+ *   Abgelaufene Einträge werden geleert bzw. gelöscht, endgültig gescheiterte
+ *   (ohne Inhalt) nach FAILED_MAIL_RETENTION_DAYS (src/lib/mail-queue.ts).
  */
+import { FAILED_MAIL_RETENTION_DAYS } from "./mail-queue";
+
 export const RATE_LIMIT_RETENTION_HOURS = 24;
 export const UNVERIFIED_ACCOUNT_RETENTION_DAYS = 7;
 export const CLOSED_REPORT_RETENTION_MONTHS = 6;
@@ -30,6 +35,8 @@ function monthsBefore(now: Date, months: number): Date {
 
 export function retentionCutoffs(now: Date) {
   return {
+    /** Endgültig gescheiterte Mails (ohne Inhalt), die davor gescheitert sind, werden gelöscht. */
+    failedMailBefore: new Date(now.getTime() - FAILED_MAIL_RETENTION_DAYS * 24 * HOUR),
     /** Rate-Limit-Einträge mit letzter Anfrage davor werden gelöscht (Unix-ms wie in der Tabelle). */
     rateLimitBefore: BigInt(now.getTime() - RATE_LIMIT_RETENTION_HOURS * HOUR),
     /** Unbestätigte Konten, die davor angelegt wurden, werden gelöscht. */

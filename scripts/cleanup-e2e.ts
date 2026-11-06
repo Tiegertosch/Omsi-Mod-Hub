@@ -2,7 +2,7 @@
  * Entfernt Testkonten aus E2E-Läufen (@e2e.example.com) samt Projekten,
  * Meldungen, hochgeladenen Bildern, Sessions, Accounts und Verifizierungen,
  * Test-Kategorien und -Tags (Slug "e2e-…"), deren Protokolleinträge sowie die
- * Rate-Limit-Zähler. Wird vom globalen Playwright-Teardown aufgerufen.
+ * Rate-Limit-Zähler und wartende Mails an Testkonten. Wird vom globalen Playwright-Teardown aufgerufen.
  */
 import "dotenv/config";
 
@@ -97,6 +97,8 @@ async function main() {
     await db.verification.deleteMany({ where: { identifier: { contains: E2E_DOMAIN } } });
     const { count } = await db.user.deleteMany({ where: { id: { in: ids } } });
     await db.rateLimit.deleteMany({});
+    // Noch nicht verschickte Mails an Testkonten (z. B. wenn der Testserver vorher beendet wurde).
+    await db.mailOutbox.deleteMany({ where: { recipient: { endsWith: `@${E2E_DOMAIN}` } } });
     const mails = await removeTestMails();
     console.log(
       `E2E-Aufräumen: ${count} Testkonten, ${projects.length} Projekte, ${keys.length} Bilder, ` +
