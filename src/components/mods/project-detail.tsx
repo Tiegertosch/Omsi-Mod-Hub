@@ -48,8 +48,22 @@ function Section({ id, title, children }: { id: string; title: string; children:
   );
 }
 
-/** Eine Zeile im Details-Kasten; lange Werte (stacked) stehen unter der Bezeichnung. */
-function Fact({ label, children, stacked }: { label: string; children: ReactNode; stacked?: boolean }) {
+/**
+ * Eine Zeile im Details-Kasten; lange Werte (stacked) stehen unter der
+ * Bezeichnung. `narrowLabel` lässt eine lange Bezeichnung umbrechen, damit der
+ * Wert rechtsbündig daneben Platz hat.
+ */
+function Fact({
+  label,
+  children,
+  stacked,
+  narrowLabel,
+}: {
+  label: string;
+  children: ReactNode;
+  stacked?: boolean;
+  narrowLabel?: boolean;
+}) {
   return (
     <div
       className={
@@ -58,11 +72,14 @@ function Fact({ label, children, stacked }: { label: string; children: ReactNode
           : "flex flex-col gap-0.5 border-b border-border py-3 last:border-b-0 sm:flex-row sm:justify-between sm:gap-4"
       }
     >
-      <dt className="text-sm text-subtle">{label}</dt>
-      <dd className={stacked ? "text-sm text-fg" : "text-sm text-fg sm:text-right"}>{children}</dd>
+      <dt className={narrowLabel ? "text-sm text-subtle sm:max-w-[9.5rem]" : "text-sm text-subtle"}>{label}</dt>
+      <dd className={stacked ? "text-sm text-fg" : "min-w-0 text-sm break-words text-fg sm:text-right"}>{children}</dd>
     </div>
   );
 }
+
+/** Bis zu dieser Länge steht die Lizenz rechtsbündig neben der Bezeichnung. */
+const SHORT_LICENSE = 24;
 
 export async function ProjectDetailView({
   project,
@@ -318,7 +335,12 @@ export async function ProjectDetailView({
                   </Fact>
                 ) : null}
                 <Fact label={t("compatibility")}>{project.gameCompatibility ?? t("notSpecified")}</Fact>
-                <Fact label={t("license")} stacked>
+                {/* Kurze Lizenzangaben (z. B. „AGPL-3.0“) rechtsbündig wie die übrigen Werte, lange Texte darunter. */}
+                <Fact
+                  label={t("license")}
+                  stacked={project.license.length > SHORT_LICENSE}
+                  narrowLabel={project.license.length <= SHORT_LICENSE}
+                >
                   {project.license}
                 </Fact>
                 <Fact label={t("sourcePage")}>

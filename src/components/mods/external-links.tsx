@@ -73,8 +73,9 @@ export function ExternalLinkList({
               <ExternalLinkIcon aria-hidden className="size-4 shrink-0" />
             </a>
           )}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-muted">
-            <span>{t("externalTarget", { host: link.host ?? "" })}</span>
+          {/* Ziel und Kennzeichnungen in getrennten Zeilen: sonst bricht ein Badge je nach Hostlänge einzeln um. */}
+          <p className="mt-2 text-xs break-all text-muted">{t("externalTarget", { host: link.host ?? "" })}</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <Badge>{t(`sourceType.${link.sourceType}`)}</Badge>
             {link.status === "BROKEN" ? (
               <Badge tone="danger">{t("broken")}</Badge>
