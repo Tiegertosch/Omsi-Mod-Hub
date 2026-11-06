@@ -32,7 +32,7 @@ function detailRoute(pathname: string): { locale: string; route: PublicDetailRou
  * durch diesen Proxy). Hinter Caddy steht das Protokoll wegen
  * X-Forwarded-Proto auf https, und die Weiterleitung an den HTTP-Server
  * scheiterte mit einem 500. Mit `http://` gelingt sie; nur 404-Antworten
- * nehmen diesen Umweg. Geprüft vom E2E-Test „hinter einem Reverse Proxy“.
+ * nehmen diesen Umweg. Geprüft von tests/e2e/reverse-proxy.spec.ts.
  */
 function notFoundUrl(request: NextRequest, locale: string): URL {
   return new URL(`/${locale}/not-found`, `http://${request.nextUrl.host}`);

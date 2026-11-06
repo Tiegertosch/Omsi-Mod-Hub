@@ -36,10 +36,8 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    // Wie der systemd-Dienst nur auf 127.0.0.1 lauschen: Next vergleicht Umschreibungen
-    // aus dem Proxy mit diesem Host (Regressionstest „hinter einem Reverse Proxy“).
-    command: `pnpm start -H 127.0.0.1 --port ${PORT}`,
-    url: `http://127.0.0.1:${PORT}/de`,
+    command: `pnpm start --port ${PORT}`,
+    url: `http://localhost:${PORT}/de`,
     // Nie einen schon laufenden Server mitbenutzen (z. B. `pnpm dev` oder einen
     // hängengebliebenen Testserver): Ist der Port belegt, bricht der Lauf ab.
     reuseExistingServer: false,
