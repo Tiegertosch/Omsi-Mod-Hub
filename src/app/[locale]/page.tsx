@@ -170,11 +170,17 @@ export default async function HomePage() {
             {t("ctaTitle")}
           </h2>
           <p className="mt-3 max-w-2xl text-muted">{t("ctaText")}</p>
-          <p className="mt-2 text-sm text-subtle">{t("ctaSoon")}</p>
-          <Link href="/mods" className={buttonStyles({ size: "lg", className: "mt-6" })}>
-            {t("ctaBrowse")}
-            <ArrowRight aria-hidden className="size-4" />
-          </Link>
+          <p className="mt-2 max-w-2xl text-sm text-subtle">{t("ctaSteps")}</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {/* Gäste landen über den Proxy bei der Anmeldung, Angemeldete bei „Creator werden“. */}
+            <Link href="/dashboard/projects" className={buttonStyles({ size: "lg" })}>
+              {t("ctaStart")}
+              <ArrowRight aria-hidden className="size-4" />
+            </Link>
+            <Link href="/mods" className={buttonStyles({ variant: "secondary", size: "lg" })}>
+              {t("ctaBrowse")}
+            </Link>
+          </div>
         </section>
       </Container>
     </>

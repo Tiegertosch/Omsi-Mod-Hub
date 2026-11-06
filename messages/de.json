@@ -63,8 +63,9 @@
     "emptyText": "Sobald die ersten Projekte freigegeben sind, erscheinen sie hier.",
     "ctaTitle": "Du baust Mods für OMSI 2?",
     "ctaText": "Präsentiere deine Projekte mit Beschreibung, Screenshots, Versionen und Links zu deinem eigenen Download. Die Dateien bleiben bei dir.",
-    "ctaSoon": "Konten und Projekt-Upload folgen im nächsten Entwicklungsschritt.",
-    "ctaBrowse": "Katalog ansehen"
+    "ctaBrowse": "Katalog ansehen",
+    "ctaSteps": "So geht’s: kostenloses Konto anlegen, Creator-Profil erstellen, Projekt einreichen. Nach einer kurzen Prüfung ist es öffentlich.",
+    "ctaStart": "Projekt einreichen"
   },
   "Categories": {
     "projectCount": "{count, plural, =0 {Noch keine Projekte} one {# Projekt} other {# Projekte}}"

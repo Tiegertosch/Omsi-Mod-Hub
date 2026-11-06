@@ -63,8 +63,9 @@
     "emptyText": "As soon as the first projects are approved, they will appear here.",
     "ctaTitle": "Do you build mods for OMSI 2?",
     "ctaText": "Present your projects with a description, screenshots, versions and links to your own download. Your files stay with you.",
-    "ctaSoon": "Accounts and project submission are coming in the next development step.",
-    "ctaBrowse": "Browse the catalogue"
+    "ctaBrowse": "Browse the catalogue",
+    "ctaSteps": "How it works: create a free account, set up a creator profile and submit your project. After a short review it goes public.",
+    "ctaStart": "Submit a project"
   },
   "Categories": {
     "projectCount": "{count, plural, =0 {No projects yet} one {# project} other {# projects}}"
